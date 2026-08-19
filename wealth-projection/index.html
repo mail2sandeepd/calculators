@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SD Wealth · Private Office — Wealth Projection Studio</title>
+  <title>SD Wealth · SIP & SWP combined — Wealth Projection Studio</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -113,6 +113,7 @@
       position: relative;
       z-index: 10;
       transition: background 0.3s, border-color 0.3s;
+      flex-wrap: wrap;
     }
 
     .icon-square {
@@ -269,10 +270,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
+    /* Enlarged number inputs to show large numbers */
     .param-controls input[type="number"] {
-      width: 100px;
+      width: 150px;
+      min-width: 120px;
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -292,6 +296,7 @@
 
     .param-controls input[type="range"] {
       flex: 1;
+      min-width: 120px;
       height: 6px;
       border-radius: 3px;
       background: var(--border);
@@ -367,10 +372,12 @@
       display: flex;
       gap: 12px;
       margin-top: 24px;
+      flex-wrap: wrap;
     }
 
     .action-buttons button {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 120px;
       padding: 10px 12px;
       border: 1px solid var(--accent);
       border-radius: 8px;
@@ -468,6 +475,7 @@
       display: flex;
       align-items: baseline;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .supporting-label {
@@ -531,6 +539,7 @@
       border-radius: 12px;
       max-height: 480px;
       overflow-y: auto;
+      overflow-x: auto;
       background: var(--bg-card);
       backdrop-filter: blur(16px);
       box-shadow: var(--shadow-card);
@@ -539,6 +548,7 @@
     }
     .table-wrap::-webkit-scrollbar {
       width: 4px;
+      height: 4px;
     }
     .table-wrap::-webkit-scrollbar-thumb {
       background: var(--accent);
@@ -550,6 +560,7 @@
       border-collapse: collapse;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
+      min-width: 600px;
     }
 
     thead th {
@@ -719,13 +730,21 @@
       .charts-grid {
         grid-template-columns: 1fr;
       }
+      .param-controls input[type="number"] {
+        width: 130px;
+      }
     }
 
     @media (max-width: 600px) {
       .header {
         padding: 16px;
+        gap: 12px;
         flex-direction: column;
         text-align: center;
+      }
+      .theme-toggle {
+        margin-left: 0;
+        margin-top: 8px;
       }
       .container {
         padding: 12px;
@@ -733,12 +752,34 @@
       .metric-grid {
         grid-template-columns: 1fr;
       }
+      .charts-grid {
+        gap: 16px;
+      }
+      .param-controls input[type="number"] {
+        width: 100%;
+        min-width: auto;
+        flex: 1;
+      }
+      .param-controls {
+        gap: 8px;
+      }
+      .param-controls input[type="range"] {
+        flex: 1 1 100%;
+        min-width: auto;
+        margin-top: 4px;
+      }
       .action-buttons {
         flex-direction: column;
       }
-      .theme-toggle {
-        margin-left: 0;
-        margin-top: 10px;
+      .action-buttons button {
+        width: 100%;
+        min-width: auto;
+      }
+      .supporting-strip {
+        gap: 12px;
+      }
+      .table-wrap {
+        max-height: 350px;
       }
     }
   </style>
