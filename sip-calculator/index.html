@@ -7,8 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Chart.js for graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
   <style>
-    /* Same theme as index (reuse variables) */
     :root {
       --bg-primary: #0B1120;
       --bg-secondary: #111827;
@@ -105,6 +106,10 @@
       transition: all 0.3s; letter-spacing: 0.02em;
     }
     .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
+    .btn-outline {
+      background: transparent; color: var(--accent);
+    }
+    .btn-outline:hover { background: var(--accent); color: #fff; }
     .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
     .result-item {
       border: 1px solid var(--border); border-radius: 12px; padding: 16px;
@@ -112,6 +117,29 @@
     }
     .result-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
     .result-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--accent); word-break: break-word; }
+    .chart-container { margin-top: 24px; }
+    .table-container { margin-top: 24px; }
+    .table-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
+    .table-wrap {
+      max-height: 400px; overflow-y: auto; overflow-x: auto;
+      border: 1px solid var(--border); border-radius: 12px;
+      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+    }
+    .table-wrap table {
+      width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; min-width: 500px;
+    }
+    .table-wrap thead th {
+      position: sticky; top: 0; background: var(--bg-card); z-index: 2;
+      text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em;
+      text-transform: uppercase; font-size: 11px;
+    }
+    .table-wrap tbody td {
+      text-align: right; padding: 10px 16px; border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary); font-variant-numeric: tabular-nums;
+    }
+    .table-wrap tbody tr:hover td { background: var(--bg-hover); }
     .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
     @media (max-width: 600px) {
       .header { padding: 16px; flex-direction: column; text-align: center; }
@@ -165,6 +193,16 @@
         <button class="btn" id="calculateBtn">Calculate</button>
       </div>
       <div class="results-grid" id="results"></div>
+      <div class="chart-container">
+        <canvas id="sipChart"></canvas>
+      </div>
+      <div class="table-container">
+        <div class="table-toggle">
+          <button class="btn btn-outline active" id="yearlyBtn">Yearly</button>
+          <button class="btn btn-outline" id="monthlyBtn">Monthly</button>
+        </div>
+        <div class="table-wrap" id="tableWrap"></div>
+      </div>
     </div>
   </main>
 
@@ -187,9 +225,37 @@
       localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
       sunIcon.style.display = isLight ? 'none' : 'block';
       moonIcon.style.display = isLight ? 'block' : 'none';
+      if (chart) updateChartColors();
+      renderTable(); // re-render table to update colors if needed
     });
 
-    // SIP Calculation
+    // Chart instance
+    let chart = null;
+
+    // Data storage
+    let yearlyData = [];
+    let monthlyData = [];
+    let currentView = 'yearly'; // 'yearly' or 'monthly'
+
+    // Helper to get CSS variable value
+    function getCSSVar(varName) {
+      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+
+    // Update chart colors based on theme
+    function updateChartColors() {
+      if (!chart) return;
+      chart.data.datasets[0].borderColor = getCSSVar('--accent');
+      chart.data.datasets[0].backgroundColor = getCSSVar('--accent') + '20';
+      chart.data.datasets[1].borderColor = getCSSVar('--neutral');
+      chart.data.datasets[1].backgroundColor = getCSSVar('--neutral') + '20';
+      chart.options.scales.x.ticks.color = getCSSVar('--text-muted');
+      chart.options.scales.y.ticks.color = getCSSVar('--text-muted');
+      chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary');
+      chart.update();
+    }
+
+    // Calculation
     function calculateSIP() {
       const monthly = parseFloat(document.getElementById('monthlyInvest').value) || 0;
       const annualRate = parseFloat(document.getElementById('annualReturn').value) || 0;
@@ -200,17 +266,39 @@
       let totalInvested = 0;
       let futureValue = 0;
       const months = years * 12;
+      yearlyData = [];
+      monthlyData = [];
 
-      for (let m = 1; m <= months; m++) {
-        const year = Math.floor((m-1)/12);
-        const sipThisMonth = monthly * Math.pow(1 + stepUp/100, year);
-        totalInvested += sipThisMonth;
-        futureValue = (futureValue + sipThisMonth) * (1 + monthlyRate);
+      for (let y = 1; y <= years; y++) {
+        let yearSIP = 0;
+        for (let m = 1; m <= 12; m++) {
+          const monthIndex = (y-1)*12 + m;
+          const year = y - 1;
+          const sipThisMonth = monthly * Math.pow(1 + stepUp/100, year);
+          totalInvested += sipThisMonth;
+          futureValue = (futureValue + sipThisMonth) * (1 + monthlyRate);
+          yearSIP += sipThisMonth;
+          monthlyData.push({
+            month: monthIndex,
+            year: y,
+            monthLabel: `Y${y}-M${m}`,
+            sip: Math.round(sipThisMonth),
+            invested: Math.round(totalInvested),
+            corpus: Math.round(futureValue),
+            returns: Math.round(futureValue - totalInvested)
+          });
+        }
+        yearlyData.push({
+          year: y,
+          sip: Math.round(yearSIP),
+          invested: Math.round(totalInvested),
+          corpus: Math.round(futureValue),
+          returns: Math.round(futureValue - totalInvested)
+        });
       }
 
       const gains = futureValue - totalInvested;
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = `
+      document.getElementById('results').innerHTML = `
         <div class="result-item">
           <div class="result-label">Total Invested</div>
           <div class="result-value">₹${totalInvested.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
@@ -224,10 +312,153 @@
           <div class="result-value">₹${gains.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
         </div>
       `;
+
+      // Prepare chart data
+      const labels = yearlyData.map(d => 'Year ' + d.year);
+      const investedSeries = yearlyData.map(d => d.invested);
+      const corpusSeries = yearlyData.map(d => d.corpus);
+      renderChart(labels, investedSeries, corpusSeries);
+      renderTable();
     }
 
+    function renderChart(labels, invested, corpus) {
+      const ctx = document.getElementById('sipChart').getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Invested',
+              data: invested,
+              borderColor: getCSSVar('--neutral'),
+              backgroundColor: getCSSVar('--neutral') + '20',
+              tension: 0.4,
+              pointRadius: 2,
+              fill: false
+            },
+            {
+              label: 'Corpus',
+              data: corpus,
+              borderColor: getCSSVar('--accent'),
+              backgroundColor: getCSSVar('--accent') + '20',
+              tension: 0.4,
+              pointRadius: 2,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: getCSSVar('--text-secondary'),
+                font: { family: 'Work Sans', size: 12 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: getCSSVar('--text-muted'),
+                font: { family: 'IBM Plex Mono', size: 11 }
+              },
+              grid: { color: getCSSVar('--border') }
+            },
+            y: {
+              ticks: {
+                color: getCSSVar('--text-muted'),
+                font: { family: 'IBM Plex Mono', size: 11 },
+                callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0})
+              },
+              grid: { color: getCSSVar('--border') }
+            }
+          }
+        }
+      });
+    }
+
+    // Render table based on current view
+    function renderTable() {
+      const tableWrap = document.getElementById('tableWrap');
+      if (currentView === 'yearly') {
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>SIP (Year)</th>
+                <th>Total Invested</th>
+                <th>Returns</th>
+                <th>Corpus</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        yearlyData.forEach(d => {
+          html += `
+            <tr>
+              <td>${d.year}</td>
+              <td>₹${d.sip.toLocaleString('en-IN')}</td>
+              <td>₹${d.invested.toLocaleString('en-IN')}</td>
+              <td>₹${d.returns.toLocaleString('en-IN')}</td>
+              <td>₹${d.corpus.toLocaleString('en-IN')}</td>
+            </tr>
+          `;
+        });
+        html += '</tbody></table>';
+        tableWrap.innerHTML = html;
+      } else {
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Monthly SIP</th>
+                <th>Total Invested</th>
+                <th>Returns</th>
+                <th>Corpus</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        monthlyData.forEach(d => {
+          html += `
+            <tr>
+              <td>${d.monthLabel}</td>
+              <td>₹${d.sip.toLocaleString('en-IN')}</td>
+              <td>₹${d.invested.toLocaleString('en-IN')}</td>
+              <td>₹${d.returns.toLocaleString('en-IN')}</td>
+              <td>₹${d.corpus.toLocaleString('en-IN')}</td>
+            </tr>
+          `;
+        });
+        html += '</tbody></table>';
+        tableWrap.innerHTML = html;
+      }
+    }
+
+    // Toggle handlers
+    document.getElementById('yearlyBtn').addEventListener('click', () => {
+      currentView = 'yearly';
+      renderTable();
+      document.getElementById('yearlyBtn').classList.add('active');
+      document.getElementById('monthlyBtn').classList.remove('active');
+    });
+    document.getElementById('monthlyBtn').addEventListener('click', () => {
+      currentView = 'monthly';
+      renderTable();
+      document.getElementById('monthlyBtn').classList.add('active');
+      document.getElementById('yearlyBtn').classList.remove('active');
+    });
+
+    // Initial calculation
     document.getElementById('calculateBtn').addEventListener('click', calculateSIP);
-    calculateSIP(); // initial calculation
+    document.getElementById('sipChart').style.height = '300px';
+    calculateSIP();
   </script>
 </body>
 </html>
