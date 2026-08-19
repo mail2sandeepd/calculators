@@ -8,10 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
-  <!-- SheetJS for Excel/CSV parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js" crossorigin></script>
   <style>
-    /* Same CSS as previous XIRR page (no changes) */
+    /* ============ THEME VARIABLES (same as before) ============ */
     :root {
       --bg-primary: #0B1120;
       --bg-secondary: #111827;
@@ -53,6 +52,8 @@
       --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
       --body-gradient: none;
     }
+
+    /* ============ GLOBAL ============ */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       margin: 0; background: var(--bg-primary); background-image: var(--body-gradient);
@@ -92,6 +93,7 @@
     }
     .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
+
     .layout {
       max-width: 1200px; margin: 0 auto; padding: 24px 32px;
       display: grid; grid-template-columns: 240px 1fr; gap: 32px;
@@ -111,6 +113,7 @@
     .sidebar-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow); }
     .sidebar-link.active { border-color: var(--accent); color: #fff; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .sidebar-home { font-weight: 600; text-align: center; }
+
     .main-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
     .card {
       border: 1px solid var(--border); border-radius: 16px; padding: 24px;
@@ -119,6 +122,47 @@
     }
     .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 20px; color: var(--text-primary); }
     .instruction { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
+
+    /* ---- Upload & Template button alignment ---- */
+    .upload-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .upload-btn-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+    .upload-btn-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .btn {
+      padding: 12px 20px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.02em;
+      font-size: 14px;
+    }
+    .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
+    .btn-outline { background: transparent; color: var(--accent); }
+    .btn-outline:hover { background: var(--accent); color: #fff; }
+    .file-info { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+    /* ---- Cash flow rows ---- */
     .cashflow-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
     .cashflow-input {
       flex: 1; min-width: 150px; padding: 10px 12px;
@@ -135,18 +179,12 @@
     }
     .remove-btn:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
     .remove-btn svg { width: 16px; height: 16px; }
-    .btn {
-      padding: 12px 20px; border: 1px solid var(--accent); border-radius: 8px;
-      background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
-      transition: all 0.3s; letter-spacing: 0.02em;
-    }
-    .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-outline { background: transparent; color: var(--accent); }
-    .btn-outline:hover { background: var(--accent); color: #fff; }
+
     .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
     .result-item { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--bg-card); text-align: center; }
     .result-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
     .result-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--accent); word-break: break-word; }
+
     .chart-container { margin-top: 24px; }
     .table-container { margin-top: 24px; }
     .table-wrap {
@@ -164,23 +202,6 @@
     .table-wrap tbody tr:hover td { background: var(--bg-hover); }
     .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
 
-    /* Upload button styling */
-    .upload-btn-wrapper {
-      display: inline-block; position: relative; overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .upload-btn-wrapper input[type="file"] {
-      position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;
-    }
-    .upload-label {
-      display: inline-block; padding: 10px 16px;
-      border: 1px solid var(--accent); border-radius: 8px;
-      background: transparent; color: var(--accent);
-      font-weight: 500; cursor: pointer; transition: all 0.3s;
-    }
-    .upload-label:hover { background: var(--accent); color: #fff; }
-    .file-info { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
-
     @media (max-width: 768px) {
       .header { padding: 16px; flex-direction: column; text-align: center; gap: 12px; }
       .logo-link { flex-direction: column; gap: 8px; }
@@ -193,6 +214,7 @@
       .cashflow-row { flex-direction: column; align-items: stretch; }
       .cashflow-input { flex: none; width: 100%; }
       .remove-btn { align-self: flex-end; }
+      .upload-actions { flex-direction: column; align-items: stretch; }
     }
   </style>
 </head>
@@ -234,12 +256,14 @@
           Enter your irregular cash flows. Use <strong>negative</strong> amounts for investments (money paid out) and <strong>positive</strong> amounts for withdrawals (money received). Example: -10,000 initial investment, +12,500 final value.
         </p>
 
-        <!-- File upload -->
-        <div class="upload-btn-wrapper">
-          <label class="upload-label" for="fileUpload">📂 Upload CSV/Excel</label>
-          <input type="file" id="fileUpload" accept=".csv,.xlsx,.xls" />
+        <!-- Upload and Template buttons aligned -->
+        <div class="upload-actions">
+          <div class="upload-btn-wrapper">
+            <button class="btn btn-outline">📂 Upload CSV/Excel</button>
+            <input type="file" id="fileUpload" accept=".csv,.xlsx,.xls" />
+          </div>
+          <button class="btn btn-outline" id="downloadTemplateBtn">📄 Download Template</button>
         </div>
-        <button class="btn btn-outline" id="downloadTemplateBtn">📄 Download Template</button>
         <div class="file-info" id="fileInfo"></div>
 
         <div id="cashflowInputs">
@@ -277,7 +301,7 @@
   </script>
 
   <script>
-    // Theme toggle
+    // ========== Theme toggle ==========
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
@@ -316,7 +340,7 @@
       chart.update();
     }
 
-    // Add row
+    // ========== Row management ==========
     document.getElementById('addRowBtn').addEventListener('click', () => {
       const container = document.getElementById('cashflowInputs');
       const row = document.createElement('div');
@@ -329,7 +353,6 @@
       container.appendChild(row);
     });
 
-    // Remove row
     document.getElementById('cashflowInputs').addEventListener('click', (e) => {
       if (e.target.closest('.remove-btn')) {
         const row = e.target.closest('.cashflow-row');
@@ -341,27 +364,55 @@
       }
     });
 
-    // XIRR calculation (robust bisection method)
+    // ========== Robust date parsing ==========
+    function parseDateFromInput(dateStr) {
+      // Try standard Date parsing first (works for ISO and some formats)
+      let d = new Date(dateStr);
+      if (!isNaN(d.getTime())) return d;
+
+      // Try Excel serial number
+      const serial = Number(dateStr);
+      if (!isNaN(serial) && serial > 20000) {
+        d = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      // Try common dd/mm/yyyy or mm/dd/yyyy
+      if (typeof dateStr === 'string' && dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+          const p1 = parseInt(parts[0]);
+          const p2 = parseInt(parts[1]);
+          const p3 = parseInt(parts[2]);
+          // Determine format: if p1 > 12, it's DD/MM/YYYY; if p2 > 12, it's MM/DD/YYYY; default DD/MM/YYYY
+          if (p1 > 12 && p2 <= 12) {
+            // DD/MM/YYYY
+            d = new Date(p3, p2 - 1, p1);
+          } else if (p2 > 12 && p1 <= 12) {
+            // MM/DD/YYYY
+            d = new Date(p3, p1 - 1, p2);
+          } else {
+            // Ambiguous, default to DD/MM/YYYY (common in India)
+            d = new Date(p3, p2 - 1, p1);
+          }
+          if (!isNaN(d.getTime())) return d;
+        }
+      }
+      return null;
+    }
+
+    // ========== XIRR calculation (bisection) ==========
     function calculateXIRR(cashFlows) {
       if (cashFlows.length < 2) return null;
-      // Sort by date ascending
       const sorted = [...cashFlows].sort((a, b) => a.date - b.date);
       const firstDate = sorted[0].date;
       const transformed = sorted.map(cf => ({
         t: (cf.date - firstDate) / 365.25,
         amount: cf.amount
       }));
-
-      // Check if there's at least one positive and one negative cash flow
       const hasPositive = transformed.some(cf => cf.amount > 0);
       const hasNegative = transformed.some(cf => cf.amount < 0);
       if (!hasPositive || !hasNegative) return null;
-
-      // Bisection method between -0.99 and 100 (reasonable range)
-      let low = -0.99;
-      let high = 10.0;
-      const eps = 1e-7;
-      const maxIter = 200;
 
       function NPV(rate) {
         let total = 0;
@@ -371,30 +422,27 @@
         return total;
       }
 
-      let fLow = NPV(low);
-      let fHigh = NPV(high);
-
-      // If both have same sign, try wider range
+      // Bisection with broad range and fallback
+      let low = -0.99, high = 10;
+      let fLow = NPV(low), fHigh = NPV(high);
       if (fLow * fHigh > 0) {
         high = 100;
         fHigh = NPV(high);
-        if (fLow * fHigh > 0) {
-          // Try negative rates
-          low = -0.999;
-          high = 0.999;
-          fLow = NPV(low);
-          fHigh = NPV(high);
-          if (fLow * fHigh > 0) return null; // cannot find root
-        }
       }
+      if (fLow * fHigh > 0) {
+        low = -0.999;
+        high = 0.999;
+        fLow = NPV(low);
+        fHigh = NPV(high);
+      }
+      if (fLow * fHigh > 0) return null;
 
-      // Bisection
+      const eps = 1e-7;
+      const maxIter = 200;
       for (let i = 0; i < maxIter; i++) {
         const mid = (low + high) / 2;
         const fMid = NPV(mid);
-        if (Math.abs(fMid) < eps || (high - low) < eps) {
-          return mid;
-        }
+        if (Math.abs(fMid) < eps || (high - low) < eps) return mid;
         if (fLow * fMid < 0) {
           high = mid;
           fHigh = fMid;
@@ -406,6 +454,7 @@
       return null;
     }
 
+    // ========== Main calculation ==========
     function calculate() {
       const dateInputs = [...document.querySelectorAll('.date-input')];
       const amountInputs = [...document.querySelectorAll('.amount-input')];
@@ -414,23 +463,21 @@
         const dateVal = dateInputs[i].value;
         const amountVal = parseFloat(amountInputs[i].value) || 0;
         if (dateVal) {
-          const date = new Date(dateVal);
-          cashFlows.push({ date: date.getTime(), amount: amountVal, dateLabel: dateVal });
+          const parsedDate = parseDateFromInput(dateVal);
+          if (parsedDate && !isNaN(parsedDate.getTime())) {
+            cashFlows.push({ date: parsedDate.getTime(), amount: amountVal, dateLabel: parsedDate.toISOString().split('T')[0] });
+          }
         }
       }
-      // Remove rows with zero amount? Keep all for table but filter for XIRR maybe.
       cashflowData = cashFlows.sort((a, b) => a.date - b.date);
 
-      // For XIRR, use only non-zero amounts
-      const nonZero = cashFlows.filter(cf => cf.amount !== 0);
-      const xirr = calculateXIRR(nonZero);
+      const xirr = calculateXIRR(cashflowData);
       const resultDiv = document.getElementById('results');
       if (xirr !== null && isFinite(xirr)) {
-        const xirrPercent = xirr * 100;
         resultDiv.innerHTML = `
           <div class="result-item">
             <div class="result-label">XIRR</div>
-            <div class="result-value">${xirrPercent.toFixed(2)}%</div>
+            <div class="result-value">${(xirr * 100).toFixed(2)}%</div>
           </div>
         `;
       } else {
@@ -442,7 +489,6 @@
         `;
       }
 
-      // Chart: bar chart of cash flows
       const labels = cashflowData.map(cf => cf.dateLabel);
       const amounts = cashflowData.map(cf => cf.amount);
       renderChart(labels, amounts);
@@ -467,18 +513,10 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: getCSSVar('--text-secondary'), font: { family: 'Work Sans', size: 12 } } }
-          },
+          plugins: { legend: { labels: { color: getCSSVar('--text-secondary'), font: { family: 'Work Sans', size: 12 } } } },
           scales: {
-            x: {
-              ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 10 }, maxRotation: 45, minRotation: 45 },
-              grid: { color: getCSSVar('--chart-grid') }
-            },
-            y: {
-              ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 11 }, callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0}) },
-              grid: { color: getCSSVar('--chart-grid') }
-            }
+            x: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 10 }, maxRotation: 45, minRotation: 45 }, grid: { color: getCSSVar('--chart-grid') } },
+            y: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 11 }, callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0}) }, grid: { color: getCSSVar('--chart-grid') } }
           }
         }
       });
@@ -486,13 +524,7 @@
 
     function renderTable() {
       const tableWrap = document.getElementById('cashflowTable');
-      let html = `
-        <table>
-          <thead>
-            <tr><th>Date</th><th>Amount (₹)</th></tr>
-          </thead>
-          <tbody>
-      `;
+      let html = `<table><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody>`;
       cashflowData.forEach(cf => {
         html += `<tr><td>${cf.dateLabel}</td><td>₹${cf.amount.toLocaleString('en-IN', {maximumFractionDigits:2})}</td></tr>`;
       });
@@ -500,7 +532,7 @@
       tableWrap.innerHTML = html;
     }
 
-    // File upload handling
+    // ========== File upload handling ==========
     document.getElementById('fileUpload').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -510,39 +542,27 @@
           const data = new Uint8Array(ev.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-          // Expect two columns: date and amount (maybe with header row)
-          // Find rows with at least two columns
+          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
           const parsedRows = [];
           json.forEach(row => {
             if (row.length >= 2) {
               const dateStr = String(row[0]).trim();
               const amount = parseFloat(row[1]);
               if (dateStr && !isNaN(amount)) {
-                // Try to parse date (handle Excel serial or string)
-                let dateObj = new Date(dateStr);
-                if (isNaN(dateObj.getTime())) {
-                  // Try Excel serial number
-                  const serial = Number(dateStr);
-                  if (!isNaN(serial) && serial > 20000) {
-                    // Convert Excel serial to JS date (Excel epoch 1899-12-30)
-                    dateObj = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
-                  }
-                }
-                if (!isNaN(dateObj.getTime())) {
-                  parsedRows.push({ date: dateObj, amount });
+                const parsedDate = parseDateFromInput(dateStr);
+                if (parsedDate && !isNaN(parsedDate.getTime())) {
+                  parsedRows.push({ date: parsedDate, amount });
                 }
               }
             }
           });
           if (parsedRows.length > 0) {
-            // Replace all rows
             const container = document.getElementById('cashflowInputs');
             container.innerHTML = '';
             parsedRows.forEach(row => {
+              const isoDate = row.date.toISOString().split('T')[0];
               const rowDiv = document.createElement('div');
               rowDiv.className = 'cashflow-row';
-              const isoDate = row.date.toISOString().split('T')[0];
               rowDiv.innerHTML = `
                 <input type="date" class="cashflow-input date-input" value="${isoDate}" />
                 <input type="number" class="cashflow-input amount-input" value="${row.amount}" />
@@ -563,9 +583,9 @@
       reader.readAsArrayBuffer(file);
     });
 
-    // Download template CSV
+    // ========== Template download (ISO dates) ==========
     document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
-      const csv = 'Date,Amount\n2024-01-01,-10000\n2024-12-31,12000\n';
+      const csv = 'Date,Amount\n2015-01-01,-10000\n2016-01-01,-10000\n2017-01-01,-10000\n2018-01-01,-10000\n2019-01-01,-10000\n2020-01-01,15000\n2021-01-01,15000\n2022-01-01,15000\n2023-01-01,15000\n2024-01-01,15000\n2025-01-01,25000\n';
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -575,9 +595,10 @@
       URL.revokeObjectURL(url);
     });
 
+    // ========== Initial calculation ==========
     document.getElementById('calculateBtn').addEventListener('click', calculate);
     document.getElementById('xirrChart').style.height = '300px';
-    calculate(); // initial calculation
+    calculate();
   </script>
 </body>
 </html>
