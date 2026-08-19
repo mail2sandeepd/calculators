@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
   <style>
-    /* Same theme as other calculators */
+    /* Same theme as other calculators (unchanged) */
     :root {
       --bg-primary: #0B1120;
       --bg-secondary: #111827;
@@ -278,6 +278,8 @@
     let yearlyData = [];
     let monthlyData = [];
     let currentView = 'yearly';
+    // Global variable for principal so renderTable can access it
+    let principal = 0;
 
     function getCSSVar(varName) {
       return getComputedStyle(document.body).getPropertyValue(varName).trim();
@@ -322,11 +324,9 @@
     yearsSlider.addEventListener('input', updateFromSlider);
 
     function calculate() {
-      const principal = parseFloat(document.getElementById('lumpsumAmount').value) || 0;
+      principal = parseFloat(document.getElementById('lumpsumAmount').value) || 0;
       const annualRate = parseFloat(document.getElementById('annualReturn').value) || 0;
       const totalMonths = parseInt(monthsInput.value) || 0;
-      const years = Math.floor(totalMonths / 12);
-      const extraMonths = totalMonths % 12;
       const monthlyRate = Math.pow(1 + annualRate / 100, 1 / 12) - 1;
 
       let corpus = principal;
@@ -345,23 +345,22 @@
         });
       }
 
-      // Yearly aggregation
-      let currentYear = 1;
-      let yearStartCorpus = principal;
-      let yearEndCorpus = principal;
-      for (let y = 1; y <= years; y++) {
-        yearEndCorpus = principal * Math.pow(1 + annualRate / 100, y);
+      // Yearly aggregation (by full years)
+      const fullYears = Math.floor(totalMonths / 12);
+      for (let y = 1; y <= fullYears; y++) {
+        const yearCorpus = principal * Math.pow(1 + annualRate / 100, y);
         yearlyData.push({
           year: y,
-          corpus: Math.round(yearEndCorpus),
-          returns: Math.round(yearEndCorpus - principal)
+          corpus: Math.round(yearCorpus),
+          returns: Math.round(yearCorpus - principal)
         });
       }
-      // If there are extra months beyond full years, add partial year
+      // Partial year if any extra months
+      const extraMonths = totalMonths % 12;
       if (extraMonths > 0) {
         const partialCorpus = principal * Math.pow(1 + monthlyRate, totalMonths);
         yearlyData.push({
-          year: years + 1,
+          year: fullYears + 1,
           corpus: Math.round(partialCorpus),
           returns: Math.round(partialCorpus - principal)
         });
@@ -385,8 +384,8 @@
         </div>
       `;
 
-      // Chart: corpus over years
-      const chartLabels = yearlyData.map(d => d.year === years + 1 ? `${d.year} (partial)` : `Year ${d.year}`);
+      // Chart data
+      const chartLabels = yearlyData.map(d => d.year === fullYears + 1 ? `${d.year} (partial)` : `Year ${d.year}`);
       const corpusSeries = yearlyData.map(d => d.corpus);
       renderChart(chartLabels, corpusSeries);
       renderTable();
