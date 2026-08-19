@@ -4,312 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SD Wealth · Private Office — Calculator Suite</title>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-
   <style>
-    /* ===================== THEME VARIABLES ===================== */
-    :root {
-      /* Dark theme (default) */
-      --bg-primary: #0B1120;
-      --bg-secondary: #111827;
-      --bg-card: rgba(17, 24, 39, 0.7);
-      --bg-hover: rgba(255, 255, 255, 0.05);
-      --text-primary: #F9FAFB;
-      --text-secondary: #D1D5DB;
-      --text-muted: #9CA3AF;
-      --border: rgba(255, 255, 255, 0.1);
-      --border-light: rgba(255, 255, 255, 0.06);
-      --accent: #10B981;
-      --accent-dark: #047857;
-      --accent-glow: rgba(16, 185, 129, 0.3);
-      --accent-secondary: #06D6A0;
-      --neutral: #9CA3AF;
-      --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.15);
-      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
-      --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-                       radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
-    }
-
-    body.light {
-      /* Light theme */
-      --bg-primary: #ffffff;
-      --bg-secondary: #F9FAFB;
-      --bg-card: rgba(255, 255, 255, 0.8);
-      --bg-hover: rgba(17, 24, 39, 0.04);
-      --text-primary: #111827;
-      --text-secondary: #4B5563;
-      --text-muted: #6B7280;
-      --border: rgba(17, 24, 39, 0.1);
-      --border-light: rgba(17, 24, 39, 0.06);
-      --accent: #064E3B;
-      --accent-dark: #047857;
-      --accent-glow: rgba(6, 78, 59, 0.15);
-      --accent-secondary: #10B981;
-      --neutral: #9CA3AF;
-      --shadow-glow: 0 0 20px rgba(6, 78, 59, 0.1);
-      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
-      --body-gradient: none;
-    }
-
-    /* ===================== GLOBAL ===================== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg-primary);
-      background-image: var(--body-gradient);
-      color: var(--text-primary);
-      font-family: 'Work Sans', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    .app-shell {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ---------- Header ---------- */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 24px 32px;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-      background: var(--bg-card);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      transition: background 0.3s, border-color 0.3s;
-      flex-wrap: wrap;
-    }
-
-    .icon-square {
-      width: 46px;
-      height: 46px;
-      border: 1px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-      flex-shrink: 0;
-      border-radius: 12px;
-      background: var(--accent-glow);
-      box-shadow: 0 0 15px var(--accent-glow);
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-
-    .icon-square svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .wordmark {
-      font-family: 'Work Sans', sans-serif;
-      font-weight: 600;
-      font-size: 16px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-primary);
-      margin: 0;
-      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .theme-toggle {
-      margin-left: auto;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.3s;
-      flex-shrink: 0;
-    }
-
-    .theme-toggle:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-
-    .theme-toggle svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    /* ---------- Main content ---------- */
-    .main-content {
-      flex: 1;
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 40px 32px;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .hero h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0 0 12px;
-      letter-spacing: 0.02em;
-      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero p {
-      font-size: 18px;
-      color: var(--text-secondary);
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    /* ---------- Calculator cards grid ---------- */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-    }
-
-    .calc-card {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow-card);
-      transition: transform 0.3s, box-shadow 0.3s, background 0.3s, border-color 0.3s;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .calc-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow);
-      border-color: var(--accent);
-    }
-
-    .calc-card-icon {
-      width: 48px;
-      height: 48px;
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-      margin-bottom: 16px;
-      background: var(--accent-glow);
-      box-shadow: 0 0 15px var(--accent-glow);
-    }
-
-    .calc-card-icon svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .calc-card h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0 0 8px;
-    }
-
-    .calc-card p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      flex: 1;
-      margin-bottom: 16px;
-    }
-
-    .calc-card a {
-      display: inline-block;
-      text-align: center;
-      padding: 10px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: 0.02em;
-      transition: all 0.3s;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      background: transparent;
-    }
-
-    .calc-card a:hover {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 15px var(--accent-glow);
-    }
-
-    /* ---------- Footer ---------- */
-    .footer {
-      padding: 24px 32px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 13px;
-      letter-spacing: 0.02em;
-    }
-
-    /* ---------- Responsive ---------- */
-    @media (max-width: 768px) {
-      .header {
-        padding: 16px;
-        gap: 12px;
-        flex-direction: column;
-        text-align: center;
-      }
-      .theme-toggle {
-        margin-left: 0;
-        margin-top: 8px;
-      }
-      .main-content {
-        padding: 24px 16px;
-      }
-      .hero h1 {
-        font-size: 36px;
-      }
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    /* Same theme variables and base styles as before */
+    :root { --bg-primary:#0B1120; --bg-secondary:#111827; --bg-card:rgba(17,24,39,0.7); --bg-hover:rgba(255,255,255,0.05); --text-primary:#F9FAFB; --text-secondary:#D1D5DB; --text-muted:#9CA3AF; --border:rgba(255,255,255,0.1); --border-light:rgba(255,255,255,0.06); --accent:#10B981; --accent-dark:#047857; --accent-glow:rgba(16,185,129,0.3); --accent-secondary:#06D6A0; --neutral:#9CA3AF; --shadow-glow:0 0 20px rgba(16,185,129,0.15); --shadow-card:0 8px 32px rgba(0,0,0,0.4); --body-gradient:radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%),radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%); }
+    body.light { --bg-primary:#ffffff; --bg-secondary:#F9FAFB; --bg-card:rgba(255,255,255,0.8); --bg-hover:rgba(17,24,39,0.04); --text-primary:#111827; --text-secondary:#4B5563; --text-muted:#6B7280; --border:rgba(17,24,39,0.1); --border-light:rgba(17,24,39,0.06); --accent:#064E3B; --accent-dark:#047857; --accent-glow:rgba(6,78,59,0.15); --accent-secondary:#10B981; --neutral:#9CA3AF; --shadow-glow:0 0 20px rgba(6,78,59,0.1); --shadow-card:0 4px 20px rgba(0,0,0,0.08); --body-gradient:none; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { margin:0; background:var(--bg-primary); background-image:var(--body-gradient); color:var(--text-primary); font-family:'Work Sans',sans-serif; min-height:100vh; transition:background-color 0.3s, color 0.3s; }
+    .app-shell { min-height:100vh; display:flex; flex-direction:column; }
+    .header { display:flex; align-items:center; gap:20px; padding:24px 32px; border-bottom:1px solid var(--border); background:var(--bg-card); backdrop-filter:blur(12px); position:sticky; top:0; z-index:10; transition:background 0.3s, border-color 0.3s; flex-wrap:wrap; }
+    .icon-square { width:46px; height:46px; border:1px solid var(--accent); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); background:var(--accent-glow); box-shadow:0 0 15px var(--accent-glow); }
+    .icon-square svg { width:24px; height:24px; }
+    .wordmark { font-weight:600; font-size:16px; letter-spacing:0.1em; text-transform:uppercase; background:linear-gradient(135deg,var(--accent),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .theme-toggle { margin-left:auto; background:none; border:1px solid var(--border); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; }
+    .theme-toggle:hover { border-color:var(--accent); color:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .theme-toggle svg { width:20px; height:20px; }
+    .main-content { flex:1; max-width:1200px; width:100%; margin:0 auto; padding:40px 32px; }
+    .hero { text-align:center; margin-bottom:48px; }
+    .hero h1 { font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero p { font-size:18px; color:var(--text-secondary); max-width:700px; margin:0 auto; line-height:1.6; }
+    .card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:24px; }
+    .calc-card { border:1px solid var(--border); border-radius:16px; padding:24px; background:var(--bg-card); backdrop-filter:blur(16px); box-shadow:var(--shadow-card); transition:transform 0.3s, box-shadow 0.3s, border-color 0.3s; display:flex; flex-direction:column; }
+    .calc-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-card),0 0 20px var(--accent-glow); border-color:var(--accent); }
+    .calc-card-icon { width:48px; height:48px; border:1px solid var(--accent); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); margin-bottom:16px; background:var(--accent-glow); box-shadow:0 0 15px var(--accent-glow); }
+    .calc-card-icon svg { width:24px; height:24px; }
+    .calc-card h2 { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; margin:0 0 8px; }
+    .calc-card p { font-size:14px; color:var(--text-secondary); line-height:1.5; flex:1; margin-bottom:16px; }
+    .calc-card a { display:inline-block; text-align:center; padding:10px 16px; border-radius:8px; text-decoration:none; font-weight:500; font-size:14px; border:1px solid var(--accent); color:var(--accent); transition:all 0.3s; }
+    .calc-card a:hover { background:var(--accent); color:#fff; box-shadow:0 4px 15px var(--accent-glow); }
+    .footer { padding:24px 32px; border-top:1px solid var(--border); text-align:center; color:var(--text-muted); font-size:13px; }
+    @media (max-width:768px) { .header { padding:16px; flex-direction:column; text-align:center; gap:12px; } .theme-toggle { margin-left:0; margin-top:8px; } .main-content { padding:24px 16px; } .hero h1 { font-size:36px; } .card-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <!-- Header -->
     <header class="header">
       <div class="icon-square">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -318,28 +48,24 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · Private Office</p>
-      <!-- Theme toggle button -->
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <!-- Sun icon (shown in dark mode) -->
         <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
-        <!-- Moon icon (shown in light mode) -->
         <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;">
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
       </button>
     </header>
 
-    <!-- Main content -->
     <main class="main-content">
       <section class="hero">
         <h1>Wealth Projection Studio</h1>
         <p>Explore our suite of financial calculators — model decades of disciplined investing with lumpsum, SIPs, annual step-ups, and withdrawal phases in a single, deliberate view.</p>
       </section>
 
-      <!-- Calculator cards -->
       <section class="card-grid">
+        <!-- Wealth Projection (existing) -->
         <div class="calc-card">
           <div class="calc-card-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -352,57 +78,77 @@
           <a href="./wealth-projection/">Open Calculator</a>
         </div>
 
-        <!-- Add more calculator cards below as you create them -->
-        <!--
+        <!-- SIP Calculator -->
         <div class="calc-card">
           <div class="calc-card-icon">
-            ... icon ...
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2>SIP Calculator</h2>
+          <p>Calculate future value of monthly SIP investments with annual step-up.</p>
+          <a href="./sip-calculator/">Open Calculator</a>
+        </div>
+
+        <!-- SWP Calculator -->
+        <div class="calc-card">
+          <div class="calc-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2>SWP Calculator</h2>
+          <p>Plan systematic withdrawals from your investment corpus.</p>
+          <a href="./swp-calculator/">Open Calculator</a>
+        </div>
+
+        <!-- Stock Average Calculator -->
+        <div class="calc-card">
+          <div class="calc-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
           </div>
           <h2>Stock Average Calculator</h2>
-          <p>Calculate average stock price after multiple purchases.</p>
+          <p>Compute average price after multiple stock purchases.</p>
           <a href="./stock-average-calculator/">Open Calculator</a>
         </div>
-        -->
+
+        <!-- EMI Calculator -->
+        <div class="calc-card">
+          <div class="calc-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <h2>EMI Calculator</h2>
+          <p>Calculate monthly EMI, total interest, and total payment for loans.</p>
+          <a href="./emi-calculator/">Open Calculator</a>
+        </div>
       </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
       This projection is illustrative. · SD Wealth · Private Office
     </footer>
   </div>
 
   <script>
-    // Theme toggle logic
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
-
-    // Check for saved theme in localStorage, default to dark
     const savedTheme = localStorage.getItem('sd-wealth-theme') || 'dark';
     if (savedTheme === 'light') {
       document.body.classList.add('light');
       sunIcon.style.display = 'none';
       moonIcon.style.display = 'block';
-    } else {
-      document.body.classList.remove('light');
-      sunIcon.style.display = 'block';
-      moonIcon.style.display = 'none';
     }
-
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('light');
       const isLight = document.body.classList.contains('light');
-      // Save preference
       localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
-      // Toggle icons
-      if (isLight) {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
-      } else {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
-      }
+      sunIcon.style.display = isLight ? 'none' : 'block';
+      moonIcon.style.display = isLight ? 'block' : 'none';
     });
   </script>
 </body>
