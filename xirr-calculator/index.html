@@ -10,178 +10,79 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js" crossorigin></script>
   <style>
-    /* ============ THEME VARIABLES (same) ============ */
-    :root {
-      --bg-primary: #0B1120;
-      --bg-secondary: #111827;
-      --bg-card: rgba(17, 24, 39, 0.7);
-      --bg-input: rgba(255,255,255,0.05);
-      --bg-hover: rgba(255,255,255,0.05);
-      --text-primary: #F9FAFB;
-      --text-secondary: #D1D5DB;
-      --text-muted: #9CA3AF;
-      --border: rgba(255,255,255,0.1);
-      --border-light: rgba(255,255,255,0.06);
-      --accent: #10B981;
-      --accent-dark: #047857;
-      --accent-glow: rgba(16,185,129,0.3);
-      --accent-secondary: #06D6A0;
-      --neutral: #9CA3AF;
-      --chart-grid: rgba(255, 255, 255, 0.1);
-      --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
-      --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%),
-                       radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
-    }
-    body.light {
-      --bg-primary: #ffffff;
-      --bg-secondary: #F9FAFB;
-      --bg-card: rgba(255,255,255,0.8);
-      --bg-input: rgba(17,24,39,0.04);
-      --bg-hover: rgba(17,24,39,0.04);
-      --text-primary: #111827;
-      --text-secondary: #4B5563;
-      --text-muted: #6B7280;
-      --border: rgba(17,24,39,0.1);
-      --border-light: rgba(17,24,39,0.06);
-      --accent: #064E3B;
-      --accent-dark: #047857;
-      --accent-glow: rgba(6,78,59,0.15);
-      --accent-secondary: #10B981;
-      --neutral: #9CA3AF;
-      --chart-grid: rgba(17, 24, 39, 0.3);
-      --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
-      --body-gradient: none;
-    }
-
-    /* ============ GLOBAL ============ */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      margin: 0; background: var(--bg-primary); background-image: var(--body-gradient);
-      color: var(--text-primary); font-family: 'Work Sans', sans-serif;
-      min-height: 100vh; transition: background 0.3s, color 0.3s;
-    }
-    .header {
-      display: flex; align-items: center; gap: 16px; padding: 20px 32px;
-      border-bottom: 1px solid var(--border); background: var(--bg-card);
-      backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
-      flex-wrap: wrap; transition: background 0.3s, border-color 0.3s;
-    }
-    .logo-link { display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit; flex: 1; min-width: 0; }
-    .icon-square {
-      width: 46px; height: 46px; border: 1px solid var(--accent); border-radius: 12px;
-      display: flex; align-items: center; justify-content: center; color: var(--accent);
-      background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow);
-      transition: all 0.3s; flex-shrink: 0;
-    }
-    .icon-square svg { width: 24px; height: 24px; }
-    .logo-link:hover .icon-square { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
-    .wordmark {
-      font-weight: 600; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;
-      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      white-space: nowrap;
-    }
-    .header-actions { display: flex; gap: 12px; align-items: center; }
-    .home-btn, .theme-toggle {
-      background: none; border: 1px solid var(--border); border-radius: 50%;
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--text-secondary); transition: all 0.3s; text-decoration: none;
-    }
-    .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
-
-    .layout { max-width: 1200px; margin: 0 auto; padding: 24px 32px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; }
-    #shared-sidebar { position: sticky; top: 90px; align-self: start; display: flex; flex-direction: column; gap: 8px; }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
-    .sidebar-link {
-      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
-      border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);
-      color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
-      transition: all 0.3s;
-    }
-    .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex-shrink: 0; }
-    .sidebar-icon svg { width: 16px; height: 16px; }
-    .sidebar-link.active .sidebar-icon { color: #fff; }
-    .sidebar-link .sidebar-icon { color: var(--accent); }
-    .sidebar-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow); }
-    .sidebar-link.active { border-color: var(--accent); color: #fff; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .sidebar-home { font-weight: 600; text-align: center; }
-
-    .main-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-    .card { border: 1px solid var(--border); border-radius: 16px; padding: 24px; background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card); transition: background 0.3s, border-color 0.3s; }
-    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 20px; color: var(--text-primary); }
-    .instruction { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
-
-    .upload-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-    .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
-    .upload-btn-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-    .btn { padding: 12px 20px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em; font-size: 14px; }
-    .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-outline { background: transparent; color: var(--accent); }
-    .btn-outline:hover { background: var(--accent); color: #fff; }
-    .file-info { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
-
-    .cashflow-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-    .cashflow-input { flex: 1; min-width: 150px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-input); color: var(--text-primary); font-family: 'IBM Plex Mono', monospace; font-size: 13px; transition: border-color 0.3s, box-shadow 0.3s; }
-    .cashflow-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .remove-btn { background: none; border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; transition: all 0.3s; flex-shrink: 0; }
-    .remove-btn:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
-    .remove-btn svg { width: 16px; height: 16px; }
-
-    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
-    .result-item { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--bg-card); text-align: center; }
-    .result-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-    .result-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--accent); word-break: break-word; }
-
-    .chart-container { margin-top: 24px; }
-    .table-container { margin-top: 24px; }
-    .table-wrap { max-height: 400px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-    .table-wrap table { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 500px; }
-    .table-wrap thead th { position: sticky; top: 0; background: var(--bg-card); z-index: 2; text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px; }
-    .table-wrap tbody td { text-align: right; padding: 10px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-    .table-wrap tbody tr:hover td { background: var(--bg-hover); }
-    .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
-
-    @media (max-width: 768px) {
-      .header { padding: 16px; flex-direction: column; text-align: center; gap: 12px; }
-      .logo-link { flex-direction: column; gap: 8px; }
-      .header-actions { margin-left: 0; margin-top: 8px; }
-      .layout { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
-      #shared-sidebar { position: static; }
-      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 8px; }
-      .sidebar-link { white-space: nowrap; }
-      .main-content { padding: 0; }
-      .cashflow-row { flex-direction: column; align-items: stretch; }
-      .cashflow-input { flex: none; width: 100%; }
-      .remove-btn { align-self: flex-end; }
-      .upload-actions { flex-direction: column; align-items: stretch; }
-    }
+    /* unchanged theme styles (same as before) */
+    :root { --bg-primary:#0B1120; --bg-secondary:#111827; --bg-card:rgba(17,24,39,0.7); --bg-input:rgba(255,255,255,0.05); --bg-hover:rgba(255,255,255,0.05); --text-primary:#F9FAFB; --text-secondary:#D1D5DB; --text-muted:#9CA3AF; --border:rgba(255,255,255,0.1); --border-light:rgba(255,255,255,0.06); --accent:#10B981; --accent-dark:#047857; --accent-glow:rgba(16,185,129,0.3); --accent-secondary:#06D6A0; --neutral:#9CA3AF; --chart-grid:rgba(255,255,255,0.1); --shadow-card:0 8px 32px rgba(0,0,0,0.4); --body-gradient:radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%); }
+    body.light { --bg-primary:#ffffff; --bg-secondary:#F9FAFB; --bg-card:rgba(255,255,255,0.8); --bg-input:rgba(17,24,39,0.04); --bg-hover:rgba(17,24,39,0.04); --text-primary:#111827; --text-secondary:#4B5563; --text-muted:#6B7280; --border:rgba(17,24,39,0.1); --border-light:rgba(17,24,39,0.06); --accent:#064E3B; --accent-dark:#047857; --accent-glow:rgba(6,78,59,0.15); --accent-secondary:#10B981; --neutral:#9CA3AF; --chart-grid:rgba(17,24,39,0.3); --shadow-card:0 4px 20px rgba(0,0,0,0.08); --body-gradient:none; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { margin:0; background:var(--bg-primary); background-image:var(--body-gradient); color:var(--text-primary); font-family:'Work Sans',sans-serif; min-height:100vh; transition:background 0.3s, color 0.3s; }
+    .header { display:flex; align-items:center; gap:16px; padding:20px 32px; border-bottom:1px solid var(--border); background:var(--bg-card); backdrop-filter:blur(12px); position:sticky; top:0; z-index:10; flex-wrap:wrap; transition:background 0.3s,border-color 0.3s; }
+    .logo-link { display:flex; align-items:center; gap:16px; text-decoration:none; color:inherit; flex:1; min-width:0; }
+    .icon-square { width:46px; height:46px; border:1px solid var(--accent); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); background:var(--accent-glow); box-shadow:0 0 15px var(--accent-glow); transition:all 0.3s; flex-shrink:0; }
+    .icon-square svg { width:24px; height:24px; }
+    .logo-link:hover .icon-square { background:var(--accent); color:#fff; box-shadow:0 0 20px var(--accent-glow); }
+    .wordmark { font-weight:600; font-size:16px; letter-spacing:0.1em; text-transform:uppercase; background:linear-gradient(135deg,var(--accent),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; white-space:nowrap; }
+    .header-actions { display:flex; gap:12px; align-items:center; }
+    .home-btn,.theme-toggle { background:none; border:1px solid var(--border); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; text-decoration:none; }
+    .home-btn:hover,.theme-toggle:hover { border-color:var(--accent); color:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .home-btn svg,.theme-toggle svg { width:20px; height:20px; }
+    .layout { max-width:1200px; margin:0 auto; padding:24px 32px; display:grid; grid-template-columns:240px 1fr; gap:32px; }
+    #shared-sidebar { position:sticky; top:90px; align-self:start; display:flex; flex-direction:column; gap:8px; }
+    .sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+    .sidebar-link { display:flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text-secondary); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.3s; }
+    .sidebar-icon { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0; }
+    .sidebar-icon svg { width:16px; height:16px; }
+    .sidebar-link.active .sidebar-icon { color:#fff; }
+    .sidebar-link .sidebar-icon { color:var(--accent); }
+    .sidebar-link:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-link.active { border-color:var(--accent); color:#fff; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-home { font-weight:600; text-align:center; }
+    .main-content { display:flex; flex-direction:column; gap:24px; min-width:0; }
+    .card { border:1px solid var(--border); border-radius:16px; padding:24px; background:var(--bg-card); backdrop-filter:blur(16px); box-shadow:var(--shadow-card); transition:background 0.3s,border-color 0.3s; }
+    .card h2 { font-family:'Cormorant Garamond',serif; font-size:24px; margin-bottom:20px; color:var(--text-primary); }
+    .instruction { font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.5; }
+    .upload-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+    .upload-btn-wrapper { position:relative; overflow:hidden; display:inline-block; }
+    .upload-btn-wrapper input[type="file"] { position:absolute; left:0; top:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+    .btn { padding:12px 20px; border:1px solid var(--accent); border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; transition:all 0.3s; letter-spacing:0.02em; font-size:14px; }
+    .btn:hover { background:var(--accent-dark); box-shadow:0 4px 15px var(--accent-glow); }
+    .btn-outline { background:transparent; color:var(--accent); }
+    .btn-outline:hover { background:var(--accent); color:#fff; }
+    .file-info { font-size:12px; color:var(--text-muted); margin-top:8px; }
+    .cashflow-row { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+    .cashflow-input { flex:1; min-width:150px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font-family:'IBM Plex Mono',monospace; font-size:13px; transition:border-color 0.3s, box-shadow 0.3s; }
+    .cashflow-input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .remove-btn { background:none; border:1px solid var(--border); border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#ef4444; transition:all 0.3s; flex-shrink:0; }
+    .remove-btn:hover { border-color:#ef4444; background:rgba(239,68,68,0.1); }
+    .remove-btn svg { width:16px; height:16px; }
+    .results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:20px; }
+    .result-item { border:1px solid var(--border); border-radius:12px; padding:16px; background:var(--bg-card); text-align:center; }
+    .result-label { font-size:12px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+    .result-value { font-family:'IBM Plex Mono',monospace; font-size:20px; color:var(--accent); word-break:break-word; }
+    .chart-container { margin-top:24px; }
+    .table-container { margin-top:24px; }
+    .table-wrap { max-height:400px; overflow-y:auto; overflow-x:auto; border:1px solid var(--border); border-radius:12px; scrollbar-width:thin; scrollbar-color:var(--accent) transparent; }
+    .table-wrap table { width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:12px; min-width:500px; }
+    .table-wrap thead th { position:sticky; top:0; background:var(--bg-card); z-index:2; text-align:right; padding:12px 16px; border-bottom:1px solid var(--border); font-weight:500; color:var(--text-muted); letter-spacing:0.04em; text-transform:uppercase; font-size:11px; }
+    .table-wrap tbody td { text-align:right; padding:10px 16px; border-bottom:1px solid var(--border-light); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+    .table-wrap tbody tr:hover td { background:var(--bg-hover); }
+    .footer { text-align:center; padding:16px; color:var(--text-muted); font-size:13px; border-top:1px solid var(--border); margin-top:40px; }
+    @media (max-width:768px) { .header { padding:16px; flex-direction:column; text-align:center; gap:12px; } .logo-link { flex-direction:column; gap:8px; } .header-actions { margin-left:0; margin-top:8px; } .layout { grid-template-columns:1fr; padding:16px; gap:16px; } #shared-sidebar { position:static; } .sidebar-nav { flex-direction:row; overflow-x:auto; padding-bottom:8px; } .sidebar-link { white-space:nowrap; } .main-content { padding:0; } .cashflow-row { flex-direction:column; align-items:stretch; } .cashflow-input { flex:none; width:100%; } .remove-btn { align-self:flex-end; } .upload-actions { flex-direction:column; align-items:stretch; } }
   </style>
 </head>
 <body>
+  <!-- Header (same) -->
   <header class="header">
     <a href="../index.html" class="logo-link">
       <div class="icon-square">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" /></svg>
       </div>
       <p class="wordmark">SD Wealth · XIRR Calculator</p>
     </a>
     <div class="header-actions">
-      <a href="../index.html" class="home-btn" aria-label="Home">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      </a>
+      <a href="../index.html" class="home-btn" aria-label="Home"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></a>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
+        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
       </button>
     </div>
   </header>
@@ -191,9 +92,7 @@
     <main class="main-content">
       <div class="card">
         <h2>XIRR Calculator</h2>
-        <p class="instruction">
-          Enter your irregular cash flows. Use <strong>negative</strong> amounts for investments (money paid out) and <strong>positive</strong> amounts for withdrawals (money received). Example: -10,000 initial investment, +12,500 final value.
-        </p>
+        <p class="instruction">Enter your irregular cash flows. Use <strong>negative</strong> amounts for investments and <strong>positive</strong> amounts for withdrawals.</p>
 
         <div class="upload-actions">
           <div class="upload-btn-wrapper">
@@ -221,12 +120,8 @@
           <button class="btn" id="calculateBtn">Calculate XIRR</button>
         </div>
         <div class="results-grid" id="results"></div>
-        <div class="chart-container">
-          <canvas id="xirrChart"></canvas>
-        </div>
-        <div class="table-container">
-          <div class="table-wrap" id="cashflowTable"></div>
-        </div>
+        <div class="chart-container"><canvas id="xirrChart"></canvas></div>
+        <div class="table-container"><div class="table-wrap" id="cashflowTable"></div></div>
       </div>
     </main>
   </div>
@@ -234,330 +129,62 @@
   <footer class="footer">This projection is illustrative. · SD Wealth · Private Office</footer>
 
   <script src="../shared-nav.js"></script>
+  <script>injectSharedSidebar('xirr', '../');</script>
   <script>
-    injectSharedSidebar('xirr', '../');
-  </script>
-
-  <script>
-    // ========== Theme toggle ==========
+    // Theme toggle (same)
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
     const savedTheme = localStorage.getItem('sd-wealth-theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.body.classList.add('light');
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    }
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const isLight = document.body.classList.contains('light');
-      localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
-      sunIcon.style.display = isLight ? 'none' : 'block';
-      moonIcon.style.display = isLight ? 'block' : 'none';
-      if (chart) updateChartColors();
-      renderTable();
-    });
+    if (savedTheme === 'light') { document.body.classList.add('light'); sunIcon.style.display='none'; moonIcon.style.display='block'; }
+    themeToggle.addEventListener('click', () => { document.body.classList.toggle('light'); const isLight = document.body.classList.contains('light'); localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark'); sunIcon.style.display = isLight ? 'none' : 'block'; moonIcon.style.display = isLight ? 'block' : 'none'; if (chart) updateChartColors(); renderTable(); });
 
     let chart = null;
     let cashflowData = [];
 
-    function getCSSVar(varName) {
-      return getComputedStyle(document.body).getPropertyValue(varName).trim();
-    }
+    function getCSSVar(v){ return getComputedStyle(document.body).getPropertyValue(v).trim(); }
+    function updateChartColors(){ if(!chart) return; chart.data.datasets[0].borderColor = getCSSVar('--accent'); chart.data.datasets[0].backgroundColor = getCSSVar('--accent')+'40'; chart.options.scales.x.ticks.color = getCSSVar('--text-muted'); chart.options.scales.y.ticks.color = getCSSVar('--text-muted'); chart.options.scales.x.grid.color = getCSSVar('--chart-grid'); chart.options.scales.y.grid.color = getCSSVar('--chart-grid'); chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary'); chart.update(); }
 
-    function updateChartColors() {
-      if (!chart) return;
-      chart.data.datasets[0].borderColor = getCSSVar('--accent');
-      chart.data.datasets[0].backgroundColor = getCSSVar('--accent') + '40';
-      chart.options.scales.x.ticks.color = getCSSVar('--text-muted');
-      chart.options.scales.y.ticks.color = getCSSVar('--text-muted');
-      chart.options.scales.x.grid.color = getCSSVar('--chart-grid');
-      chart.options.scales.y.grid.color = getCSSVar('--chart-grid');
-      chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary');
-      chart.update();
-    }
+    // Row management
+    document.getElementById('addRowBtn').addEventListener('click', () => { const container = document.getElementById('cashflowInputs'); const row = document.createElement('div'); row.className='cashflow-row'; row.innerHTML=`<input type="date" class="cashflow-input date-input" /><input type="number" class="cashflow-input amount-input" placeholder="Amount (₹)" /><button class="remove-btn" aria-label="Remove row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>`; container.appendChild(row); });
+    document.getElementById('cashflowInputs').addEventListener('click', (e) => { if(e.target.closest('.remove-btn')){ const row=e.target.closest('.cashflow-row'); if(document.querySelectorAll('.cashflow-row').length>1){ row.remove(); } else { alert('At least one cash flow row is required.'); } } });
 
-    // ========== Row management ==========
-    document.getElementById('addRowBtn').addEventListener('click', () => {
-      const container = document.getElementById('cashflowInputs');
-      const row = document.createElement('div');
-      row.className = 'cashflow-row';
-      row.innerHTML = `
-        <input type="date" class="cashflow-input date-input" />
-        <input type="number" class="cashflow-input amount-input" placeholder="Amount (₹)" />
-        <button class="remove-btn" aria-label="Remove row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-      `;
-      container.appendChild(row);
-    });
+    // Robust date parsing
+    function parseDateFromInput(dateStr){ if(!dateStr) return null; let d = new Date(dateStr); if(!isNaN(d.getTime())) return d; const serial = Number(dateStr); if(!isNaN(serial) && serial>20000){ d = new Date(Date.UTC(1899,11,30)+serial*86400000); if(!isNaN(d.getTime())) return d; } if(typeof dateStr==='string' && dateStr.includes('/')){ const parts=dateStr.split('/'); if(parts.length===3){ const p1=parseInt(parts[0]), p2=parseInt(parts[1]), p3=parseInt(parts[2]); if(p1>12 && p2<=12) d=new Date(p3,p2-1,p1); else if(p2>12 && p1<=12) d=new Date(p3,p1-1,p2); else d=new Date(p3,p2-1,p1); if(!isNaN(d.getTime())) return d; } } return null; }
 
-    document.getElementById('cashflowInputs').addEventListener('click', (e) => {
-      if (e.target.closest('.remove-btn')) {
-        const row = e.target.closest('.cashflow-row');
-        if (document.querySelectorAll('.cashflow-row').length > 1) {
-          row.remove();
-        } else {
-          alert('At least one cash flow row is required.');
-        }
-      }
-    });
-
-    // ========== Robust date parsing ==========
-    function parseDateFromInput(dateStr) {
-      if (!dateStr) return null;
-      // Try standard Date parsing (works for ISO and many formats)
-      let d = new Date(dateStr);
-      if (!isNaN(d.getTime())) return d;
-
-      // Try Excel serial number
-      const serial = Number(dateStr);
-      if (!isNaN(serial) && serial > 20000) {
-        d = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
-        if (!isNaN(d.getTime())) return d;
-      }
-
-      // Try common dd/mm/yyyy or mm/dd/yyyy
-      if (typeof dateStr === 'string' && dateStr.includes('/')) {
-        const parts = dateStr.split('/');
-        if (parts.length === 3) {
-          const p1 = parseInt(parts[0]);
-          const p2 = parseInt(parts[1]);
-          const p3 = parseInt(parts[2]);
-          if (p1 > 12 && p2 <= 12) {
-            // DD/MM/YYYY
-            d = new Date(p3, p2 - 1, p1);
-          } else if (p2 > 12 && p1 <= 12) {
-            // MM/DD/YYYY
-            d = new Date(p3, p1 - 1, p2);
-          } else {
-            // Ambiguous, default to DD/MM/YYYY (common in India)
-            d = new Date(p3, p2 - 1, p1);
-          }
-          if (!isNaN(d.getTime())) return d;
-        }
-      }
+    // XIRR calculation using Newton-Raphson with multiple guesses
+    function calculateXIRR(cashFlows){ if(cashFlows.length<2) return null; const sorted=[...cashFlows].sort((a,b)=>a.date-b.date); const firstDate=sorted[0].date; const flows=sorted.map(cf=>({ t:(cf.date-firstDate)/(365.25*24*60*60*1000), amount:cf.amount })); if(!flows.some(cf=>cf.amount>0) || !flows.some(cf=>cf.amount<0)) return null;
+      function npv(rate){ let total=0; for(const cf of flows){ total += cf.amount / Math.pow(1+rate, cf.t); } return total; }
+      function deriv(rate){ let total=0; for(const cf of flows){ total -= cf.t * cf.amount / Math.pow(1+rate, cf.t+1); } return total; }
+      const guesses=[0.1,0.2,0.5,-0.5,1.0,2.0];
+      for(let guess of guesses){ let rate=guess; for(let iter=0; iter<100; iter++){ const f=npv(rate); const fPrime=deriv(rate); if(Math.abs(fPrime)<1e-10) break; const newRate=rate - f/fPrime; if(Math.abs(newRate-rate)<1e-8) return newRate; rate=newRate; } }
+      // Fallback bisection
+      let low=-0.999, high=10; let fLow=npv(low), fHigh=npv(high); if(fLow*fHigh>0){ high=100; fHigh=npv(high); } if(fLow*fHigh>0){ low=-0.9999; high=0.9999; fLow=npv(low); fHigh=npv(high); } if(fLow*fHigh>0) return null;
+      for(let i=0;i<200;i++){ const mid=(low+high)/2; const fMid=npv(mid); if(Math.abs(fMid)<1e-7 || (high-low)<1e-7) return mid; if(fLow*fMid<0){ high=mid; fHigh=fMid; } else { low=mid; fLow=fMid; } }
       return null;
     }
 
-    // ========== XIRR calculation (robust bisection with bracketing) ==========
-    function calculateXIRR(cashFlows) {
-      if (cashFlows.length < 2) return null;
-      const sorted = [...cashFlows].sort((a, b) => a.date - b.date);
-      const firstDate = sorted[0].date;
-      const transformed = sorted.map(cf => ({
-        t: (cf.date - firstDate) / 365.25,
-        amount: cf.amount
-      }));
-
-      const hasPositive = transformed.some(cf => cf.amount > 0);
-      const hasNegative = transformed.some(cf => cf.amount < 0);
-      if (!hasPositive || !hasNegative) return null;
-
-      function NPV(rate) {
-        let total = 0;
-        for (const cf of transformed) {
-          total += cf.amount / Math.pow(1 + rate, cf.t);
-        }
-        return total;
-      }
-
-      // Find a bracket [low, high] where NPV changes sign
-      let low = -0.99;
-      let high = 10.0;
-      let fLow = NPV(low);
-      let fHigh = NPV(high);
-
-      // If same sign, extend high up to 100
-      if (fLow * fHigh > 0) {
-        high = 100;
-        fHigh = NPV(high);
-      }
-      // If still same sign, try negative low close to -1
-      if (fLow * fHigh > 0) {
-        low = -0.9999;
-        high = 0.9999;
-        fLow = NPV(low);
-        fHigh = NPV(high);
-      }
-      // If still no sign change, cannot solve
-      if (fLow * fHigh > 0) return null;
-
-      // Bisection
-      const eps = 1e-7;
-      const maxIter = 200;
-      for (let i = 0; i < maxIter; i++) {
-        const mid = (low + high) / 2;
-        const fMid = NPV(mid);
-        if (Math.abs(fMid) < eps || (high - low) < eps) return mid;
-        if (fLow * fMid < 0) {
-          high = mid;
-          fHigh = fMid;
-        } else {
-          low = mid;
-          fLow = fMid;
-        }
-      }
-      return null;
-    }
-
-    // ========== Main calculation ==========
-    function calculate() {
-      const dateInputs = [...document.querySelectorAll('.date-input')];
-      const amountInputs = [...document.querySelectorAll('.amount-input')];
-      const cashFlows = [];
-      for (let i = 0; i < dateInputs.length; i++) {
-        const dateVal = dateInputs[i].value;
-        const amountVal = parseFloat(amountInputs[i].value) || 0;
-        if (dateVal) {
-          const parsedDate = parseDateFromInput(dateVal);
-          if (parsedDate && !isNaN(parsedDate.getTime())) {
-            cashFlows.push({ date: parsedDate.getTime(), amount: amountVal, dateLabel: parsedDate.toISOString().split('T')[0] });
-          }
-        }
-      }
-      cashflowData = cashFlows.sort((a, b) => a.date - b.date);
-
+    // Main calculation
+    function calculate(){ const dateInputs=[...document.querySelectorAll('.date-input')]; const amountInputs=[...document.querySelectorAll('.amount-input')]; const cashFlows=[]; for(let i=0;i<dateInputs.length;i++){ const dateVal=dateInputs[i].value; const amountVal=parseFloat(amountInputs[i].value)||0; if(dateVal){ const parsedDate=parseDateFromInput(dateVal); if(parsedDate && !isNaN(parsedDate.getTime())){ cashFlows.push({ date:parsedDate.getTime(), amount:amountVal, dateLabel:parsedDate.toISOString().split('T')[0] }); } } }
+      cashflowData = cashFlows.sort((a,b)=>a.date-b.date);
       const xirr = calculateXIRR(cashflowData);
-      const resultDiv = document.getElementById('results');
-      if (xirr !== null && isFinite(xirr)) {
-        resultDiv.innerHTML = `
-          <div class="result-item">
-            <div class="result-label">XIRR</div>
-            <div class="result-value">${(xirr * 100).toFixed(2)}%</div>
-          </div>
-        `;
-      } else {
-        resultDiv.innerHTML = `
-          <div class="result-item">
-            <div class="result-label">XIRR</div>
-            <div class="result-value" style="color:#ef4444;">Cannot calculate</div>
-          </div>
-        `;
-      }
-
-      const labels = cashflowData.map(cf => cf.dateLabel);
-      const amounts = cashflowData.map(cf => cf.amount);
-      renderChart(labels, amounts);
-      renderTable();
+      const resultDiv=document.getElementById('results');
+      if(xirr!==null && isFinite(xirr)){ resultDiv.innerHTML=`<div class="result-item"><div class="result-label">XIRR</div><div class="result-value">${(xirr*100).toFixed(2)}%</div></div>`; } else { resultDiv.innerHTML=`<div class="result-item"><div class="result-label">XIRR</div><div class="result-value" style="color:#ef4444;">Cannot calculate</div></div>`; }
+      const labels=cashflowData.map(cf=>cf.dateLabel); const amounts=cashflowData.map(cf=>cf.amount); renderChart(labels,amounts); renderTable();
     }
 
-    function renderChart(labels, amounts) {
-      const ctx = document.getElementById('xirrChart').getContext('2d');
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Cash Flow Amount',
-            data: amounts,
-            borderColor: getCSSVar('--accent'),
-            backgroundColor: amounts.map(v => v >= 0 ? getCSSVar('--accent') + '60' : '#ef4444' + '80'),
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: getCSSVar('--text-secondary'), font: { family: 'Work Sans', size: 12 } } } },
-          scales: {
-            x: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 10 }, maxRotation: 45, minRotation: 45 }, grid: { color: getCSSVar('--chart-grid') } },
-            y: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 11 }, callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0}) }, grid: { color: getCSSVar('--chart-grid') } }
-          }
-        }
-      });
-    }
+    function renderChart(labels, amounts){ const ctx=document.getElementById('xirrChart').getContext('2d'); if(chart) chart.destroy(); chart=new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{ label:'Cash Flow Amount', data:amounts, borderColor:getCSSVar('--accent'), backgroundColor:amounts.map(v=>v>=0?getCSSVar('--accent')+'60':'#ef4444'+'80'), borderWidth:1 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:getCSSVar('--text-secondary'), font:{ family:'Work Sans', size:12 } } } }, scales:{ x:{ ticks:{ color:getCSSVar('--text-muted'), font:{ family:'IBM Plex Mono', size:10 }, maxRotation:45, minRotation:45 }, grid:{ color:getCSSVar('--chart-grid') } }, y:{ ticks:{ color:getCSSVar('--text-muted'), font:{ family:'IBM Plex Mono', size:11 }, callback:value=>'₹'+value.toLocaleString('en-IN',{maximumFractionDigits:0}) }, grid:{ color:getCSSVar('--chart-grid') } } } } }); }
+    function renderTable(){ const tableWrap=document.getElementById('cashflowTable'); let html=`<table><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody>`; cashflowData.forEach(cf=>{ html+=`<tr><td>${cf.dateLabel}</td><td>₹${cf.amount.toLocaleString('en-IN',{maximumFractionDigits:2})}</td></tr>`; }); html+='</tbody></table>'; tableWrap.innerHTML=html; }
 
-    function renderTable() {
-      const tableWrap = document.getElementById('cashflowTable');
-      let html = `<table><thead><tr><th>Date</th><th>Amount (₹)</th></tr></thead><tbody>`;
-      cashflowData.forEach(cf => {
-        html += `<tr><td>${cf.dateLabel}</td><td>₹${cf.amount.toLocaleString('en-IN', {maximumFractionDigits:2})}</td></tr>`;
-      });
-      html += '</tbody></table>';
-      tableWrap.innerHTML = html;
-    }
+    // File upload
+    document.getElementById('fileUpload').addEventListener('change', function(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=new Uint8Array(ev.target.result); const workbook=XLSX.read(data,{type:'array', raw:true}); const firstSheet=workbook.Sheets[workbook.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(firstSheet,{header:1, raw:true}); const parsedRows=[]; json.forEach(row=>{ if(row.length>=2){ const dateRaw=row[0]; const amountRaw=row[1]; let amount=null; if(typeof amountRaw==='number') amount=amountRaw; else if(typeof amountRaw==='string') amount=parseFloat(amountRaw.replace(/,/g,'')); if(amount!==null && !isNaN(amount) && dateRaw!==null && dateRaw!==undefined){ let dateObj=null; if(typeof dateRaw==='number'){ dateObj=new Date(Date.UTC(1899,11,30)+dateRaw*86400000); } else { dateObj=parseDateFromInput(String(dateRaw).trim()); } if(dateObj && !isNaN(dateObj.getTime())) parsedRows.push({ date:dateObj, amount }); } } }); if(parsedRows.length>0){ const container=document.getElementById('cashflowInputs'); container.innerHTML=''; parsedRows.forEach(row=>{ const isoDate=row.date.toISOString().split('T')[0]; const rowDiv=document.createElement('div'); rowDiv.className='cashflow-row'; rowDiv.innerHTML=`<input type="date" class="cashflow-input date-input" value="${isoDate}" /><input type="number" class="cashflow-input amount-input" value="${row.amount}" /><button class="remove-btn" aria-label="Remove row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>`; container.appendChild(rowDiv); }); document.getElementById('fileInfo').textContent=`Loaded ${parsedRows.length} cash flows from ${file.name}`; calculate(); } else { document.getElementById('fileInfo').textContent='No valid cash flows found. Ensure columns: Date, Amount.'; } } catch(err){ console.error(err); document.getElementById('fileInfo').textContent='Error reading file.'; } }; reader.readAsArrayBuffer(file); });
 
-    // ========== File upload handling (raw:true for reliable number parsing) ==========
-    document.getElementById('fileUpload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        try {
-          const data = new Uint8Array(ev.target.result);
-          const workbook = XLSX.read(data, { type: 'array', raw: true }); // raw:true for actual values
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: true });
-          const parsedRows = [];
-          json.forEach(row => {
-            if (row.length >= 2) {
-              const dateRaw = row[0];
-              const amountRaw = row[1];
-              // Parse amount: if number, use directly; if string, remove commas and parse
-              let amount = null;
-              if (typeof amountRaw === 'number') {
-                amount = amountRaw;
-              } else if (typeof amountRaw === 'string') {
-                amount = parseFloat(amountRaw.replace(/,/g, ''));
-              }
-              if (amount !== null && !isNaN(amount) && dateRaw !== null && dateRaw !== undefined) {
-                let dateObj = null;
-                if (typeof dateRaw === 'number') {
-                  // Excel serial date
-                  dateObj = new Date(Date.UTC(1899, 11, 30) + dateRaw * 86400000);
-                } else {
-                  const dateStr = String(dateRaw).trim();
-                  dateObj = parseDateFromInput(dateStr);
-                }
-                if (dateObj && !isNaN(dateObj.getTime())) {
-                  parsedRows.push({ date: dateObj, amount });
-                }
-              }
-            }
-          });
-          if (parsedRows.length > 0) {
-            const container = document.getElementById('cashflowInputs');
-            container.innerHTML = '';
-            parsedRows.forEach(row => {
-              const isoDate = row.date.toISOString().split('T')[0];
-              const rowDiv = document.createElement('div');
-              rowDiv.className = 'cashflow-row';
-              rowDiv.innerHTML = `
-                <input type="date" class="cashflow-input date-input" value="${isoDate}" />
-                <input type="number" class="cashflow-input amount-input" value="${row.amount}" />
-                <button class="remove-btn" aria-label="Remove row"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-              `;
-              container.appendChild(rowDiv);
-            });
-            document.getElementById('fileInfo').textContent = `Loaded ${parsedRows.length} cash flows from ${file.name}`;
-            calculate();
-          } else {
-            document.getElementById('fileInfo').textContent = 'No valid cash flows found. Ensure columns: Date, Amount.';
-          }
-        } catch (err) {
-          console.error(err);
-          document.getElementById('fileInfo').textContent = 'Error reading file.';
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
+    // Template download
+    document.getElementById('downloadTemplateBtn').addEventListener('click', () => { const csv='Date,Amount\n2015-01-01,-10000\n2016-01-01,-10000\n2017-01-01,-10000\n2018-01-01,-10000\n2019-01-01,-10000\n2020-01-01,15000\n2021-01-01,15000\n2022-01-01,15000\n2023-01-01,15000\n2024-01-01,15000\n2025-01-01,25000\n'; const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='xirr_template.csv'; a.click(); URL.revokeObjectURL(url); });
 
-    // ========== Template download (ISO dates) ==========
-    document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
-      const csv = 'Date,Amount\n2015-01-01,-10000\n2016-01-01,-10000\n2017-01-01,-10000\n2018-01-01,-10000\n2019-01-01,-10000\n2020-01-01,15000\n2021-01-01,15000\n2022-01-01,15000\n2023-01-01,15000\n2024-01-01,15000\n2025-01-01,25000\n';
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'xirr_template.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // ========== Initial calculation ==========
+    // Initial
     document.getElementById('calculateBtn').addEventListener('click', calculate);
-    document.getElementById('xirrChart').style.height = '300px';
+    document.getElementById('xirrChart').style.height='300px';
     calculate();
   </script>
 </body>
