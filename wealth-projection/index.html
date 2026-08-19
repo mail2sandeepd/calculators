@@ -24,69 +24,129 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin></script>
 
   <style>
-    /* Same as before – unchanged */
+    /* ===================== THEME VARIABLES ===================== */
     :root {
-      --accent: #064E3B;
-      --accent-hover: #047857;
-      --accent-light: #10B981;
+      /* Dark theme (default) */
+      --bg-primary: #0B1120;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-card-hover: rgba(31, 41, 55, 0.8);
+      --bg-input: rgba(255, 255, 255, 0.05);
+      --bg-input-focus: rgba(255, 255, 255, 0.08);
+      --bg-hover: rgba(255, 255, 255, 0.05);
+      --text-primary: #F9FAFB;
+      --text-secondary: #D1D5DB;
+      --text-muted: #9CA3AF;
+      --border: rgba(255, 255, 255, 0.1);
+      --border-light: rgba(255, 255, 255, 0.06);
+      --accent: #10B981;
+      --accent-dark: #047857;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --accent-secondary: #06D6A0;
       --neutral: #9CA3AF;
-      --text-primary: #111827;
-      --text-secondary: #4B5563;
-      --border: #E5E7EB;
-      --border-light: #F3F4F6;
-      --bg-white: #ffffff;
-      --bg-soft: #F9FAFB;
+      --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.15);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --chart-grid: rgba(255, 255, 255, 0.1);
+      --chart-axis: rgba(255, 255, 255, 0.2);
+      --tooltip-bg: rgba(17, 24, 39, 0.95);
+      --tooltip-border: rgba(255, 255, 255, 0.1);
+      --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                       radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
     }
 
+    body.light {
+      /* Light theme */
+      --bg-primary: #ffffff;
+      --bg-secondary: #F9FAFB;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --bg-card-hover: rgba(243, 244, 246, 0.9);
+      --bg-input: rgba(17, 24, 39, 0.04);
+      --bg-input-focus: rgba(17, 24, 39, 0.06);
+      --bg-hover: rgba(17, 24, 39, 0.04);
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #6B7280;
+      --border: rgba(17, 24, 39, 0.1);
+      --border-light: rgba(17, 24, 39, 0.06);
+      --accent: #064E3B;
+      --accent-dark: #047857;
+      --accent-glow: rgba(6, 78, 59, 0.15);
+      --accent-secondary: #10B981;
+      --neutral: #9CA3AF;
+      --shadow-glow: 0 0 20px rgba(6, 78, 59, 0.1);
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --chart-grid: rgba(0, 0, 0, 0.1);
+      --chart-axis: rgba(0, 0, 0, 0.2);
+      --tooltip-bg: rgba(255, 255, 255, 0.95);
+      --tooltip-border: rgba(0, 0, 0, 0.1);
+      --body-gradient: none;
+    }
+
+    /* ===================== GLOBAL STYLES ===================== */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
       margin: 0;
-      background: var(--bg-white);
+      background: var(--bg-primary);
+      background-image: var(--body-gradient);
       color: var(--text-primary);
       font-family: 'Work Sans', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-    }
-
-    .app-shell {
       min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
     }
 
+    /* ---------- Header ---------- */
     .header {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 20px 32px;
+      gap: 20px;
+      padding: 24px 32px;
       border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: var(--bg-card);
+      position: relative;
+      z-index: 10;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .icon-square {
-      width: 40px;
-      height: 40px;
+      width: 46px;
+      height: 46px;
       border: 1px solid var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--accent);
       flex-shrink: 0;
+      border-radius: 12px;
+      background: var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow);
+      transition: background 0.3s, box-shadow 0.3s;
     }
 
     .icon-square svg {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
     }
 
     .wordmark {
       font-family: 'Work Sans', sans-serif;
       font-weight: 600;
-      font-size: 14px;
-      letter-spacing: 0.08em;
+      font-size: 16px;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-primary);
       margin: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .tagline {
@@ -94,9 +154,38 @@
       font-size: 18px;
       font-weight: 600;
       color: var(--text-secondary);
-      margin: 2px 0 0;
+      margin: 4px 0 0;
+      letter-spacing: 0.02em;
     }
 
+    .theme-toggle {
+      margin-left: auto;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ---------- Main layout ---------- */
     .container {
       display: grid;
       grid-template-columns: minmax(320px, 4fr) 8fr;
@@ -112,33 +201,59 @@
       height: calc(100vh - 48px);
       overflow-y: auto;
       padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
     }
 
     .param-panel {
       border: 1px solid var(--border);
       padding: 20px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
 
     .param-section {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
     .param-section h2 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       color: var(--text-primary);
+      letter-spacing: 0.02em;
+      position: relative;
+      display: inline-block;
+    }
+    .param-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
     }
 
     .param-section h2.withdrawal-heading {
       margin-top: 8px;
-      padding-top: 16px;
+      padding-top: 20px;
       border-top: 1px solid var(--border);
     }
 
     .param-row {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .param-row label {
@@ -146,7 +261,8 @@
       font-size: 13px;
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
     }
 
     .param-controls {
@@ -156,87 +272,97 @@
     }
 
     .param-controls input[type="number"] {
-      width: 110px;
-      padding: 8px 10px;
+      width: 100px;
+      padding: 10px 12px;
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: 8px;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 13px;
       color: var(--text-primary);
-      background: #fff;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--bg-input);
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
     }
 
-    .param-controls input[type="number"]:focus,
-    .param-controls input[type="range"]:focus {
+    .param-controls input[type="number"]:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--bg-input-focus);
     }
 
     .param-controls input[type="range"] {
       flex: 1;
-      height: 4px;
-      border-radius: 2px;
+      height: 6px;
+      border-radius: 3px;
       background: var(--border);
       appearance: none;
       -webkit-appearance: none;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
     .param-controls input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: var(--accent);
       border: 2px solid #fff;
-      box-shadow: 0 0 0 1px var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
       cursor: pointer;
+      transition: transform 0.2s;
     }
-
+    .param-controls input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
     .param-controls input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: var(--accent);
       border: 2px solid #fff;
-      box-shadow: 0 0 0 1px var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
       cursor: pointer;
     }
 
+    /* ---------- Currency toggle ---------- */
     .currency-toggle {
       display: flex;
       gap: 8px;
       margin-bottom: 20px;
+      background: var(--bg-input);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
 
     .currency-toggle button {
       flex: 1;
       padding: 8px 0;
-      border: 1px solid var(--border);
-      background: #fff;
+      border: none;
+      background: transparent;
       color: var(--text-secondary);
       font-family: 'Work Sans', sans-serif;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s;
+      border-radius: 6px;
+      transition: all 0.3s;
     }
 
     .currency-toggle button.active {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(6, 78, 59, 0.05);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
       font-weight: 600;
     }
 
-    .currency-toggle button:hover {
-      border-color: var(--accent);
-      color: var(--accent);
+    .currency-toggle button:not(.active):hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
+    /* ---------- Action buttons ---------- */
     .action-buttons {
       display: flex;
       gap: 12px;
@@ -247,29 +373,35 @@
       flex: 1;
       padding: 10px 12px;
       border: 1px solid var(--accent);
-      border-radius: 4px;
-      background: #fff;
+      border-radius: 8px;
+      background: transparent;
       color: var(--accent);
       font-family: 'Work Sans', sans-serif;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: all 0.3s;
+      letter-spacing: 0.02em;
     }
 
     .action-buttons button.primary {
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       color: #fff;
+      border: none;
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
     .action-buttons button.primary:hover {
-      background: var(--accent-hover);
+      box-shadow: 0 6px 20px var(--accent-glow);
+      transform: translateY(-1px);
     }
 
     .action-buttons button:not(.primary):hover {
-      background: rgba(6, 78, 59, 0.05);
+      background: var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow);
     }
 
+    /* ---------- Projection panel ---------- */
     .projection-panel {
       min-width: 0;
     }
@@ -278,34 +410,44 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
+      margin-bottom: 24px;
     }
 
     .metric-card {
       border: 1px solid var(--border);
-      padding: 16px;
-      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.3s, box-shadow 0.3s, background 0.3s, border-color 0.3s;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
     }
 
     .metric-card.accent {
       border-color: var(--accent);
-      box-shadow: inset 0 3px 0 var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow), 0 8px 32px rgba(0, 0, 0, 0.4);
+      background: var(--accent-glow);
     }
 
     .metric-label {
       font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
     }
 
     .metric-value {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 500;
       color: var(--text-primary);
-      line-height: 1.2;
+      line-height: 1.3;
       word-break: break-word;
     }
 
@@ -313,10 +455,12 @@
       display: flex;
       align-items: center;
       gap: 24px;
-      margin-top: 16px;
-      padding: 12px 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      margin-top: 24px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
       flex-wrap: wrap;
     }
 
@@ -328,17 +472,18 @@
 
     .supporting-label {
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       font-weight: 500;
     }
 
     .supporting-value {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 500;
-      color: var(--text-primary);
+      color: var(--accent);
     }
 
+    /* ---------- Charts ---------- */
     .charts-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -348,23 +493,56 @@
 
     .chart-card {
       border: 1px solid var(--border);
-      padding: 16px;
-      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
 
     .chart-card h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 600;
       color: var(--text-primary);
-      margin: 0 0 12px;
+      margin: 0 0 16px;
+      letter-spacing: 0.02em;
     }
 
+    /* Recharts customization */
+    .recharts-cartesian-grid line {
+      stroke: var(--chart-grid);
+    }
+    .recharts-text {
+      fill: var(--text-muted);
+    }
+    .recharts-default-tooltip {
+      background: var(--tooltip-bg) !important;
+      border: 1px solid var(--tooltip-border) !important;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    /* ---------- Table ---------- */
     .table-wrap {
       margin-top: 24px;
       border: 1px solid var(--border);
+      border-radius: 12px;
       max-height: 480px;
       overflow-y: auto;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    .table-wrap::-webkit-scrollbar {
+      width: 4px;
+    }
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
     }
 
     table {
@@ -377,41 +555,46 @@
     thead th {
       position: sticky;
       top: 0;
-      background: var(--bg-soft);
+      background: var(--bg-card);
       z-index: 2;
       text-align: right;
-      padding: 10px 12px;
+      padding: 14px 16px;
       border-bottom: 1px solid var(--border);
       font-weight: 500;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 11px;
     }
 
     tbody td {
       text-align: right;
-      padding: 8px 12px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border-light);
-      color: var(--text-primary);
+      color: var(--text-secondary);
       font-variant-numeric: tabular-nums;
+      transition: background 0.2s;
     }
 
     tbody tr:hover td {
-      background: var(--bg-soft);
+      background: var(--bg-hover);
     }
 
+    /* ---------- Toast ---------- */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: var(--text-primary);
+      background: var(--accent);
       color: #fff;
-      padding: 12px 20px;
-      border-radius: 4px;
+      padding: 14px 24px;
+      border-radius: 8px;
       font-size: 14px;
       font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow);
       z-index: 1000;
       animation: fadeInUp 0.3s ease;
+      backdrop-filter: blur(10px);
     }
 
     @keyframes fadeInUp {
@@ -425,6 +608,7 @@
       }
     }
 
+    /* ---------- Hidden report container (white theme, unchanged) ---------- */
     .report-container {
       position: absolute;
       left: -9999px;
@@ -517,6 +701,7 @@
       font-size: 10px;
     }
 
+    /* ---------- Responsive ---------- */
     @media (max-width: 1024px) {
       .container {
         grid-template-columns: 1fr;
@@ -526,6 +711,7 @@
         position: static;
         height: auto;
         padding-right: 0;
+        margin-bottom: 24px;
       }
       .metric-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -538,12 +724,21 @@
     @media (max-width: 600px) {
       .header {
         padding: 16px;
+        flex-direction: column;
+        text-align: center;
       }
       .container {
         padding: 12px;
       }
       .metric-grid {
         grid-template-columns: 1fr;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .theme-toggle {
+        margin-left: 0;
+        margin-top: 10px;
       }
     }
   </style>
@@ -554,7 +749,7 @@
   <script type="text/babel">
     // Check if required libraries are loaded
     if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof Recharts === 'undefined' || typeof PropTypes === 'undefined') {
-      document.getElementById('root').innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;">Failed to load required libraries. Please check your internet connection and refresh.</div>';
+      document.getElementById('root').innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;color:#fff;">Failed to load required libraries. Please check your internet connection and refresh.</div>';
       throw new Error('Required libraries missing');
     }
 
@@ -665,7 +860,18 @@
       const [swp, setSwp] = useState(0);
       const [swpStepUp, setSwpStepUp] = useState(5);
       const [toast, setToast] = useState(null);
+      const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
       const reportRef = useRef(null);
+
+      // Apply theme to body
+      useEffect(() => {
+        document.body.className = theme;
+      }, [theme]);
+
+      // Toggle theme
+      const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+      };
 
       // ---- Hydrate from URL ----
       useEffect(() => {
@@ -986,6 +1192,20 @@
               <p className="wordmark">SD Wealth · Private Office</p>
               <p className="tagline">Model decades of disciplined investing — lumpsum, SIPs with annual step-ups, a quiet compounding period, and a withdrawal phase — in a single, deliberate view.</p>
             </div>
+            {/* Theme toggle button */}
+            <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme" data-testid="theme-toggle">
+              {theme === 'dark' ? (
+                // Sun icon for light mode
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                // Moon icon for dark mode
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
           </header>
 
           {/* Main layout */}
@@ -1155,15 +1375,15 @@
                   <h3>Year-over-year Corpus Growth</h3>
                   <ResponsiveContainer width="100%" height={280}>
                     <LineChart data={lineChartData} margin={{ top: 16, right: 16, bottom: 8, left: 16 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                       <XAxis
                         dataKey="year"
-                        tick={{ fontFamily: 'IBM Plex Mono', fontSize: 12, fill: '#4B5563' }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
                         tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
+                        axisLine={{ stroke: 'var(--chart-axis)' }}
                       />
                       <YAxis
-                        tick={{ fontFamily: 'IBM Plex Mono', fontSize: 12, fill: '#4B5563' }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
                         tickFormatter={(v) => formatCompactCurrency(v, currency)}
                         tickLine={false}
                         axisLine={false}
@@ -1173,19 +1393,20 @@
                         formatter={(value) => [formatCurrency(value, currency), 'Corpus']}
                         labelFormatter={(label) => `Year ${label}`}
                         contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg)',
+                          border: '1px solid var(--tooltip-border)',
+                          borderRadius: 8,
                           fontFamily: 'IBM Plex Mono',
                           fontSize: 12,
-                          borderRadius: 4,
-                          border: '1px solid #E5E7EB',
                         }}
                       />
                       <Line
                         type="monotone"
                         dataKey="corpus"
-                        stroke="#064E3B"
-                        strokeWidth={2}
+                        stroke="var(--accent)"
+                        strokeWidth={2.5}
                         dot={false}
-                        activeDot={{ r: 4 }}
+                        activeDot={{ r: 5, fill: 'var(--accent-secondary)' }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -1197,23 +1418,23 @@
                     <AreaChart data={areaChartData} margin={{ top: 16, right: 16, bottom: 8, left: 16 }}>
                       <defs>
                         <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#9CA3AF" stopOpacity={0.6} />
-                          <stop offset="95%" stopColor="#9CA3AF" stopOpacity={0.1} />
+                          <stop offset="5%" stopColor="var(--neutral)" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="var(--neutral)" stopOpacity={0.05} />
                         </linearGradient>
                         <linearGradient id="colorReturns" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.6} />
-                          <stop offset="95%" stopColor="#10B981" stopOpacity={0.1} />
+                          <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.7} />
+                          <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.1} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                       <XAxis
                         dataKey="year"
-                        tick={{ fontFamily: 'IBM Plex Mono', fontSize: 12, fill: '#4B5563' }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
                         tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
+                        axisLine={{ stroke: 'var(--chart-axis)' }}
                       />
                       <YAxis
-                        tick={{ fontFamily: 'IBM Plex Mono', fontSize: 12, fill: '#4B5563' }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono' }}
                         tickFormatter={(v) => formatCompactCurrency(v, currency)}
                         tickLine={false}
                         axisLine={false}
@@ -1223,30 +1444,31 @@
                         formatter={(value, name) => [formatCurrency(value, currency), name]}
                         labelFormatter={(label) => `Year ${label}`}
                         contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg)',
+                          border: '1px solid var(--tooltip-border)',
+                          borderRadius: 8,
                           fontFamily: 'IBM Plex Mono',
                           fontSize: 12,
-                          borderRadius: 4,
-                          border: '1px solid #E5E7EB',
                         }}
                       />
                       <Legend
-                        wrapperStyle={{ fontFamily: 'Work Sans', fontSize: 12, color: '#4B5563' }}
+                        wrapperStyle={{ fontFamily: 'Work Sans', fontSize: 12, color: 'var(--text-muted)' }}
                       />
                       <Area
                         type="monotone"
                         dataKey="Invested"
                         stackId="1"
-                        stroke="#9CA3AF"
+                        stroke="var(--neutral)"
                         fill="url(#colorInvested)"
-                        fillOpacity={0.7}
+                        fillOpacity={0.6}
                       />
                       <Area
                         type="monotone"
                         dataKey="Returns"
                         stackId="1"
-                        stroke="#10B981"
+                        stroke="var(--accent)"
                         fill="url(#colorReturns)"
-                        fillOpacity={0.7}
+                        fillOpacity={0.8}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -1272,7 +1494,7 @@
             </main>
           </div>
 
-          {/* Hidden report container for PDF */}
+          {/* Hidden report container for PDF (white theme) */}
           <div
             ref={reportRef}
             className="report-container"
