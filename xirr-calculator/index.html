@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js" crossorigin></script>
   <style>
-    /* ============ THEME VARIABLES (same as before) ============ */
+    /* ============ THEME VARIABLES (same) ============ */
     :root {
       --bg-primary: #0B1120;
       --bg-secondary: #111827;
@@ -66,10 +66,7 @@
       backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
       flex-wrap: wrap; transition: background 0.3s, border-color 0.3s;
     }
-    .logo-link {
-      display: flex; align-items: center; gap: 16px; text-decoration: none;
-      color: inherit; flex: 1; min-width: 0;
-    }
+    .logo-link { display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit; flex: 1; min-width: 0; }
     .icon-square {
       width: 46px; height: 46px; border: 1px solid var(--accent); border-radius: 12px;
       display: flex; align-items: center; justify-content: center; color: var(--accent);
@@ -86,18 +83,14 @@
     }
     .header-actions { display: flex; gap: 12px; align-items: center; }
     .home-btn, .theme-toggle {
-      background: none; border: 1px solid var(--border);
-      border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; color: var(--text-secondary); transition: all 0.3s;
-      text-decoration: none;
+      background: none; border: 1px solid var(--border); border-radius: 50%;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary); transition: all 0.3s; text-decoration: none;
     }
     .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
 
-    .layout {
-      max-width: 1200px; margin: 0 auto; padding: 24px 32px;
-      display: grid; grid-template-columns: 240px 1fr; gap: 32px;
-    }
+    .layout { max-width: 1200px; margin: 0 auto; padding: 24px 32px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; }
     #shared-sidebar { position: sticky; top: 90px; align-self: start; display: flex; flex-direction: column; gap: 8px; }
     .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
     .sidebar-link {
@@ -115,68 +108,23 @@
     .sidebar-home { font-weight: 600; text-align: center; }
 
     .main-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-    .card {
-      border: 1px solid var(--border); border-radius: 16px; padding: 24px;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
-      transition: background 0.3s, border-color 0.3s;
-    }
+    .card { border: 1px solid var(--border); border-radius: 16px; padding: 24px; background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card); transition: background 0.3s, border-color 0.3s; }
     .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 20px; color: var(--text-primary); }
     .instruction { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
 
-    /* ---- Upload & Template button alignment ---- */
-    .upload-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .upload-btn-wrapper {
-      position: relative;
-      overflow: hidden;
-      display: inline-block;
-    }
-    .upload-btn-wrapper input[type="file"] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
-    .btn {
-      padding: 12px 20px;
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      letter-spacing: 0.02em;
-      font-size: 14px;
-    }
+    .upload-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
+    .upload-btn-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+    .btn { padding: 12px 20px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em; font-size: 14px; }
     .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
     .btn-outline { background: transparent; color: var(--accent); }
     .btn-outline:hover { background: var(--accent); color: #fff; }
     .file-info { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 
-    /* ---- Cash flow rows ---- */
     .cashflow-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-    .cashflow-input {
-      flex: 1; min-width: 150px; padding: 10px 12px;
-      border: 1px solid var(--border); border-radius: 8px;
-      background: var(--bg-input); color: var(--text-primary);
-      font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
+    .cashflow-input { flex: 1; min-width: 150px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-input); color: var(--text-primary); font-family: 'IBM Plex Mono', monospace; font-size: 13px; transition: border-color 0.3s, box-shadow 0.3s; }
     .cashflow-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .remove-btn {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #ef4444; transition: all 0.3s; flex-shrink: 0;
-    }
+    .remove-btn { background: none; border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; transition: all 0.3s; flex-shrink: 0; }
     .remove-btn:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
     .remove-btn svg { width: 16px; height: 16px; }
 
@@ -187,17 +135,9 @@
 
     .chart-container { margin-top: 24px; }
     .table-container { margin-top: 24px; }
-    .table-wrap {
-      max-height: 400px; overflow-y: auto; overflow-x: auto;
-      border: 1px solid var(--border); border-radius: 12px;
-      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
-    }
+    .table-wrap { max-height: 400px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
     .table-wrap table { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 500px; }
-    .table-wrap thead th {
-      position: sticky; top: 0; background: var(--bg-card); z-index: 2;
-      text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border);
-      font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px;
-    }
+    .table-wrap thead th { position: sticky; top: 0; background: var(--bg-card); z-index: 2; text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px; }
     .table-wrap tbody td { text-align: right; padding: 10px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
     .table-wrap tbody tr:hover td { background: var(--bg-hover); }
     .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
@@ -248,7 +188,6 @@
 
   <div class="layout">
     <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
-
     <main class="main-content">
       <div class="card">
         <h2>XIRR Calculator</h2>
@@ -256,7 +195,6 @@
           Enter your irregular cash flows. Use <strong>negative</strong> amounts for investments (money paid out) and <strong>positive</strong> amounts for withdrawals (money received). Example: -10,000 initial investment, +12,500 final value.
         </p>
 
-        <!-- Upload and Template buttons aligned -->
         <div class="upload-actions">
           <div class="upload-btn-wrapper">
             <button class="btn btn-outline">📂 Upload CSV/Excel</button>
@@ -366,7 +304,8 @@
 
     // ========== Robust date parsing ==========
     function parseDateFromInput(dateStr) {
-      // Try standard Date parsing first (works for ISO and some formats)
+      if (!dateStr) return null;
+      // Try standard Date parsing (works for ISO and many formats)
       let d = new Date(dateStr);
       if (!isNaN(d.getTime())) return d;
 
@@ -384,7 +323,6 @@
           const p1 = parseInt(parts[0]);
           const p2 = parseInt(parts[1]);
           const p3 = parseInt(parts[2]);
-          // Determine format: if p1 > 12, it's DD/MM/YYYY; if p2 > 12, it's MM/DD/YYYY; default DD/MM/YYYY
           if (p1 > 12 && p2 <= 12) {
             // DD/MM/YYYY
             d = new Date(p3, p2 - 1, p1);
@@ -401,7 +339,7 @@
       return null;
     }
 
-    // ========== XIRR calculation (bisection) ==========
+    // ========== XIRR calculation (robust bisection with bracketing) ==========
     function calculateXIRR(cashFlows) {
       if (cashFlows.length < 2) return null;
       const sorted = [...cashFlows].sort((a, b) => a.date - b.date);
@@ -410,6 +348,7 @@
         t: (cf.date - firstDate) / 365.25,
         amount: cf.amount
       }));
+
       const hasPositive = transformed.some(cf => cf.amount > 0);
       const hasNegative = transformed.some(cf => cf.amount < 0);
       if (!hasPositive || !hasNegative) return null;
@@ -422,21 +361,28 @@
         return total;
       }
 
-      // Bisection with broad range and fallback
-      let low = -0.99, high = 10;
-      let fLow = NPV(low), fHigh = NPV(high);
+      // Find a bracket [low, high] where NPV changes sign
+      let low = -0.99;
+      let high = 10.0;
+      let fLow = NPV(low);
+      let fHigh = NPV(high);
+
+      // If same sign, extend high up to 100
       if (fLow * fHigh > 0) {
         high = 100;
         fHigh = NPV(high);
       }
+      // If still same sign, try negative low close to -1
       if (fLow * fHigh > 0) {
-        low = -0.999;
-        high = 0.999;
+        low = -0.9999;
+        high = 0.9999;
         fLow = NPV(low);
         fHigh = NPV(high);
       }
+      // If still no sign change, cannot solve
       if (fLow * fHigh > 0) return null;
 
+      // Bisection
       const eps = 1e-7;
       const maxIter = 200;
       for (let i = 0; i < maxIter; i++) {
@@ -532,7 +478,7 @@
       tableWrap.innerHTML = html;
     }
 
-    // ========== File upload handling ==========
+    // ========== File upload handling (raw:true for reliable number parsing) ==========
     document.getElementById('fileUpload').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -540,18 +486,32 @@
       reader.onload = function(ev) {
         try {
           const data = new Uint8Array(ev.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+          const workbook = XLSX.read(data, { type: 'array', raw: true }); // raw:true for actual values
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
+          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: true });
           const parsedRows = [];
           json.forEach(row => {
             if (row.length >= 2) {
-              const dateStr = String(row[0]).trim();
-              const amount = parseFloat(row[1]);
-              if (dateStr && !isNaN(amount)) {
-                const parsedDate = parseDateFromInput(dateStr);
-                if (parsedDate && !isNaN(parsedDate.getTime())) {
-                  parsedRows.push({ date: parsedDate, amount });
+              const dateRaw = row[0];
+              const amountRaw = row[1];
+              // Parse amount: if number, use directly; if string, remove commas and parse
+              let amount = null;
+              if (typeof amountRaw === 'number') {
+                amount = amountRaw;
+              } else if (typeof amountRaw === 'string') {
+                amount = parseFloat(amountRaw.replace(/,/g, ''));
+              }
+              if (amount !== null && !isNaN(amount) && dateRaw !== null && dateRaw !== undefined) {
+                let dateObj = null;
+                if (typeof dateRaw === 'number') {
+                  // Excel serial date
+                  dateObj = new Date(Date.UTC(1899, 11, 30) + dateRaw * 86400000);
+                } else {
+                  const dateStr = String(dateRaw).trim();
+                  dateObj = parseDateFromInput(dateStr);
+                }
+                if (dateObj && !isNaN(dateObj.getTime())) {
+                  parsedRows.push({ date: dateObj, amount });
                 }
               }
             }
