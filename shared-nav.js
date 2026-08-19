@@ -32,13 +32,14 @@ const sharedCalculators = [
     href: 'wealth-projection/',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" /><path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" /></svg>`
   },
+  {
+    id: 'xirr',
+    label: 'XIRR Calculator',
+    href: 'xirr-calculator/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>`
+  },
 ];
 
-/**
- * Injects the shared sidebar into the element with id "shared-sidebar".
- * @param {string} activeId - The id of the currently active calculator.
- * @param {string} rootPath - Relative path prefix to the repository root (e.g., "../").
- */
 function injectSharedSidebar(activeId, rootPath) {
   const container = document.getElementById('shared-sidebar');
   if (!container) return;
