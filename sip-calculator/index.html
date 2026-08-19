@@ -46,7 +46,6 @@
       --accent-glow: rgba(6,78,59,0.15);
       --accent-secondary: #10B981;
       --neutral: #9CA3AF;
-      --chart-grid: rgba(17, 24, 39, 0.15);
       --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
       --body-gradient: none;
       --chart-grid: rgba(17, 24, 39, 0.3);
@@ -334,7 +333,7 @@
     let currentView = 'yearly';
 
     function getCSSVar(varName) {
-      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+      return getComputedStyle(document.body).getPropertyValue(varName).trim();
     }
 
     function updateChartColors() {
