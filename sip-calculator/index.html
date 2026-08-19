@@ -25,6 +25,7 @@
       --accent-glow: rgba(16,185,129,0.3);
       --accent-secondary: #06D6A0;
       --neutral: #9CA3AF;
+      --chart-grid: rgba(255, 255, 255, 0.1);
       --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
       --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%),
                        radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
@@ -45,6 +46,7 @@
       --accent-glow: rgba(6,78,59,0.15);
       --accent-secondary: #10B981;
       --neutral: #9CA3AF;
+      --chart-grid: rgba(17, 24, 39, 0.15);
       --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
       --body-gradient: none;
     }
@@ -60,19 +62,25 @@
       backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
       flex-wrap: wrap; transition: background 0.3s, border-color 0.3s;
     }
+    .logo-link {
+      display: flex; align-items: center; gap: 16px; text-decoration: none;
+      color: inherit; flex: 1; min-width: 0;
+    }
     .icon-square {
       width: 46px; height: 46px; border: 1px solid var(--accent); border-radius: 12px;
       display: flex; align-items: center; justify-content: center; color: var(--accent);
       background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow);
-      cursor: pointer; text-decoration: none; transition: all 0.3s;
+      transition: all 0.3s; flex-shrink: 0;
     }
-    .icon-square:hover { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
     .icon-square svg { width: 24px; height: 24px; }
+    .logo-link:hover .icon-square { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
     .wordmark {
       font-weight: 600; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;
       background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      white-space: nowrap;
     }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
     .home-btn, .theme-toggle {
       background: none; border: 1px solid var(--border);
       border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center;
@@ -81,10 +89,42 @@
     }
     .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
-    .header-actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+
+    /* Main layout */
+    .layout {
+      max-width: 1200px; margin: 0 auto; padding: 24px 32px;
+      display: grid; grid-template-columns: 240px 1fr; gap: 32px;
+    }
+
+    /* Shared sidebar */
+    #shared-sidebar {
+      position: sticky; top: 90px; align-self: start;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-nav {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-link {
+      display: block; padding: 10px 16px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--bg-card); color: var(--text-secondary);
+      text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: all 0.3s; backdrop-filter: blur(8px);
+    }
+    .sidebar-link:hover {
+      border-color: var(--accent); color: var(--accent); background: var(--accent-glow);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .sidebar-link.active {
+      border-color: var(--accent); color: #fff; background: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .sidebar-home {
+      font-weight: 600; text-align: center;
+    }
+
+    /* Main content */
     .main-content {
-      max-width: 900px; margin: 0 auto; padding: 40px 32px;
-      display: flex; flex-direction: column; gap: 24px;
+      display: flex; flex-direction: column; gap: 24px; min-width: 0;
     }
     .card {
       border: 1px solid var(--border); border-radius: 16px; padding: 24px;
@@ -143,23 +183,32 @@
     }
     .table-wrap tbody tr:hover td { background: var(--bg-hover); }
     .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
-    @media (max-width: 600px) {
+
+    /* Responsive */
+    @media (max-width: 768px) {
       .header { padding: 16px; flex-direction: column; text-align: center; gap: 12px; }
+      .logo-link { flex-direction: column; gap: 8px; }
       .header-actions { margin-left: 0; margin-top: 8px; }
-      .main-content { padding: 24px 16px; }
+      .layout { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+      #shared-sidebar { position: static; }
+      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 8px; }
+      .sidebar-link { white-space: nowrap; }
+      .main-content { padding: 0; }
       .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header class="header">
-    <a href="../index.html" class="icon-square" aria-label="Home">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" />
-      </svg>
+    <a href="../index.html" class="logo-link">
+      <div class="icon-square">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" />
+        </svg>
+      </div>
+      <p class="wordmark">SD Wealth · SIP Calculator</p>
     </a>
-    <p class="wordmark">SD Wealth · SIP Calculator</p>
     <div class="header-actions">
       <a href="../index.html" class="home-btn" aria-label="Home">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -177,48 +226,62 @@
     </div>
   </header>
 
-  <main class="main-content">
-    <div class="card">
-      <h2>SIP Calculator</h2>
-      <div class="form-grid">
-        <div class="field">
-          <label>Monthly Investment (₹)</label>
-          <input type="number" id="monthlyInvest" value="10000" min="0" />
+  <!-- Main layout with sidebar and content -->
+  <div class="layout">
+    <!-- Shared sidebar injected by shared-nav.js -->
+    <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <div class="card">
+        <h2>SIP Calculator</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Monthly Investment (₹)</label>
+            <input type="number" id="monthlyInvest" value="10000" min="0" />
+          </div>
+          <div class="field">
+            <label>Expected Annual Return (%)</label>
+            <input type="number" id="annualReturn" value="12" min="0" max="100" step="0.1" />
+          </div>
+          <div class="field">
+            <label>Time Period (Years)</label>
+            <input type="number" id="years" value="10" min="1" max="100" />
+          </div>
+          <div class="field">
+            <label>Annual Step-up (%)</label>
+            <input type="number" id="stepUp" value="0" min="0" max="100" step="0.5" />
+          </div>
         </div>
-        <div class="field">
-          <label>Expected Annual Return (%)</label>
-          <input type="number" id="annualReturn" value="12" min="0" max="100" step="0.1" />
+        <div style="margin-top: 20px;">
+          <button class="btn" id="calculateBtn">Calculate</button>
         </div>
-        <div class="field">
-          <label>Time Period (Years)</label>
-          <input type="number" id="years" value="10" min="1" max="100" />
+        <div class="results-grid" id="results"></div>
+        <div class="chart-container">
+          <canvas id="sipChart"></canvas>
         </div>
-        <div class="field">
-          <label>Annual Step-up (%)</label>
-          <input type="number" id="stepUp" value="0" min="0" max="100" step="0.5" />
+        <div class="table-container">
+          <div class="table-toggle">
+            <button class="btn btn-outline active" id="yearlyBtn">Yearly</button>
+            <button class="btn btn-outline" id="monthlyBtn">Monthly</button>
+          </div>
+          <div class="table-wrap" id="tableWrap"></div>
         </div>
       </div>
-      <div style="margin-top: 20px;">
-        <button class="btn" id="calculateBtn">Calculate</button>
-      </div>
-      <div class="results-grid" id="results"></div>
-      <div class="chart-container">
-        <canvas id="sipChart"></canvas>
-      </div>
-      <div class="table-container">
-        <div class="table-toggle">
-          <button class="btn btn-outline active" id="yearlyBtn">Yearly</button>
-          <button class="btn btn-outline" id="monthlyBtn">Monthly</button>
-        </div>
-        <div class="table-wrap" id="tableWrap"></div>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <footer class="footer">This projection is illustrative. · SD Wealth · Private Office</footer>
 
+  <!-- Include shared navigation script -->
+  <script src="../shared-nav.js"></script>
   <script>
-    // Theme toggle
+    // Inject sidebar with active page 'sip' and root path '../'
+    injectSharedSidebar('sip', '../');
+  </script>
+
+  <script>
+    // Existing calculator logic (unchanged except theme toggle)
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
@@ -255,6 +318,8 @@
       chart.data.datasets[1].backgroundColor = getCSSVar('--neutral') + '20';
       chart.options.scales.x.ticks.color = getCSSVar('--text-muted');
       chart.options.scales.y.ticks.color = getCSSVar('--text-muted');
+      chart.options.scales.x.grid.color = getCSSVar('--chart-grid');
+      chart.options.scales.y.grid.color = getCSSVar('--chart-grid');
       chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary');
       chart.update();
     }
@@ -367,7 +432,7 @@
                 color: getCSSVar('--text-muted'),
                 font: { family: 'IBM Plex Mono', size: 11 }
               },
-              grid: { color: getCSSVar('--border') }
+              grid: { color: getCSSVar('--chart-grid') }
             },
             y: {
               ticks: {
@@ -375,7 +440,7 @@
                 font: { family: 'IBM Plex Mono', size: 11 },
                 callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0})
               },
-              grid: { color: getCSSVar('--border') }
+              grid: { color: getCSSVar('--chart-grid') }
             }
           }
         }
