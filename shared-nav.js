@@ -1,6 +1,5 @@
 // shared-nav.js
 // Central navigation data for all calculators.
-// Add new calculators by appending an object to the array.
 const sharedCalculators = [
   {
     id: 'sip',
@@ -39,26 +38,71 @@ const sharedCalculators = [
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>`
   },
   {
-  id: 'lumpsum',
-  label: 'Lumpsum Calculator',
-  href: 'lumpsum-calculator/',
-  icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+    id: 'lumpsum',
+    label: 'Lumpsum Calculator',
+    href: 'lumpsum-calculator/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
   },
 ];
 
+/**
+ * Builds the navigation HTML (without container wrappers).
+ * @param {string} activeId - The id of the active calculator.
+ * @param {string} rootPath - Relative path prefix to the repository root (e.g., "../").
+ * @returns {string} HTML string of sidebar links.
+ */
+function getSharedNavHTML(activeId, rootPath) {
+  let html = '';
+  sharedCalculators.forEach(calc => {
+    const activeClass = calc.id === activeId ? 'active' : '';
+    html += `<a href="${rootPath}${calc.href}" class="sidebar-link ${activeClass}" data-testid="sidebar-${calc.id}"><span class="sidebar-icon">${calc.icon}</span>${calc.label}</a>`;
+  });
+  return html;
+}
+
+/**
+ * Injects the shared sidebar into the element with id "shared-sidebar".
+ * Also adds a Home link at top.
+ */
 function injectSharedSidebar(activeId, rootPath) {
   const container = document.getElementById('shared-sidebar');
   if (!container) return;
 
   let html = '<nav class="sidebar-nav">';
-  // Home link at top
   html += `<a href="${rootPath}" class="sidebar-link sidebar-home" data-testid="sidebar-home"><span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></span>Home</a>`;
-
-  sharedCalculators.forEach(calc => {
-    const activeClass = calc.id === activeId ? 'active' : '';
-    html += `<a href="${rootPath}${calc.href}" class="sidebar-link ${activeClass}" data-testid="sidebar-${calc.id}"><span class="sidebar-icon">${calc.icon}</span>${calc.label}</a>`;
-  });
-
+  html += getSharedNavHTML(activeId, rootPath);
   html += '</nav>';
   container.innerHTML = html;
+}
+
+/**
+ * Injects the shared navigation into a mobile drawer element.
+ * @param {string} activeId
+ * @param {string} rootPath
+ */
+function injectMobileDrawer(activeId, rootPath) {
+  const drawer = document.getElementById('mobileDrawer');
+  if (!drawer) return;
+
+  let html = '<nav class="sidebar-nav">';
+  html += `<a href="${rootPath}" class="sidebar-link sidebar-home" data-testid="drawer-home"><span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></span>Home</a>`;
+  html += getSharedNavHTML(activeId, rootPath);
+  html += '</nav>';
+  drawer.innerHTML = html;
+}
+
+/**
+ * Toggles the mobile drawer open/closed.
+ */
+function toggleMobileDrawer(forceClose = false) {
+  const drawer = document.getElementById('mobileDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (!drawer || !overlay) return;
+  if (forceClose) {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+  } else {
+    drawer.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
 }
