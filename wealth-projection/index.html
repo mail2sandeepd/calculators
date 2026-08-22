@@ -555,6 +555,24 @@
       .param-controls input[type="range"] { flex: 1 1 100%; min-width: auto; margin-top: 4px; }
       .supporting-strip { gap: 12px; }
       .table-wrap { max-height: 350px; }
+      /* Ensure supporting strips stack vertically on mobile */
+      .supporting-strip {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .supporting-item {
+        width: 100%;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .supporting-label,
+      .supporting-value {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+      }
     }
   </style>
 </head>
