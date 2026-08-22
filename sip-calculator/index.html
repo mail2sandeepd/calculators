@@ -62,7 +62,7 @@
       font-family: 'Work Sans', sans-serif;
       min-height: 100vh;
       transition: background 0.3s, color 0.3s;
-      overflow-x: hidden; /* Prevent horizontal scroll */
+      overflow-x: hidden;
     }
 
     .header {
@@ -75,7 +75,7 @@
       backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
       flex-wrap: wrap;
       transition: background 0.3s, border-color 0.3s;
     }
@@ -121,7 +121,7 @@
       align-items: center;
       flex-shrink: 0;
     }
-    .home-btn, .theme-toggle {
+    .home-btn, .theme-toggle, .hamburger-btn {
       background: none;
       border: 1px solid var(--border);
       border-radius: 50%;
@@ -135,10 +135,13 @@
       transition: all 0.3s;
       text-decoration: none;
     }
-    .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
+    .home-btn:hover, .theme-toggle:hover, .hamburger-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+    .home-btn svg, .theme-toggle svg, .hamburger-btn svg { width: 20px; height: 20px; }
 
-    /* ============ MAIN LAYOUT (flexbox) ============ */
+    /* Hide hamburger on desktop */
+    .hamburger-btn { display: none; }
+
+    /* ============ MAIN LAYOUT ============ */
     .layout {
       max-width: 1200px;
       margin: 0 auto;
@@ -148,7 +151,7 @@
       align-items: flex-start;
     }
 
-    /* Shared sidebar */
+    /* Desktop sidebar */
     #shared-sidebar {
       flex: 0 0 240px;
       position: sticky;
@@ -158,11 +161,7 @@
       flex-direction: column;
       gap: 8px;
     }
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
     .sidebar-link {
       display: flex;
       align-items: center;
@@ -268,7 +267,50 @@
     .table-wrap tbody tr:hover td { background: var(--bg-hover); }
     .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
 
-    /* ============ MOBILE (max-width: 768px) ============ */
+    /* ============ MOBILE DRAWER ============ */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 30;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -80%;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border);
+      z-index: 40;
+      transition: left 0.3s ease;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .drawer.open { left: 0; }
+    .drawer-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+    .drawer .sidebar-link { margin-bottom: 8px; }
+
+    /* ============ MOBILE RESPONSIVE ============ */
     @media (max-width: 768px) {
       .header {
         padding: 16px;
@@ -286,42 +328,24 @@
         justify-content: center;
         margin-top: 8px;
       }
+      /* Show hamburger, hide home button on mobile maybe? */
+      .hamburger-btn { display: flex; }
+      .home-btn { display: none; } /* hide separate home button since drawer has home */
       .layout {
         flex-direction: column;
         padding: 16px;
         gap: 16px;
       }
       #shared-sidebar {
-        position: static;
-        flex: none;
-        width: 100%;
-        order: 1;
-      }
-      .sidebar-nav {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 8px;
-        gap: 8px;
-      }
-      .sidebar-link {
-        white-space: nowrap;
+        display: none; /* hide desktop sidebar on mobile */
       }
       .main-content {
         width: 100%;
         order: 2;
       }
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
-      .action-buttons {
-        flex-direction: column;
-      }
-      .card {
-        padding: 16px;
-      }
+      .form-grid { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
     }
   </style>
 </head>
@@ -350,8 +374,25 @@
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
       </button>
+      <!-- Hamburger button (mobile only) -->
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile drawer overlay and drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="mobileDrawer">
+    <button class="drawer-close" id="drawerCloseBtn" aria-label="Close navigation menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <!-- Drawer nav injected by JS -->
+  </div>
 
   <div class="layout">
     <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
@@ -399,7 +440,17 @@
 
   <script src="../shared-nav.js"></script>
   <script>
+    // Inject desktop sidebar and mobile drawer
     injectSharedSidebar('sip', '../');
+    injectMobileDrawer('sip', '../');
+
+    // Drawer toggle
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    hamburgerBtn.addEventListener('click', () => toggleMobileDrawer());
+    drawerCloseBtn.addEventListener('click', () => toggleMobileDrawer(true));
+    drawerOverlay.addEventListener('click', () => toggleMobileDrawer(true));
   </script>
 
   <script>
