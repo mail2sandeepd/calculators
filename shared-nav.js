@@ -47,9 +47,6 @@ const sharedCalculators = [
 
 /**
  * Builds the navigation HTML (without container wrappers).
- * @param {string} activeId - The id of the active calculator.
- * @param {string} rootPath - Relative path prefix to the repository root (e.g., "../").
- * @returns {string} HTML string of sidebar links.
  */
 function getSharedNavHTML(activeId, rootPath) {
   let html = '';
@@ -62,7 +59,6 @@ function getSharedNavHTML(activeId, rootPath) {
 
 /**
  * Injects the shared sidebar into the element with id "shared-sidebar".
- * Also adds a Home link at top.
  */
 function injectSharedSidebar(activeId, rootPath) {
   const container = document.getElementById('shared-sidebar');
@@ -77,14 +73,18 @@ function injectSharedSidebar(activeId, rootPath) {
 
 /**
  * Injects the shared navigation into a mobile drawer element.
- * @param {string} activeId
- * @param {string} rootPath
+ * Includes a close button.
  */
 function injectMobileDrawer(activeId, rootPath) {
   const drawer = document.getElementById('mobileDrawer');
   if (!drawer) return;
 
-  let html = '<nav class="sidebar-nav">';
+  let html = `
+    <button class="drawer-close" id="drawerCloseBtn" aria-label="Close navigation menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+    <nav class="sidebar-nav">
+  `;
   html += `<a href="${rootPath}" class="sidebar-link sidebar-home" data-testid="drawer-home"><span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></span>Home</a>`;
   html += getSharedNavHTML(activeId, rootPath);
   html += '</nav>';
