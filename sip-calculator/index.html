@@ -115,12 +115,20 @@
       background-clip: text;
       white-space: nowrap;
     }
+
+    /* Header actions group */
     .header-actions {
       display: flex;
       gap: 12px;
       align-items: center;
       flex-shrink: 0;
     }
+    .action-left, .action-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
     .home-btn, .theme-toggle, .hamburger-btn {
       background: none;
       border: 1px solid var(--border);
@@ -306,6 +314,7 @@
     .drawer-close:hover { border-color: var(--accent); color: var(--accent); }
     .drawer .sidebar-link { margin-bottom: 8px; }
 
+    /* ============ MOBILE ============ */
     @media (max-width: 768px) {
       .header {
         padding: 16px;
@@ -320,11 +329,17 @@
         text-align: center;
       }
       .header-actions {
-        justify-content: center;
-        margin-top: 8px;
+        width: 100%;
+        justify-content: space-between;
+      }
+      .action-left {
+        order: 0;
+      }
+      .action-right {
+        order: 1;
       }
       .hamburger-btn { display: flex; }
-      .home-btn { display: none; }
+      .home-btn { display: flex; }
       .layout {
         flex-direction: column;
         padding: 16px;
@@ -353,24 +368,28 @@
       <p class="wordmark">SD Wealth · SIP Calculator</p>
     </a>
     <div class="header-actions">
-      <a href="../index.html" class="home-btn" aria-label="Home">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      </a>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-      </button>
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+      <div class="action-left">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+      <div class="action-right">
+        <a href="../index.html" class="home-btn" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </a>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -423,11 +442,9 @@
 
   <script src="../shared-nav.js"></script>
   <script>
-    // Inject sidebar and drawer
     injectSharedSidebar('sip', '../');
     injectMobileDrawer('sip', '../');
 
-    // Drawer toggle events (after injection so close button exists)
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const drawerCloseBtn = document.getElementById('drawerCloseBtn');
     const drawerOverlay = document.getElementById('drawerOverlay');
@@ -438,7 +455,7 @@
   </script>
 
   <script>
-    // Theme toggle and calculator logic (unchanged)
+    // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
