@@ -629,7 +629,7 @@
       const [sip, setSip] = useState(25000);
       const [stepUp, setStepUp] = useState(5);
       const [annualReturn, setAnnualReturn] = useState(12);
-      const [duration, setDuration] = useState(44); // will be auto-adjusted
+      const [duration, setDuration] = useState(44);
       const [sipStop, setSipStop] = useState(12);
       const [withdrawalStart, setWithdrawalStart] = useState(15);
       const [withdrawalRate, setWithdrawalRate] = useState(8);
@@ -724,7 +724,6 @@
       const handleCurrentExpenseChange = (v) => setCurrentExpense(clamp(v, 0, currency === 'INR' ? 1000000 : 100000));
       const handleBirthYearChange = (e) => {
         const val = e.target.value;
-        // Allow empty or up to 4 digits
         if (val === '' || (/^\d{0,4}$/.test(val))) {
           setBirthYear(val);
           setBirthYearError('');
@@ -786,6 +785,32 @@
       }, [lumpsum, sip, stepUp, annualReturn, duration, sipStop, withdrawalStart, withdrawalRate, swp, swpStepUp]);
 
       const { rows, totalInvested, totalWithdrawn, corpusAtSipStop, finalCorpus, totalReturns, wealthMultiplier, lineChartData, areaChartData } = projection;
+
+      // Corpus sustainability calculation
+      const sustainabilityText = useMemo(() => {
+        if (currentAge === null) return '—';
+        let corpus = finalCorpus;
+        if (corpus <= 0) return 'Corpus depleted before projection end';
+        const monthlyRate = Math.pow(1 + withdrawalRate / 100, 1 / 12) - 1;
+        let year = duration + 1;
+        while (year <= 100) {
+          const monthlySWP = year >= withdrawalStart ? swp * Math.pow(1 + swpStepUp / 100, year - withdrawalStart) : 0;
+          if (monthlySWP <= 0) return 'Corpus lasts beyond age 100';
+          let depleted = false;
+          for (let m = 1; m <= 12; m++) {
+            const withdrawal = Math.min(monthlySWP, corpus);
+            corpus -= withdrawal;
+            corpus *= (1 + monthlyRate);
+            if (corpus <= 0) {
+              depleted = true;
+              const age = currentAge + year + (m / 12);
+              return `Corpus lasts until age ${Math.floor(age)}`;
+            }
+          }
+          year++;
+        }
+        return 'Corpus lasts beyond age 100';
+      }, [finalCorpus, swp, swpStepUp, withdrawalRate, withdrawalStart, duration, currentAge]);
 
       const shareScenario = () => {
         const url = window.location.href;
@@ -1016,6 +1041,13 @@
                   <span className="supporting-value" data-testid="wealth-multiplier">{formatMultiplier(wealthMultiplier)}</span>
                 </div>
               </div>
+              {/* Corpus sustainability */}
+              <div className="supporting-strip" style={{ marginTop: '8px' }}>
+                <div className="supporting-item">
+                  <span className="supporting-label">Corpus Sustainability</span>
+                  <span className="supporting-value">{sustainabilityText}</span>
+                </div>
+              </div>
               <div className="charts-grid">
                 <div className="chart-card">
                   <h3>Year-over-year Corpus Growth</h3>
@@ -1102,6 +1134,7 @@
               <div className="report-summary">
                 <div className="report-metric"><div className="label">Total Returns (incl. withdrawn)</div><div className="value">{formatCurrency(totalReturns, currency)}</div></div>
                 <div className="report-metric"><div className="label">Wealth Multiplier</div><div className="value">{formatMultiplier(wealthMultiplier)}</div></div>
+                <div className="report-metric"><div className="label">Corpus Sustainability</div><div className="value">{sustainabilityText}</div></div>
               </div>
               <h2>Projection Charts</h2>
               <div className="report-charts">
