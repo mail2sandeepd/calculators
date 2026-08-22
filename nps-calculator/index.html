@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPS Calculator · SD Wealth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
+  <style>
+    /* ============ THEME VARIABLES ============ */
+    :root {
+      --bg-primary: #0B1120;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-input: rgba(255,255,255,0.05);
+      --bg-hover: rgba(255,255,255,0.05);
+      --text-primary: #F9FAFB;
+      --text-secondary: #D1D5DB;
+      --text-muted: #9CA3AF;
+      --border: rgba(255,255,255,0.1);
+      --border-light: rgba(255,255,255,0.06);
+      --accent: #10B981;
+      --accent-dark: #047857;
+      --accent-glow: rgba(16,185,129,0.3);
+      --accent-secondary: #06D6A0;
+      --neutral: #9CA3AF;
+      --chart-grid: rgba(255, 255, 255, 0.1);
+      --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+      --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%),
+                       radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
+    }
+    body.light {
+      --bg-primary: #ffffff;
+      --bg-secondary: #F9FAFB;
+      --bg-card: rgba(255,255,255,0.8);
+      --bg-input: rgba(17,24,39,0.04);
+      --bg-hover: rgba(17,24,39,0.04);
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #6B7280;
+      --border: rgba(17,24,39,0.1);
+      --border-light: rgba(17,24,39,0.06);
+      --accent: #064E3B;
+      --accent-dark: #047857;
+      --accent-glow: rgba(6,78,59,0.15);
+      --accent-secondary: #10B981;
+      --neutral: #9CA3AF;
+      --chart-grid: rgba(17, 24, 39, 0.3);
+      --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
+      --body-gradient: none;
+    }
+
+    /* ============ GLOBAL ============ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      margin: 0;
+      background: var(--bg-primary);
+      background-image: var(--body-gradient);
+      color: var(--text-primary);
+      font-family: 'Work Sans', sans-serif;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      flex-wrap: wrap;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: inherit;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .icon-square {
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow);
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    .icon-square svg { width: 24px; height: 24px; }
+    .logo-link:hover .icon-square { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
+    .wordmark {
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .action-left, .action-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .home-btn, .theme-toggle, .hamburger-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .home-btn:hover, .theme-toggle:hover, .hamburger-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .home-btn svg, .theme-toggle svg, .hamburger-btn svg { width: 20px; height: 20px; }
+
+    .hamburger-btn { display: none; }
+
+    /* ============ LAYOUT ============ */
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    #shared-sidebar {
+      flex: 0 0 240px;
+      position: sticky;
+      top: 90px;
+      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-icon svg { width: 16px; height: 16px; }
+    .sidebar-link.active .sidebar-icon { color: #fff; }
+    .sidebar-link .sidebar-icon { color: var(--accent); }
+    .sidebar-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow); }
+    .sidebar-link.active { border-color: var(--accent); color: #fff; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+    .sidebar-home { font-weight: 600; text-align: center; }
+
+    .main-content {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .card h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 8px; color: var(--text-primary); }
+    .card .sub-heading { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+
+    /* ============ FORM ============ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 13px; color: var(--text-secondary); }
+    .field .input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .field .input-row input[type="number"] {
+      width: 120px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      -moz-appearance: textfield;
+      flex-shrink: 0;
+    }
+    .field .input-row input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .field .input-row input[type="number"]::-webkit-outer-spin-button,
+    .field .input-row input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .field .input-row input[type="range"] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+      transition: background 0.3s;
+      min-width: 40px;
+    }
+    .field .input-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg-primary);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+    .field .input-row input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg-primary);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+    .field .input-row .compact {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 50px;
+      text-align: right;
+    }
+    .field .hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .btn {
+      padding: 12px 20px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.02em;
+    }
+    .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
+    .btn-outline { background: transparent; color: var(--accent); }
+    .btn-outline:hover { background: var(--accent); color: #fff; }
+    .btn-outline.active { background: var(--accent); color: #fff; box-shadow: 0 0 10px var(--accent-glow); }
+
+    /* ============ RESULTS ============ */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .result-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: var(--bg-card);
+      text-align: center;
+    }
+    .result-item.highlight { border-color: var(--accent); background: var(--accent-glow); }
+    .result-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .result-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      color: var(--accent);
+      word-break: break-word;
+    }
+    .result-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ============ CHARTS ============ */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+    .chart-container { position: relative; height: 240px; padding: 8px 0; }
+    .chart-container canvas { width: 100% !important; height: 100% !important; }
+    .chart-container.donut { height: 220px; }
+
+    /* ============ TABLE ============ */
+    .table-container { margin-top: 24px; }
+    .table-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
+    .table-wrap {
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    .table-wrap table { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 500px; }
+    .table-wrap thead th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 2;
+      text-align: right;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .table-wrap tbody td {
+      text-align: right;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    .table-wrap tbody tr:hover td { background: var(--bg-hover); }
+    .table-wrap tbody td:first-child { text-align: left; }
+
+    /* ============ ACTIONS ============ */
+    .action-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* ============ FOOTER ============ */
+    .footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    /* ============ DRAWER ============ */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 30;
+    }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -80%;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border);
+      z-index: 40;
+      transition: left 0.3s ease;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .drawer.open { left: 0; }
+    .drawer-close {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+    .drawer .sidebar-link { margin-bottom: 8px; }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 1024px) {
+      .chart-row { grid-template-columns: 1fr; }
+      .chart-container.donut { height: 200px; max-width: 300px; margin: 0 auto; }
+    }
+    @media (max-width: 768px) {
+      .header {
+        padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .logo-link {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .action-left { order: 0; }
+      .action-right { order: 1; }
+      .hamburger-btn { display: flex; }
+      .home-btn { display: flex; }
+
+      .layout {
+        flex-direction: column;
+        padding: 16px;
+        gap: 16px;
+      }
+      #shared-sidebar { display: none; }
+      .main-content { width: 100%; order: 2; }
+
+      .form-grid { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr 1fr; }
+      .card { padding: 16px; }
+
+      .field .input-row input[type="number"] { width: 100px; }
+    }
+    @media (max-width: 480px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <a href="../index.html" class="logo-link">
+      <div class="icon-square">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" />
+        </svg>
+      </div>
+      <p class="wordmark">SD Wealth · NPS Calculator</p>
+    </a>
+
+    <div class="header-actions">
+      <div class="action-left">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+      <div class="action-right">
+        <a href="../index.html" class="home-btn" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </a>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== DRAWER ==================== -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="mobileDrawer"></div>
+
+  <!-- ==================== LAYOUT ==================== -->
+  <div class="layout">
+    <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
+
+    <main class="main-content">
+      <div class="card">
+        <h2>National Pension System (NPS)</h2>
+        <p class="sub-heading">Estimate your retirement corpus and monthly pension. Enter your birth year, existing NPS balance, monthly contribution, and expected returns. The calculator handles contributions stopping at a chosen age and pension starting at 60.</p>
+
+        <!-- ========== INPUTS ========== -->
+        <div class="form-grid">
+          <!-- Birth Year -->
+          <div class="field">
+            <label>Birth Year</label>
+            <div class="input-row">
+              <input type="number" id="birthYear" value="1989" step="1" min="1940" max="2010" />
+              <input type="range" id="birthYearRange" min="1940" max="2010" value="1989" step="1" />
+              <span class="compact" id="birthYearCompact">1989</span>
+            </div>
+            <div class="hint" id="birthYearHint">Current age: 36 years</div>
+          </div>
+
+          <!-- Existing NPS Amount -->
+          <div class="field">
+            <label>Existing NPS Amount (₹)</label>
+            <div class="input-row">
+              <input type="number" id="existingNPS" value="1000" step="500" min="0" max="10000000" />
+              <input type="range" id="existingNPSRange" min="0" max="10000000" value="1000" step="500" />
+              <span class="compact" id="existingNPSCompact">1,000</span>
+            </div>
+            <div class="hint">Current accumulated NPS balance</div>
+          </div>
+
+          <!-- Monthly Contribution -->
+          <div class="field">
+            <label>Monthly Contribution (₹)</label>
+            <div class="input-row">
+              <input type="number" id="monthlyContribution" value="5000" step="500" min="500" max="100000" />
+              <input type="range" id="monthlyContributionRange" min="500" max="100000" value="5000" step="500" />
+              <span class="compact" id="monthlyContributionCompact">5,000</span>
+            </div>
+            <div class="hint">Amount you invest monthly</div>
+          </div>
+
+          <!-- Expected Return -->
+          <div class="field">
+            <label>Expected Return (% p.a.)</label>
+            <div class="input-row">
+              <input type="number" id="expectedReturn" value="10" step="0.5" min="1" max="30" />
+              <input type="range" id="expectedReturnRange" min="1" max="30" value="10" step="0.5" />
+              <span class="compact" id="expectedReturnCompact">10.0%</span>
+            </div>
+            <div class="hint">Annual return on investments</div>
+          </div>
+
+          <!-- Stop Contributions at Age -->
+          <div class="field">
+            <label>Stop Contributions at Age</label>
+            <div class="input-row">
+              <input type="number" id="stopAge" value="60" step="1" min="40" max="80" />
+              <input type="range" id="stopAgeRange" min="40" max="80" value="60" step="1" />
+              <span class="compact" id="stopAgeCompact">60</span>
+            </div>
+            <div class="hint" id="stopAgeHint">Age when you stop making contributions (must be ≥ current age)</div>
+          </div>
+
+          <!-- Annuity Percentage -->
+          <div class="field">
+            <label>Annuity Percentage (%)</label>
+            <div class="input-row">
+              <input type="number" id="annuityPercent" value="40" step="1" min="40" max="100" />
+              <input type="range" id="annuityPercentRange" min="40" max="100" value="40" step="1" />
+              <span class="compact" id="annuityPercentCompact">40%</span>
+            </div>
+            <div class="hint">Minimum 40% as per NPS rules (range 40-100%)</div>
+          </div>
+
+          <!-- Expected Annuity Return -->
+          <div class="field">
+            <label>Expected Annuity Return (% p.a.)</label>
+            <div class="input-row">
+              <input type="number" id="annuityReturn" value="7" step="0.5" min="1" max="15" />
+              <input type="range" id="annuityReturnRange" min="1" max="15" value="7" step="0.5" />
+              <span class="compact" id="annuityReturnCompact">7.0%</span>
+            </div>
+            <div class="hint">Expected return from the annuity</div>
+          </div>
+        </div>
+
+        <!-- ========== ACTIONS ========== -->
+        <div class="action-row">
+          <button class="btn" id="calculateBtn">⟳ Recalculate</button>
+          <button class="btn btn-outline" id="resetBtn">↺ Reset Defaults</button>
+        </div>
+
+        <!-- ========== RESULTS ========== -->
+        <div class="results-grid" id="resultsGrid">
+          <div class="result-item highlight">
+            <div class="result-label">Retirement Corpus</div>
+            <div class="result-value" id="retirementCorpus">₹0</div>
+            <div class="result-sub">at pension start</div>
+          </div>
+          <div class="result-item highlight">
+            <div class="result-label">Annuity Value</div>
+            <div class="result-value" id="annuityValue">₹0</div>
+            <div class="result-sub" id="annuityPercentDisplay">40% of corpus</div>
+          </div>
+          <div class="result-item highlight">
+            <div class="result-label">Monthly Pension</div>
+            <div class="result-value" id="monthlyPension">₹0</div>
+            <div class="result-sub">from annuity</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Total Invested</div>
+            <div class="result-value" id="totalInvested">₹0</div>
+            <div class="result-sub">contributions only</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Wealth Gained</div>
+            <div class="result-value" id="wealthGained">₹0</div>
+            <div class="result-sub">returns on investment</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Current Age</div>
+            <div class="result-value" id="currentAgeDisplay">-</div>
+            <div class="result-sub">derived from birth year</div>
+          </div>
+        </div>
+
+        <!-- ========== CHARTS ========== -->
+        <div class="chart-row">
+          <div class="chart-container donut">
+            <canvas id="breakdownChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="growthChart"></canvas>
+          </div>
+        </div>
+
+        <!-- ========== TABLE ========== -->
+        <div class="table-container">
+          <div class="table-toggle">
+            <button class="btn btn-outline active" id="yearlyBtn">Yearly</button>
+            <button class="btn btn-outline" id="monthlyBtn">Monthly</button>
+          </div>
+          <div class="table-wrap" id="tableWrap"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">This projection is illustrative. · SD Wealth · Private Office</footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="../shared-nav.js"></script>
+  <script>
+    // ============================================================
+    // FALLBACK NAVIGATION DATA (used if shared-nav.js is missing)
+    // ============================================================
+    const fallbackNavItems = [
+      { id: 'home', label: 'Home', href: '../index.html', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>' },
+      { id: 'sip', label: 'SIP Calculator', href: '../sip-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>' },
+      { id: 'swp', label: 'SWP Calculator', href: '../swp-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
+      { id: 'emi', label: 'EMI Calculator', href: '../emi-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>' },
+      { id: 'stockavg', label: 'Stock Average', href: '../stock-average-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>' },
+      { id: 'xirr', label: 'XIRR Calculator', href: '../xirr-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>' },
+      { id: 'lumpsum', label: 'Lumpsum Calculator', href: '../lumpsum-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
+      { id: 'wealth', label: 'Wealth Projection', href: '../wealth-projection/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>' },
+      { id: 'goal', label: 'Goal Calculator', href: '../goal-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
+      { id: 'nps', label: 'NPS Calculator', href: 'nps-calculator/', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' }
+    ];
+
+    // ============================================================
+    // FALLBACK INJECTION FUNCTIONS (only used if shared-nav missing)
+    // ============================================================
+    function fallbackInjectSidebar(activeId) {
+      const sidebar = document.getElementById('shared-sidebar');
+      if (!sidebar) return;
+      let html = '<div class="sidebar-nav">';
+      fallbackNavItems.forEach(item => {
+        const isActive = item.id === activeId ? ' active' : '';
+        html += `<a href="${item.href}" class="sidebar-link${isActive}">
+          <span class="sidebar-icon">${item.icon}</span>
+          ${item.label}
+        </a>`;
+      });
+      html += '</div>';
+      sidebar.innerHTML = html;
+    }
+
+    function fallbackInjectDrawer(activeId) {
+      const drawer = document.getElementById('mobileDrawer');
+      if (!drawer) return;
+      let html = `<button class="drawer-close" id="fallbackDrawerClose" aria-label="Close navigation menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>`;
+      fallbackNavItems.forEach(item => {
+        const isActive = item.id === activeId ? ' active' : '';
+        html += `<a href="${item.href}" class="sidebar-link${isActive}">
+          <span class="sidebar-icon">${item.icon}</span>
+          ${item.label}
+        </a>`;
+      });
+      drawer.innerHTML = html;
+      document.getElementById('fallbackDrawerClose').addEventListener('click', () => {
+        drawer.classList.remove('open');
+        document.getElementById('drawerOverlay').classList.remove('open');
+      });
+    }
+
+    function fallbackToggleDrawer(forceClose = false) {
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (forceClose || drawer.classList.contains('open')) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+      } else {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+      }
+    }
+
+    // ============================================================
+    // INJECT SHARED SIDEBAR & MOBILE DRAWER
+    // ============================================================
+    try {
+      if (typeof injectSharedSidebar === 'function') {
+        injectSharedSidebar('nps', '../');
+      } else {
+        fallbackInjectSidebar('nps');
+      }
+    } catch (e) {
+      fallbackInjectSidebar('nps');
+    }
+
+    try {
+      if (typeof injectMobileDrawer === 'function') {
+        injectMobileDrawer('nps', '../');
+      } else {
+        fallbackInjectDrawer('nps');
+      }
+    } catch (e) {
+      fallbackInjectDrawer('nps');
+    }
+
+    // ============================================================
+    // HAMBURGER & DRAWER EVENTS
+    // ============================================================
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const drawer = document.getElementById('mobileDrawer');
+
+    // Prefer shared toggleMobileDrawer if available, else fallback
+    const toggleDrawerFn = (typeof toggleMobileDrawer === 'function') ? toggleMobileDrawer : fallbackToggleDrawer;
+
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', () => toggleDrawerFn());
+    }
+    if (drawerOverlay) {
+      drawerOverlay.addEventListener('click', () => toggleDrawerFn(true));
+    }
+    // Also close when a link inside the drawer is clicked (optional)
+    if (drawer) {
+      drawer.addEventListener('click', (e) => {
+        if (e.target.closest('a.sidebar-link')) {
+          toggleDrawerFn(true);
+        }
+      });
+    }
+
+    // ============================================================
+    // THEME TOGGLE
+    // ============================================================
+    const themeToggle = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    const savedTheme = localStorage.getItem('sd-wealth-theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light');
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
+    }
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const isLight = document.body.classList.contains('light');
+      localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
+      sunIcon.style.display = isLight ? 'none' : 'block';
+      moonIcon.style.display = isLight ? 'block' : 'none';
+      if (breakdownChart) updateChartTheme(breakdownChart);
+      if (growthChart) updateChartTheme(growthChart);
+    });
+
+    // ============================================================
+    // UTILITY FUNCTIONS
+    // ============================================================
+    function formatIndianCurrency(num) {
+      if (num === undefined || num === null || isNaN(num)) return '₹0';
+      const sign = num < 0 ? '-' : '';
+      const abs = Math.abs(num);
+      const intPart = Math.floor(abs);
+      const last3 = intPart % 1000;
+      const rest = Math.floor(intPart / 1000);
+      let groups = [];
+      if (rest > 0) {
+        let r = rest;
+        while (r > 0) {
+          groups.push((r % 100).toString().padStart(2, '0'));
+          r = Math.floor(r / 100);
+        }
+        groups.reverse();
+        groups[groups.length - 1] = parseInt(groups[groups.length - 1]).toString();
+        if (groups[0].length > 1 && groups[0].startsWith('0')) {
+          groups[0] = groups[0].replace(/^0+/, '');
+        }
+        if (groups[0] === '') groups[0] = '0';
+        return sign + '₹' + groups.join(',') + ',' + last3.toString().padStart(3, '0');
+      } else {
+        return sign + '₹' + last3;
+      }
+    }
+
+    function formatIndianCompact(num) {
+      if (num === undefined || num === null || isNaN(num)) return '0';
+      const abs = Math.abs(num);
+      if (abs >= 10000000) return (num / 10000000).toFixed(2) + ' Cr';
+      if (abs >= 100000) return (num / 100000).toFixed(2) + ' L';
+      if (abs >= 1000) return (num / 1000).toFixed(1) + ' K';
+      return num.toFixed(0);
+    }
+
+    function getCSSVar(name) {
+      return getComputedStyle(document.body).getPropertyValue(name).trim();
+    }
+
+    function updateChartTheme(chart) {
+      if (!chart) return;
+      const accent = getCSSVar('--accent');
+      const textMuted = getCSSVar('--text-muted');
+      const chartGrid = getCSSVar('--chart-grid');
+      const textSecondary = getCSSVar('--text-secondary');
+
+      if (chart.options.scales) {
+        if (chart.options.scales.x) {
+          chart.options.scales.x.ticks.color = textMuted;
+          chart.options.scales.x.grid.color = chartGrid;
+        }
+        if (chart.options.scales.y) {
+          chart.options.scales.y.ticks.color = textMuted;
+          chart.options.scales.y.grid.color = chartGrid;
+        }
+      }
+      if (chart.options.plugins && chart.options.plugins.legend) {
+        chart.options.plugins.legend.labels.color = textSecondary;
+      }
+      if (chart.data && chart.data.datasets) {
+        chart.data.datasets.forEach((ds) => {
+          if (ds.borderColor) {
+            if (ds.label === 'Corpus') {
+              ds.borderColor = accent;
+              ds.backgroundColor = accent + '20';
+              ds.pointBackgroundColor = accent;
+              ds.pointBorderColor = accent;
+            } else if (ds.label === 'Invested') {
+              ds.borderColor = getCSSVar('--neutral');
+              ds.backgroundColor = getCSSVar('--neutral') + '20';
+            }
+          }
+        });
+      }
+      if (chart.data && chart.data.datasets && chart.type === 'doughnut') {
+        chart.data.datasets[0].backgroundColor = [accent, getCSSVar('--neutral')];
+        chart.data.datasets[0].borderColor = [accent, getCSSVar('--neutral')];
+      }
+      chart.update('none');
+    }
+
+    function bindInput(numberEl, rangeEl, compactEl, formatter) {
+      function updateFromNumber() {
+        let val = parseFloat(numberEl.value);
+        if (isNaN(val)) return;
+        rangeEl.value = val;
+        if (compactEl) compactEl.textContent = formatter ? formatter(val) : val;
+      }
+      function updateFromRange() {
+        let val = parseFloat(rangeEl.value);
+        numberEl.value = val;
+        if (compactEl) compactEl.textContent = formatter ? formatter(val) : val;
+      }
+      numberEl.addEventListener('input', updateFromNumber);
+      rangeEl.addEventListener('input', updateFromRange);
+      updateFromNumber();
+    }
+
+    // ============================================================
+    // DOM REFS & BIND INPUTS
+    // ============================================================
+    const birthYear = document.getElementById('birthYear');
+    const birthYearRange = document.getElementById('birthYearRange');
+    const birthYearCompact = document.getElementById('birthYearCompact');
+    const birthYearHint = document.getElementById('birthYearHint');
+
+    const existingNPS = document.getElementById('existingNPS');
+    const existingNPSRange = document.getElementById('existingNPSRange');
+    const existingNPSCompact = document.getElementById('existingNPSCompact');
+
+    const monthlyContribution = document.getElementById('monthlyContribution');
+    const monthlyContributionRange = document.getElementById('monthlyContributionRange');
+    const monthlyContributionCompact = document.getElementById('monthlyContributionCompact');
+
+    const expectedReturn = document.getElementById('expectedReturn');
+    const expectedReturnRange = document.getElementById('expectedReturnRange');
+    const expectedReturnCompact = document.getElementById('expectedReturnCompact');
+
+    const stopAge = document.getElementById('stopAge');
+    const stopAgeRange = document.getElementById('stopAgeRange');
+    const stopAgeCompact = document.getElementById('stopAgeCompact');
+    const stopAgeHint = document.getElementById('stopAgeHint');
+
+    const annuityPercent = document.getElementById('annuityPercent');
+    const annuityPercentRange = document.getElementById('annuityPercentRange');
+    const annuityPercentCompact = document.getElementById('annuityPercentCompact');
+
+    const annuityReturn = document.getElementById('annuityReturn');
+    const annuityReturnRange = document.getElementById('annuityReturnRange');
+    const annuityReturnCompact = document.getElementById('annuityReturnCompact');
+
+    bindInput(birthYear, birthYearRange, birthYearCompact, v => v);
+    bindInput(existingNPS, existingNPSRange, existingNPSCompact, v => formatIndianCompact(v));
+    bindInput(monthlyContribution, monthlyContributionRange, monthlyContributionCompact, v => formatIndianCompact(v));
+    bindInput(expectedReturn, expectedReturnRange, expectedReturnCompact, v => v.toFixed(1) + '%');
+    bindInput(stopAge, stopAgeRange, stopAgeCompact, v => v);
+    bindInput(annuityPercent, annuityPercentRange, annuityPercentCompact, v => v + '%');
+    bindInput(annuityReturn, annuityReturnRange, annuityReturnCompact, v => v.toFixed(1) + '%');
+
+    // ============================================================
+    // DYNAMIC AGE & STOP AGE CLAMPING
+    // ============================================================
+    function getCurrentAge() {
+      const currentYear = new Date().getFullYear();
+      const birthYearVal = parseInt(birthYear.value) || 1989;
+      return currentYear - birthYearVal;
+    }
+
+    function updateAgeHints() {
+      const age = getCurrentAge();
+      birthYearHint.textContent = `Current age: ${age} years`;
+      // Update stop age hint and clamp value if needed
+      const minStop = age; // minimum stop age should be current age
+      if (parseInt(stopAge.value) < minStop) {
+        stopAge.value = minStop;
+        stopAgeRange.value = minStop;
+        stopAgeCompact.textContent = minStop;
+      }
+      stopAgeHint.textContent = `Age when you stop making contributions (must be ≥ ${minStop})`;
+    }
+
+    // Call on birthYear change (also on init)
+    birthYear.addEventListener('input', updateAgeHints);
+    birthYearRange.addEventListener('input', updateAgeHints);
+    updateAgeHints();
+
+    // ============================================================
+    // CALCULATOR LOGIC
+    // ============================================================
+    function calculateNPS(birthYearVal, existingAmount, monthly, returnPct, stopAgeVal, annuityPct, annuityReturnPct) {
+      const currentYear = new Date().getFullYear();
+      const currentAge = currentYear - birthYearVal;
+      if (currentAge < 18) return null; // too young
+      if (currentAge >= 60) return null; // already retired
+
+      const pensionStartAge = 60;
+      // Ensure stopAge is at least currentAge (clamp)
+      stopAgeVal = Math.max(stopAgeVal, currentAge);
+
+      const contributionMonths = (stopAgeVal - currentAge) * 12;
+      const pensionMonths = (pensionStartAge - currentAge) * 12;
+      if (pensionMonths <= 0) return null; // already retired
+
+      const monthlyRate = returnPct / 100 / 12;
+
+      // 1. Grow existing amount until pension start
+      const existingFuture = existingAmount * Math.pow(1 + monthlyRate, pensionMonths);
+
+      // 2. Contributions: grow from now until stop age, then grow to pension start
+      let corpusAtStop = 0;
+      if (contributionMonths > 0) {
+        const factor = ((Math.pow(1 + monthlyRate, contributionMonths) - 1) / monthlyRate) * (1 + monthlyRate);
+        corpusAtStop = monthly * factor;
+      }
+      const monthsAfterStop = (pensionStartAge - stopAgeVal) * 12;
+      const corpusFromContributions = corpusAtStop * Math.pow(1 + monthlyRate, Math.max(0, monthsAfterStop));
+
+      const totalCorpus = existingFuture + corpusFromContributions;
+
+      // 3. Calculate annuity and pension
+      const annuityAmount = totalCorpus * (annuityPct / 100);
+      const monthlyPension = (annuityAmount * (annuityReturnPct / 100)) / 12;
+
+      // 4. Build yearly data
+      const years = pensionStartAge - currentAge;
+      let yearlyData = [];
+      let monthlyData = [];
+      let invested = existingAmount;
+      let currentCorpus = existingAmount;
+
+      yearlyData.push({
+        year: currentYear,
+        age: currentAge,
+        totalInvested: existingAmount,
+        corpus: existingAmount,
+        returns: 0
+      });
+
+      for (let y = 1; y <= years; y++) {
+        const age = currentAge + y;
+        let yearInvested = 0;
+        let yearCorpus = currentCorpus;
+
+        for (let m = 1; m <= 12; m++) {
+          const isContributing = age <= stopAgeVal;
+          if (isContributing) {
+            yearInvested += monthly;
+            invested += monthly;
+          }
+          yearCorpus = yearCorpus * (1 + monthlyRate);
+          if (isContributing) {
+            yearCorpus += monthly;
+          }
+          monthlyData.push({
+            period: (y - 1) * 12 + m,
+            year: currentYear + y - 1,
+            monthLabel: (currentYear + y - 1) + '-M' + String(m).padStart(2,'0'),
+            invested: isContributing ? monthly : 0,
+            totalInvested: invested,
+            corpus: yearCorpus,
+            returns: yearCorpus - invested
+          });
+        }
+        currentCorpus = yearCorpus;
+        yearlyData.push({
+          year: currentYear + y,
+          age: age,
+          totalInvested: invested,
+          corpus: currentCorpus,
+          returns: currentCorpus - invested
+        });
+      }
+
+      monthlyData = monthlyData.slice(0, years * 12);
+
+      return {
+        corpus: totalCorpus,
+        totalInvested: invested,
+        wealthGained: totalCorpus - invested,
+        annuityAmount: annuityAmount,
+        monthlyPension: monthlyPension,
+        workingYears: years,
+        annuityPercentUsed: annuityPct,
+        annuityReturnUsed: annuityReturnPct,
+        currentAge: currentAge,
+        yearlyData: yearlyData,
+        monthlyData: monthlyData
+      };
+    }
+
+    // ============================================================
+    // RENDER FUNCTIONS
+    // ============================================================
+    let breakdownChart = null;
+    let growthChart = null;
+    let currentView = 'yearly';
+    let yearlyData = [];
+    let monthlyData = [];
+
+    function renderCharts(result) {
+      const accent = getCSSVar('--accent');
+
+      const ctx1 = document.getElementById('breakdownChart').getContext('2d');
+      if (breakdownChart) breakdownChart.destroy();
+      const annuityAmount = result.annuityAmount;
+      const lumpSum = result.corpus - annuityAmount;
+      breakdownChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Annuity (' + result.annuityPercentUsed + '%)', 'Lump Sum (' + (100 - result.annuityPercentUsed) + '%)'],
+          datasets: [{
+            data: [annuityAmount, lumpSum],
+            backgroundColor: [accent, getCSSVar('--neutral')],
+            borderColor: [accent, getCSSVar('--neutral')],
+            borderWidth: 1,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: getCSSVar('--text-secondary'),
+                font: { family: 'Work Sans', size: 12 },
+                boxWidth: 12,
+                padding: 12
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const val = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = ((val / total) * 100).toFixed(1);
+                  return label + ': ' + formatIndianCurrency(val) + ' (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const ctx2 = document.getElementById('growthChart').getContext('2d');
+      if (growthChart) growthChart.destroy();
+
+      let labels = [];
+      let corpusData = [];
+      let investedData = [];
+
+      const dataSource = currentView === 'yearly' ? result.yearlyData : result.monthlyData;
+      if (currentView === 'yearly') {
+        dataSource.forEach(d => {
+          labels.push('Y' + d.year);
+          corpusData.push(d.corpus);
+          investedData.push(d.totalInvested);
+        });
+      } else {
+        const step = Math.max(1, Math.floor(dataSource.length / 60));
+        for (let i = 0; i < dataSource.length; i += step) {
+          const d = dataSource[i];
+          labels.push(d.monthLabel);
+          corpusData.push(d.corpus);
+          investedData.push(d.totalInvested);
+        }
+        const last = dataSource[dataSource.length - 1];
+        if (labels[labels.length - 1] !== last.monthLabel) {
+          labels.push(last.monthLabel);
+          corpusData.push(last.corpus);
+          investedData.push(last.totalInvested);
+        }
+      }
+
+      growthChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Corpus',
+              data: corpusData,
+              borderColor: accent,
+              backgroundColor: accent + '20',
+              borderWidth: 2.5,
+              pointBackgroundColor: accent,
+              pointBorderColor: accent,
+              pointRadius: 2.5,
+              pointHoverRadius: 5,
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Invested',
+              data: investedData,
+              borderColor: getCSSVar('--neutral'),
+              backgroundColor: getCSSVar('--neutral') + '20',
+              borderWidth: 1.5,
+              pointRadius: 0,
+              tension: 0.3,
+              fill: false,
+              borderDash: [4, 4]
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: {
+              labels: {
+                color: getCSSVar('--text-secondary'),
+                font: { family: 'Work Sans', size: 12 },
+                boxWidth: 14,
+                padding: 16
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatIndianCurrency(context.parsed.y);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: getCSSVar('--chart-grid'), drawBorder: false },
+              ticks: {
+                color: getCSSVar('--text-muted'),
+                font: { family: 'Work Sans', size: 11 },
+                maxTicksLimit: 20
+              },
+              title: {
+                display: true,
+                text: currentView === 'yearly' ? 'Years' : 'Months',
+                color: getCSSVar('--text-muted'),
+                font: { family: 'Work Sans', size: 11, weight: '500' }
+              }
+            },
+            y: {
+              grid: { color: getCSSVar('--chart-grid'), drawBorder: false },
+              ticks: {
+                color: getCSSVar('--text-muted'),
+                font: { family: 'Work Sans', size: 11 },
+                callback: function(value) { return formatIndianCompact(value); }
+              },
+              title: {
+                display: true,
+                text: 'Amount (₹)',
+                color: getCSSVar('--text-muted'),
+                font: { family: 'Work Sans', size: 11, weight: '500' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable(result) {
+      const wrap = document.getElementById('tableWrap');
+      let html = '';
+      const data = currentView === 'yearly' ? result.yearlyData : result.monthlyData;
+      const labelUnit = currentView === 'yearly' ? 'Year' : 'Month';
+
+      html = `<table>
+        <thead><tr>
+          <th>${labelUnit}</th>
+          <th>Invested (this period)</th>
+          <th>Total Invested</th>
+          <th>Returns</th>
+          <th>Corpus</th>
+        </tr></thead><tbody>`;
+
+      if (currentView === 'yearly') {
+        data.forEach((d, index) => {
+          const prevTotal = index > 0 ? data[index - 1].totalInvested : 0;
+          const investedThisPeriod = d.totalInvested - prevTotal;
+          html += `<tr>
+            <td>${d.year}</td>
+            <td>${formatIndianCurrency(investedThisPeriod)}</td>
+            <td>${formatIndianCurrency(d.totalInvested)}</td>
+            <td>${formatIndianCurrency(d.returns)}</td>
+            <td>${formatIndianCurrency(d.corpus)}</td>
+          </tr>`;
+        });
+      } else {
+        const displayData = data.length > 120 ? data.slice(0, 120) : data;
+        displayData.forEach(d => {
+          html += `<tr>
+            <td>${d.monthLabel}</td>
+            <td>${formatIndianCurrency(d.invested)}</td>
+            <td>${formatIndianCurrency(d.totalInvested)}</td>
+            <td>${formatIndianCurrency(d.returns)}</td>
+            <td>${formatIndianCurrency(d.corpus)}</td>
+          </tr>`;
+        });
+        if (data.length > 120) {
+          html += `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);font-style:italic;">Showing first 120 months (${data.length} total)</td></tr>`;
+        }
+      }
+
+      html += '</tbody></table>';
+      wrap.innerHTML = html;
+    }
+
+    // ============================================================
+    // MAIN UPDATE
+    // ============================================================
+    function updateCalculator() {
+      const birthYearVal = parseInt(birthYear.value) || 1989;
+      const existing = parseFloat(existingNPS.value) || 0;
+      const monthly = parseFloat(monthlyContribution.value) || 5000;
+      const returnPct = parseFloat(expectedReturn.value) || 10;
+      const stopAgeVal = parseFloat(stopAge.value) || 60;
+      const annuityPct = parseFloat(annuityPercent.value) || 40;
+      const annuityReturnPct = parseFloat(annuityReturn.value) || 7;
+
+      const result = calculateNPS(birthYearVal, existing, monthly, returnPct, stopAgeVal, annuityPct, annuityReturnPct);
+
+      if (!result) {
+        document.getElementById('retirementCorpus').textContent = '₹0';
+        document.getElementById('annuityValue').textContent = '₹0';
+        document.getElementById('monthlyPension').textContent = '₹0';
+        document.getElementById('totalInvested').textContent = '₹0';
+        document.getElementById('wealthGained').textContent = '₹0';
+        document.getElementById('currentAgeDisplay').textContent = '-';
+        document.getElementById('annuityPercentDisplay').textContent = '0% of corpus';
+        if (breakdownChart) breakdownChart.destroy();
+        if (growthChart) growthChart.destroy();
+        document.getElementById('tableWrap').innerHTML = '<p style="text-align:center;padding:20px;">Invalid input or already retired. Please adjust your birth year or stop age.</p>';
+        return;
+      }
+
+      yearlyData = result.yearlyData;
+      monthlyData = result.monthlyData;
+
+      document.getElementById('retirementCorpus').textContent = formatIndianCurrency(result.corpus);
+      document.getElementById('annuityValue').textContent = formatIndianCurrency(result.annuityAmount);
+      document.getElementById('monthlyPension').textContent = formatIndianCurrency(result.monthlyPension);
+      document.getElementById('totalInvested').textContent = formatIndianCurrency(result.totalInvested);
+      document.getElementById('wealthGained').textContent = formatIndianCurrency(result.wealthGained);
+      document.getElementById('currentAgeDisplay').textContent = result.currentAge + ' years';
+      document.getElementById('annuityPercentDisplay').textContent = result.annuityPercentUsed + '% of corpus';
+
+      renderCharts(result);
+      renderTable(result);
+    }
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    const inputs = [
+      birthYear, birthYearRange,
+      existingNPS, existingNPSRange,
+      monthlyContribution, monthlyContributionRange,
+      expectedReturn, expectedReturnRange,
+      stopAge, stopAgeRange,
+      annuityPercent, annuityPercentRange,
+      annuityReturn, annuityReturnRange
+    ];
+    inputs.forEach(el => el.addEventListener('input', updateCalculator));
+
+    document.getElementById('calculateBtn').addEventListener('click', updateCalculator);
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      birthYear.value = 1989;
+      birthYearRange.value = 1989;
+      birthYearCompact.textContent = '1989';
+      existingNPS.value = 1000;
+      existingNPSRange.value = 1000;
+      existingNPSCompact.textContent = formatIndianCompact(1000);
+      monthlyContribution.value = 5000;
+      monthlyContributionRange.value = 5000;
+      monthlyContributionCompact.textContent = formatIndianCompact(5000);
+      expectedReturn.value = 10;
+      expectedReturnRange.value = 10;
+      expectedReturnCompact.textContent = '10.0%';
+      stopAge.value = 60;
+      stopAgeRange.value = 60;
+      stopAgeCompact.textContent = '60';
+      annuityPercent.value = 40;
+      annuityPercentRange.value = 40;
+      annuityPercentCompact.textContent = '40%';
+      annuityReturn.value = 7;
+      annuityReturnRange.value = 7;
+      annuityReturnCompact.textContent = '7.0%';
+      updateAgeHints();
+      updateCalculator();
+    });
+
+    document.getElementById('yearlyBtn').addEventListener('click', function() {
+      currentView = 'yearly';
+      document.getElementById('yearlyBtn').classList.add('active');
+      document.getElementById('monthlyBtn').classList.remove('active');
+      updateCalculator();
+    });
+
+    document.getElementById('monthlyBtn').addEventListener('click', function() {
+      currentView = 'monthly';
+      document.getElementById('monthlyBtn').classList.add('active');
+      document.getElementById('yearlyBtn').classList.remove('active');
+      updateCalculator();
+    });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    updateCalculator();
+
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (breakdownChart) breakdownChart.resize();
+        if (growthChart) growthChart.resize();
+      }, 200);
+    });
+  </script>
+</body>
+</html>
