@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal Based Calculator · SD Wealth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        /* ===================== THEME VARIABLES ===================== */
+        :root {
+            --bg-primary: #0B1120;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-hover: rgba(255, 255, 255, 0.05);
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --text-muted: #9CA3AF;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-light: rgba(255, 255, 255, 0.06);
+            --accent: #10B981;
+            --accent-dark: #047857;
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --accent-secondary: #06D6A0;
+            --neutral: #9CA3AF;
+            --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.15);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            --chart-grid: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(255, 255, 255, 0.12);
+            --input-text: #F9FAFB;
+            --slider-track: rgba(255, 255, 255, 0.15);
+            --slider-fill: #10B981;
+            --table-header-bg: rgba(16, 185, 129, 0.08);
+            --table-stripe: rgba(255, 255, 255, 0.02);
+            --badge-bg: rgba(16, 185, 129, 0.15);
+            --badge-text: #10B981;
+            --card-border: rgba(255, 255, 255, 0.06);
+        }
+
+        body.light {
+            --bg-primary: #ffffff;
+            --bg-secondary: #F9FAFB;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-hover: rgba(17, 24, 39, 0.04);
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-muted: #6B7280;
+            --border: rgba(17, 24, 39, 0.1);
+            --border-light: rgba(17, 24, 39, 0.06);
+            --accent: #064E3B;
+            --accent-dark: #047857;
+            --accent-glow: rgba(6, 78, 59, 0.15);
+            --accent-secondary: #10B981;
+            --neutral: #9CA3AF;
+            --shadow-glow: 0 0 20px rgba(6, 78, 59, 0.1);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --body-gradient: none;
+            --chart-grid: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.04);
+            --input-border: rgba(0, 0, 0, 0.12);
+            --input-text: #111827;
+            --slider-track: rgba(0, 0, 0, 0.12);
+            --slider-fill: #064E3B;
+            --table-header-bg: rgba(6, 78, 59, 0.06);
+            --table-stripe: rgba(0, 0, 0, 0.02);
+            --badge-bg: rgba(6, 78, 59, 0.10);
+            --badge-text: #064E3B;
+            --card-border: rgba(0, 0, 0, 0.06);
+        }
+
+        /* ===================== GLOBAL RESET ===================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-primary);
+            background-image: var(--body-gradient);
+            color: var(--text-primary);
+            font-family: 'Work Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* ===================== APP SHELL ===================== */
+        .app-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===================== HEADER ===================== */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            background: var(--bg-card);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s, border-color 0.3s;
+            flex-wrap: wrap;
+            min-height: 72px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .icon-square {
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: var(--accent-glow);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: background 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .icon-square svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .wordmark {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin: 0;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            display: none;
+            flex-shrink: 0;
+            align-items: center;
+            gap: 6px;
+        }
+        .hamburger-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .hamburger-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+        .hamburger-btn .home-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* ===================== LAYOUT ===================== */
+        .layout {
+            display: flex;
+            gap: 32px;
+            flex: 1;
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 32px 40px;
+        }
+
+        /* ===================== SIDEBAR ===================== */
+        #shared-sidebar {
+            width: 240px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .sidebar-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .sidebar-link.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .sidebar-link .sidebar-icon {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-link .sidebar-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        .sidebar-link.sidebar-home {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 8px;
+            border-radius: 0;
+        }
+        .sidebar-link.sidebar-home.active {
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+            color: var(--text-secondary);
+        }
+        .sidebar-link.sidebar-home:hover {
+            color: var(--text-primary);
+        }
+
+        /* ===================== MAIN CONTENT ===================== */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ===================== HERO ===================== */
+        .hero {
+            margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 6px;
+            letter-spacing: 0.02em;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 680px;
+        }
+
+        /* ===================== CALCULATOR CARD ===================== */
+        .calculator-card {
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 28px 30px 32px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-card);
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* ===================== INPUTS GRID ===================== */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 32px;
+            margin-bottom: 28px;
+        }
+
+        .param-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .param-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .param-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+        }
+        .param-label .param-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--input-bg);
+            padding: 1px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border);
+            min-width: 80px;
+            text-align: center;
+        }
+        .param-label .param-value.currency {
+            color: var(--accent);
+        }
+
+        .param-input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .param-input-row input[type="number"] {
+            width: 110px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--input-text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            flex-shrink: 0;
+            -moz-appearance: textfield;
+        }
+        .param-input-row input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .param-input-row input[type="number"]::-webkit-outer-spin-button,
+        .param-input-row input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .param-input-row input[type="range"] {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--slider-track);
+            border-radius: 4px;
+            outline: none;
+            transition: background 0.3s;
+            min-width: 60px;
+        }
+        .param-input-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--slider-fill);
+            cursor: pointer;
+            border: 2px solid var(--bg-primary);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transition: transform 0.2s;
+        }
+        .param-input-row input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        .param-input-row input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--slider-fill);
+            cursor: pointer;
+            border: 2px solid var(--bg-primary);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .param-compact {
+            font-size: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--text-muted);
+            padding-left: 4px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .param-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            padding-left: 4px;
+        }
+
+        /* ===================== RESULTS ===================== */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 20px 0 24px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border-light);
+        }
+        .result-item .result-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .result-item .result-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+        .result-item .result-number.accent {
+            color: var(--accent);
+        }
+        .result-item .result-number .currency-symbol {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+        .result-item .result-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .result-item.highlight {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+        }
+        .result-item.highlight .result-number {
+            color: var(--accent);
+        }
+
+        /* ===================== CHART ===================== */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin: 16px 0 20px;
+            padding: 8px 0;
+        }
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* ===================== TABLE ===================== */
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 340px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            margin-top: 16px;
+        }
+        .table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 520px;
+        }
+        .table-wrapper thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        .table-wrapper thead th {
+            background: var(--table-header-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 10px 14px;
+            text-align: right;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        .table-wrapper thead th:first-child {
+            text-align: left;
+        }
+        .table-wrapper tbody td {
+            padding: 8px 14px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-light);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .table-wrapper tbody td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: 'Work Sans', sans-serif;
+        }
+        .table-wrapper tbody tr:nth-child(even) {
+            background: var(--table-stripe);
+        }
+        .table-wrapper tbody tr:hover {
+            background: var(--bg-hover);
+        }
+        .table-wrapper tbody td .progress-bar {
+            display: inline-block;
+            width: 60px;
+            height: 4px;
+            border-radius: 4px;
+            background: var(--slider-track);
+            margin-right: 8px;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .table-wrapper tbody td .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--accent);
+            transition: width 0.4s;
+        }
+        .table-wrapper tbody td .progress-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .table-controls .table-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .table-controls .btn-group {
+            display: flex;
+            gap: 4px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid var(--input-border);
+        }
+        .table-controls .btn-group button {
+            background: none;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Work Sans', sans-serif;
+        }
+        .table-controls .btn-group button.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+        .table-controls .btn-group button:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* ===================== BUTTONS ===================== */
+        .action-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            align-items: center;
+        }
+        .btn-primary {
+            padding: 10px 32px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Work Sans', sans-serif;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+            filter: brightness(1.08);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            padding: 10px 22px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        /* ===================== FOOTER ===================== */
+        .footer {
+            padding: 20px 32px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 0.02em;
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        /* ===================== MOBILE DRAWER ===================== */
+        #mobileDrawer {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            z-index: 200;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px 16px;
+            overflow-y: auto;
+            box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5);
+        }
+        #mobileDrawer.open {
+            left: 0;
+        }
+
+        #mobileDrawer .drawer-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Work Sans', sans-serif;
+        }
+        #mobileDrawer .drawer-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        #mobileDrawer .drawer-close svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        #mobileDrawer .sidebar-nav {
+            padding: 0;
+        }
+        #mobileDrawer .sidebar-link {
+            padding: 12px 14px;
+            border-radius: 8px;
+        }
+
+        #drawerOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            backdrop-filter: blur(4px);
+        }
+        #drawerOverlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 1024px) {
+            .inputs-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px 24px;
+            }
+            .layout {
+                padding: 20px 20px 32px;
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+                min-height: 60px;
+                gap: 10px;
+            }
+            .header-left {
+                gap: 10px;
+            }
+            .header-right {
+                gap: 6px;
+            }
+            .icon-square {
+                width: 36px;
+                height: 36px;
+            }
+            .icon-square svg {
+                width: 18px;
+                height: 18px;
+            }
+            .wordmark {
+                font-size: 13px;
+                letter-spacing: 0.06em;
+            }
+            .theme-toggle {
+                width: 34px;
+                height: 34px;
+            }
+            .theme-toggle svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .hamburger-btn {
+                display: flex;
+            }
+
+            #shared-sidebar {
+                display: none;
+            }
+
+            .layout {
+                flex-direction: column;
+                padding: 16px 14px 28px;
+                gap: 16px;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+            .hero p {
+                font-size: 14px;
+            }
+
+            .calculator-card {
+                padding: 18px 16px 22px;
+                border-radius: 14px;
+            }
+
+            .inputs-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .param-group.full-width {
+                grid-column: 1;
+            }
+
+            .param-input-row input[type="number"] {
+                width: 90px;
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            .param-input-row input[type="range"] {
+                min-width: 40px;
+            }
+            .param-compact {
+                min-width: 44px;
+                font-size: 11px;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 14px 0 18px;
+            }
+            .result-item .result-number {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 200px;
+            }
+
+            .table-wrapper {
+                max-height: 260px;
+            }
+            .table-wrapper table {
+                font-size: 12px;
+                min-width: 400px;
+            }
+            .table-wrapper thead th,
+            .table-wrapper tbody td {
+                padding: 6px 10px;
+            }
+
+            .action-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-row .btn-primary,
+            .action-row .btn-secondary {
+                text-align: center;
+            }
+
+            .footer {
+                padding: 16px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .result-item {
+                padding: 8px 4px;
+            }
+            .result-item .result-number {
+                font-size: 16px;
+            }
+            .calculator-card {
+                padding: 14px 12px 18px;
+            }
+            .param-input-row input[type="number"] {
+                width: 76px;
+                font-size: 12px;
+                padding: 5px 6px;
+            }
+            .param-label {
+                font-size: 12px;
+            }
+            .param-label .param-value {
+                font-size: 12px;
+                min-width: 60px;
+                padding: 0 6px;
+            }
+            .chart-container {
+                height: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <!-- ==================== HEADER ==================== -->
+        <header class="header">
+            <div class="header-left">
+                <a href="../index.html" class="icon-square" aria-label="Home">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" />
+                    </svg>
+                </a>
+                <a href="../index.html" class="wordmark">SD Wealth · Private Office</a>
+            </div>
+
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+                    <span class="home-label">Home</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- ==================== LAYOUT ==================== -->
+        <div class="layout">
+            <!-- Sidebar (desktop) -->
+            <aside id="shared-sidebar"></aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <section class="hero">
+                    <h1>Goal Based Calculator</h1>
+                    <p>Define your financial target and discover the monthly SIP or lumpsum required to reach it. Adjust your current savings, time horizon, and expected return to see the path to your goal.</p>
+                </section>
+
+                <div class="calculator-card" id="calculatorCard">
+
+                    <!-- ========== INPUTS ========== -->
+                    <div class="inputs-grid" id="inputsGrid">
+                        <!-- Goal Amount -->
+                        <div class="param-group">
+                            <div class="param-label">
+                                <span>Goal Amount</span>
+                                <span class="param-value currency" id="goalAmountDisplay">₹5.00 Cr</span>
+                            </div>
+                            <div class="param-input-row">
+                                <input type="number" id="goalAmount" value="50000000" step="100000" min="100000" max="1000000000" />
+                                <input type="range" id="goalAmountRange" min="100000" max="1000000000" value="50000000" step="100000" />
+                                <span class="param-compact" id="goalAmountCompact">5.00Cr</span>
+                            </div>
+                            <div class="param-hint">Target corpus you want to accumulate</div>
+                        </div>
+
+                        <!-- Time Horizon -->
+                        <div class="param-group">
+                            <div class="param-label">
+                                <span>Time Horizon</span>
+                                <span class="param-value" id="timeHorizonDisplay">10 yrs</span>
+                            </div>
+                            <div class="param-input-row">
+                                <input type="number" id="timeHorizon" value="10" step="1" min="1" max="50" />
+                                <input type="range" id="timeHorizonRange" min="1" max="50" value="10" step="1" />
+                                <span class="param-compact">years</span>
+                            </div>
+                            <div class="param-hint">How many years until you need the goal amount</div>
+                        </div>
+
+                        <!-- Current Savings -->
+                        <div class="param-group">
+                            <div class="param-label">
+                                <span>Current Savings</span>
+                                <span class="param-value currency" id="currentSavingsDisplay">₹50.00 L</span>
+                            </div>
+                            <div class="param-input-row">
+                                <input type="number" id="currentSavings" value="5000000" step="50000" min="0" max="500000000" />
+                                <input type="range" id="currentSavingsRange" min="0" max="500000000" value="5000000" step="50000" />
+                                <span class="param-compact" id="currentSavingsCompact">50.00L</span>
+                            </div>
+                            <div class="param-hint">Existing corpus you already have</div>
+                        </div>
+
+                        <!-- Expected Return -->
+                        <div class="param-group">
+                            <div class="param-label">
+                                <span>Expected Return</span>
+                                <span class="param-value" id="expectedReturnDisplay">12.0%</span>
+                            </div>
+                            <div class="param-input-row">
+                                <input type="number" id="expectedReturn" value="12" step="0.5" min="1" max="30" />
+                                <input type="range" id="expectedReturnRange" min="1" max="30" value="12" step="0.5" />
+                                <span class="param-compact">% p.a.</span>
+                            </div>
+                            <div class="param-hint">Annual return expectation on investments</div>
+                        </div>
+
+                        <!-- Monthly SIP (auto-calculated, user can override) -->
+                        <div class="param-group full-width">
+                            <div class="param-label">
+                                <span>Monthly SIP <span style="font-weight:400;color:var(--text-muted);font-size:12px;">(auto-calculated, editable)</span></span>
+                                <span class="param-value currency" id="monthlySIPDisplay">₹1.25 L</span>
+                            </div>
+                            <div class="param-input-row">
+                                <input type="number" id="monthlySIP" value="125000" step="1000" min="0" max="100000000" />
+                                <input type="range" id="monthlySIPRange" min="0" max="100000000" value="125000" step="1000" />
+                                <span class="param-compact" id="monthlySIPCompact">1.25L</span>
+                            </div>
+                            <div class="param-hint">Monthly investment amount — adjust to see the impact on your goal</div>
+                        </div>
+                    </div>
+
+                    <!-- ========== RESULTS ========== -->
+                    <div class="results-grid" id="resultsGrid">
+                        <div class="result-item highlight">
+                            <div class="result-label">Required Monthly SIP</div>
+                            <div class="result-number accent" id="requiredSIP">₹1,25,000</div>
+                            <div class="result-sub">to reach goal</div>
+                        </div>
+                        <div class="result-item highlight">
+                            <div class="result-label">Required Lumpsum</div>
+                            <div class="result-number accent" id="requiredLumpsum">₹2.50 Cr</div>
+                            <div class="result-sub">to reach goal today</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Projected Corpus</div>
+                            <div class="result-number" id="projectedCorpus">₹5.00 Cr</div>
+                            <div class="result-sub">with current SIP</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Goal Progress</div>
+                            <div class="result-number" id="goalProgress">100%</div>
+                            <div class="result-sub">of target</div>
+                        </div>
+                    </div>
+
+                    <!-- ========== CHART ========== -->
+                    <div class="chart-container">
+                        <canvas id="goalChart"></canvas>
+                    </div>
+
+                    <!-- ========== TABLE ========== -->
+                    <div class="table-controls">
+                        <span class="table-label">Projection Breakdown</span>
+                        <div class="btn-group" id="tableViewToggle">
+                            <button class="active" data-view="yearly">Yearly</button>
+                            <button data-view="monthly">Monthly</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper" id="tableWrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Period</th>
+                                    <th>Starting Balance</th>
+                                    <th>Invested</th>
+                                    <th>Returns</th>
+                                    <th>Ending Balance</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ========== ACTIONS ========== -->
+                    <div class="action-row">
+                        <button class="btn-primary" id="calculateBtn">⟳ Recalculate</button>
+                        <button class="btn-secondary" id="autoSIPBtn">⚡ Auto-SIP</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset Defaults</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer class="footer">
+            This projection is illustrative. · SD Wealth · Private Office
+        </footer>
+    </div>
+
+    <!-- ==================== MOBILE DRAWER ==================== -->
+    <div id="drawerOverlay"></div>
+    <div id="mobileDrawer"></div>
+
+    <!-- ==================== SHARED NAV ==================== -->
+    <script src="../shared-nav.js">
+    </script>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // --------------------------------------------------------------
+            // 1. THEME
+            // --------------------------------------------------------------
+            const themeToggle = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+
+            const savedTheme = localStorage.getItem('sd-wealth-theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.add('light');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                document.body.classList.remove('light');
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light');
+                const isLight = document.body.classList.contains('light');
+                localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
+                if (isLight) {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                } else {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                }
+                // Redraw chart with new theme colors
+                if (window.goalChartInstance) {
+                    updateChartTheme();
+                    window.goalChartInstance.update();
+                }
+            });
+
+            // --------------------------------------------------------------
+            // 2. SIDEBAR + MOBILE DRAWER
+            // --------------------------------------------------------------
+            // Inject shared sidebar (activeId = 'goal', rootPath = '../')
+            if (typeof injectSharedSidebar === 'function') {
+                injectSharedSidebar('goal', '../');
+            } else {
+                console.warn('shared-nav.js not loaded — injectSharedSidebar missing');
+            }
+
+            if (typeof injectMobileDrawer === 'function') {
+                injectMobileDrawer('goal', '../');
+            } else {
+                console.warn('shared-nav.js not loaded — injectMobileDrawer missing');
+            }
+
+            // Hamburger
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+
+            function openDrawer() {
+                if (drawer) drawer.classList.add('open');
+                if (overlay) overlay.classList.add('open');
+            }
+
+            function closeDrawer() {
+                if (drawer) drawer.classList.remove('open');
+                if (overlay) overlay.classList.remove('open');
+            }
+
+            if (hamburgerBtn) {
+                hamburgerBtn.addEventListener('click', openDrawer);
+            }
+            if (overlay) {
+                overlay.addEventListener('click', closeDrawer);
+            }
+
+            // Close button inside drawer (delegated)
+            if (drawer) {
+                drawer.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.drawer-close');
+                    if (btn) closeDrawer();
+                });
+            }
+
+            // Also expose toggle for shared-nav if needed
+            window.toggleMobileDrawer = function(forceClose) {
+                if (forceClose) {
+                    closeDrawer();
+                } else {
+                    if (drawer && drawer.classList.contains('open')) {
+                        closeDrawer();
+                    } else {
+                        openDrawer();
+                    }
+                }
+            };
+
+            // --------------------------------------------------------------
+            // 3. UTILITY: INDIAN COMPACT WORDS
+            // --------------------------------------------------------------
+            function formatIndianCompactWords(num) {
+                if (num === undefined || num === null || isNaN(num)) return '0';
+                const abs = Math.abs(num);
+                if (abs >= 10000000) {
+                    return (num / 10000000).toFixed(2) + ' Cr';
+                }
+                if (abs >= 100000) {
+                    return (num / 100000).toFixed(2) + ' L';
+                }
+                if (abs >= 1000) {
+                    return (num / 1000).toFixed(1) + ' K';
+                }
+                return num.toFixed(0);
+            }
+
+            function formatIndianCurrency(num) {
+                if (num === undefined || num === null || isNaN(num)) return '₹0';
+                const sign = num < 0 ? '-' : '';
+                const abs = Math.abs(num);
+                const intPart = Math.floor(abs);
+                const decPart = Math.round((abs - intPart) * 100);
+                const decStr = decPart.toString().padStart(2, '0');
+                // Indian grouping: last 3 digits then groups of 2
+                const last3 = intPart % 1000;
+                const rest = Math.floor(intPart / 1000);
+                let groups = [];
+                if (rest > 0) {
+                    let r = rest;
+                    while (r > 0) {
+                        groups.push((r % 100).toString().padStart(2, '0'));
+                        r = Math.floor(r / 100);
+                    }
+                    groups.reverse();
+                    groups[groups.length - 1] = parseInt(groups[groups.length - 1]).toString();
+                    // If first group has leading zero, remove it
+                    if (groups[0].length > 1 && groups[0].startsWith('0')) {
+                        groups[0] = groups[0].replace(/^0+/, '');
+                    }
+                    if (groups[0] === '') groups[0] = '0';
+                    return sign + '₹' + groups.join(',') + ',' + last3.toString().padStart(3, '0');
+                } else {
+                    return sign + '₹' + last3;
+                }
+            }
+
+            // --------------------------------------------------------------
+            // 4. DOM REFS
+            // --------------------------------------------------------------
+            const inputs = {
+                goalAmount: document.getElementById('goalAmount'),
+                goalAmountRange: document.getElementById('goalAmountRange'),
+                timeHorizon: document.getElementById('timeHorizon'),
+                timeHorizonRange: document.getElementById('timeHorizonRange'),
+                currentSavings: document.getElementById('currentSavings'),
+                currentSavingsRange: document.getElementById('currentSavingsRange'),
+                expectedReturn: document.getElementById('expectedReturn'),
+                expectedReturnRange: document.getElementById('expectedReturnRange'),
+                monthlySIP: document.getElementById('monthlySIP'),
+                monthlySIPRange: document.getElementById('monthlySIPRange'),
+            };
+
+            const displays = {
+                goalAmountDisplay: document.getElementById('goalAmountDisplay'),
+                goalAmountCompact: document.getElementById('goalAmountCompact'),
+                timeHorizonDisplay: document.getElementById('timeHorizonDisplay'),
+                currentSavingsDisplay: document.getElementById('currentSavingsDisplay'),
+                currentSavingsCompact: document.getElementById('currentSavingsCompact'),
+                expectedReturnDisplay: document.getElementById('expectedReturnDisplay'),
+                monthlySIPDisplay: document.getElementById('monthlySIPDisplay'),
+                monthlySIPCompact: document.getElementById('monthlySIPCompact'),
+            };
+
+            const results = {
+                requiredSIP: document.getElementById('requiredSIP'),
+                requiredLumpsum: document.getElementById('requiredLumpsum'),
+                projectedCorpus: document.getElementById('projectedCorpus'),
+                goalProgress: document.getElementById('goalProgress'),
+            };
+
+            const tableBody = document.getElementById('tableBody');
+            const tableViewBtns = document.querySelectorAll('#tableViewToggle button');
+            const calcBtn = document.getElementById('calculateBtn');
+            const autoSIPBtn = document.getElementById('autoSIPBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            let currentView = 'yearly'; // 'yearly' | 'monthly'
+            let chartInstance = null;
+
+            // --------------------------------------------------------------
+            // 5. BIND INPUTS (number ↔ range)
+            // --------------------------------------------------------------
+            function bindInputPair(numberEl, rangeEl, displayEl, compactEl, formatter) {
+                function updateFromNumber() {
+                    let val = parseFloat(numberEl.value);
+                    if (isNaN(val)) return;
+                    rangeEl.value = val;
+                    if (displayEl) {
+                        if (formatter) displayEl.textContent = formatter(val);
+                        else displayEl.textContent = val;
+                    }
+                    if (compactEl) {
+                        if (typeof formatter === 'function') {
+                            compactEl.textContent = formatter(val);
+                        } else {
+                            compactEl.textContent = formatIndianCompactWords(val);
+                        }
+                    }
+                }
+
+                function updateFromRange() {
+                    let val = parseFloat(rangeEl.value);
+                    numberEl.value = val;
+                    if (displayEl) {
+                        if (formatter) displayEl.textContent = formatter(val);
+                        else displayEl.textContent = val;
+                    }
+                    if (compactEl) {
+                        if (typeof formatter === 'function') {
+                            compactEl.textContent = formatter(val);
+                        } else {
+                            compactEl.textContent = formatIndianCompactWords(val);
+                        }
+                    }
+                }
+
+                numberEl.addEventListener('input', updateFromNumber);
+                rangeEl.addEventListener('input', updateFromRange);
+                // Initial sync
+                updateFromNumber();
+            }
+
+            // Currency formatter for display
+            function currencyDisplay(val) {
+                return '₹' + formatIndianCompactWords(val);
+            }
+
+            function percentDisplay(val) {
+                return val.toFixed(1) + '%';
+            }
+
+            function yearsDisplay(val) {
+                return val + ' yrs';
+            }
+
+            // Bind all
+            bindInputPair(
+                inputs.goalAmount, inputs.goalAmountRange,
+                displays.goalAmountDisplay, displays.goalAmountCompact,
+                currencyDisplay
+            );
+            bindInputPair(
+                inputs.timeHorizon, inputs.timeHorizonRange,
+                displays.timeHorizonDisplay, null,
+                yearsDisplay
+            );
+            bindInputPair(
+                inputs.currentSavings, inputs.currentSavingsRange,
+                displays.currentSavingsDisplay, displays.currentSavingsCompact,
+                currencyDisplay
+            );
+            bindInputPair(
+                inputs.expectedReturn, inputs.expectedReturnRange,
+                displays.expectedReturnDisplay, null,
+                percentDisplay
+            );
+            bindInputPair(
+                inputs.monthlySIP, inputs.monthlySIPRange,
+                displays.monthlySIPDisplay, displays.monthlySIPCompact,
+                currencyDisplay
+            );
+
+            // --------------------------------------------------------------
+            // 6. CALCULATOR LOGIC
+            // --------------------------------------------------------------
+            function getValues() {
+                return {
+                    goal: parseFloat(inputs.goalAmount.value) || 0,
+                    years: parseFloat(inputs.timeHorizon.value) || 1,
+                    current: parseFloat(inputs.currentSavings.value) || 0,
+                    returnPct: parseFloat(inputs.expectedReturn.value) || 0,
+                    sip: parseFloat(inputs.monthlySIP.value) || 0,
+                };
+            }
+
+            function computeProjection(goal, years, current, returnPct, sip) {
+                const monthlyRate = returnPct / 100 / 12;
+                const months = years * 12;
+                const data = [];
+                let balance = current;
+                let totalInvested = current;
+                let totalReturns = 0;
+
+                // Monthly projection
+                for (let m = 0; m <= months; m++) {
+                    if (m === 0) {
+                        data.push({
+                            period: 0,
+                            balance: balance,
+                            invested: 0,
+                            returns: 0,
+                            ending: balance,
+                            progress: goal > 0 ? (balance / goal) * 100 : 0,
+                        });
+                        continue;
+                    }
+                    const start = balance;
+                    // Add SIP at beginning of month
+                    balance += sip;
+                    totalInvested += sip;
+                    // Apply return
+                    const returnAmt = balance * monthlyRate;
+                    balance += returnAmt;
+                    totalReturns += returnAmt;
+
+                    const progress = goal > 0 ? (balance / goal) * 100 : 0;
+                    data.push({
+                        period: m,
+                        balance: start,
+                        invested: sip,
+                        returns: returnAmt,
+                        ending: balance,
+                        progress: Math.min(progress, 100),
+                    });
+                }
+
+                return data;
+            }
+
+            function computeRequiredSIP(goal, years, current, returnPct) {
+                if (goal <= current) return 0;
+                const monthlyRate = returnPct / 100 / 12;
+                const months = years * 12;
+                if (monthlyRate === 0) {
+                    // Simple: need to save (goal - current) / months
+                    return (goal - current) / months;
+                }
+                // FV = P * ((1+r)^n - 1)/r * (1+r) + current * (1+r)^n
+                // We need P such that FV = goal
+                const factor = ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+                const futureCurrent = current * Math.pow(1 + monthlyRate, months);
+                if (futureCurrent >= goal) return 0;
+                return (goal - futureCurrent) / factor;
+            }
+
+            function computeRequiredLumpsum(goal, years, returnPct) {
+                const annualRate = returnPct / 100;
+                if (annualRate === 0) return goal;
+                return goal / Math.pow(1 + annualRate, years);
+            }
+
+            // --------------------------------------------------------------
+            // 7. RENDER CHART
+            // --------------------------------------------------------------
+            function getChartColors() {
+                const isLight = document.body.classList.contains('light');
+                return {
+                    grid: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                    text: isLight ? '#4B5563' : '#9CA3AF',
+                    accent: isLight ? '#064E3B' : '#10B981',
+                    accentGlow: isLight ? 'rgba(6,78,59,0.2)' : 'rgba(16,185,129,0.25)',
+                    line: isLight ? '#064E3B' : '#10B981',
+                    fill: isLight ? 'rgba(6,78,59,0.10)' : 'rgba(16,185,129,0.12)',
+                    goalLine: isLight ? '#EF4444' : '#F87171',
+                    goalLineLabel: isLight ? '#EF4444' : '#F87171',
+                };
+            }
+
+            function updateChartTheme() {
+                const colors = getChartColors();
+                if (!chartInstance) return;
+                const chart = chartInstance;
+                // Update grid
+                if (chart.options.scales) {
+                    if (chart.options.scales.x) {
+                        chart.options.scales.x.grid.color = colors.grid;
+                        chart.options.scales.x.ticks.color = colors.text;
+                    }
+                    if (chart.options.scales.y) {
+                        chart.options.scales.y.grid.color = colors.grid;
+                        chart.options.scales.y.ticks.color = colors.text;
+                    }
+                }
+                // Update dataset colors
+                if (chart.data.datasets) {
+                    chart.data.datasets.forEach((ds, idx) => {
+                        if (idx === 0) {
+                            ds.borderColor = colors.line;
+                            ds.backgroundColor = colors.fill;
+                            ds.pointBackgroundColor = colors.accent;
+                            ds.pointBorderColor = colors.accent;
+                        }
+                        if (idx === 1) {
+                            ds.borderColor = colors.goalLine;
+                            ds.backgroundColor = colors.goalLine + '30';
+                            ds.pointBackgroundColor = colors.goalLine;
+                            ds.pointBorderColor = colors.goalLine;
+                        }
+                    });
+                }
+                // Update legend labels
+                if (chart.options.plugins && chart.options.plugins.legend) {
+                    chart.options.plugins.legend.labels.color = colors.text;
+                }
+                chart.update('none');
+            }
+
+            function renderChart(data, goal) {
+                const ctx = document.getElementById('goalChart').getContext('2d');
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
+
+                const colors = getChartColors();
+
+                // Prepare data: yearly or monthly based on view
+                let labels = [];
+                let values = [];
+                let step = currentView === 'yearly' ? 12 : 1;
+                let maxPeriod = data.length - 1;
+
+                // For yearly, take every 12th month (or last if not exact)
+                if (currentView === 'yearly') {
+                    for (let i = 0; i < data.length; i += 12) {
+                        const d = data[i];
+                        labels.push(d.period / 12);
+                        values.push(d.ending);
+                    }
+                    // Ensure last data point is included
+                    const last = data[data.length - 1];
+                    if (labels[labels.length - 1] !== last.period / 12) {
+                        labels.push(last.period / 12);
+                        values.push(last.ending);
+                    }
+                } else {
+                    // Monthly
+                    for (let i = 0; i < data.length; i++) {
+                        const d = data[i];
+                        labels.push(d.period);
+                        values.push(d.ending);
+                    }
+                }
+
+                const labelUnit = currentView === 'yearly' ? 'Years' : 'Months';
+
+                // Goal line data
+                const goalValues = values.map(() => goal);
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Projected Corpus',
+                            data: values,
+                            borderColor: colors.line,
+                            backgroundColor: colors.fill,
+                            borderWidth: 2.5,
+                            pointBackgroundColor: colors.accent,
+                            pointBorderColor: colors.accent,
+                            pointRadius: 2.5,
+                            pointHoverRadius: 5,
+                            tension: 0.3,
+                            fill: true,
+                        }, {
+                            label: 'Goal',
+                            data: goalValues,
+                            borderColor: colors.goalLine,
+                            backgroundColor: colors.goalLine + '30',
+                            borderWidth: 1.5,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            fill: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: colors.text,
+                                    font: { family: 'Work Sans', size: 12, weight: '500' },
+                                    boxWidth: 14,
+                                    padding: 16,
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        let val = context.parsed.y;
+                                        if (context.datasetIndex === 0) {
+                                            return label + ': ' + formatIndianCurrency(val);
+                                        } else {
+                                            return label + ': ' + formatIndianCurrency(val);
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: colors.grid, drawBorder: false },
+                                ticks: {
+                                    color: colors.text,
+                                    font: { family: 'Work Sans', size: 11 },
+                                    maxTicksLimit: 20,
+                                },
+                                title: {
+                                    display: true,
+                                    text: labelUnit,
+                                    color: colors.text,
+                                    font: { family: 'Work Sans', size: 11, weight: '500' },
+                                }
+                            },
+                            y: {
+                                grid: { color: colors.grid, drawBorder: false },
+                                ticks: {
+                                    color: colors.text,
+                                    font: { family: 'Work Sans', size: 11 },
+                                    callback: function(value) {
+                                        return formatIndianCompactWords(value);
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Corpus (₹)',
+                                    color: colors.text,
+                                    font: { family: 'Work Sans', size: 11, weight: '500' },
+                                }
+                            }
+                        }
+                    }
+                });
+
+                window.goalChartInstance = chartInstance;
+            }
+
+            // --------------------------------------------------------------
+            // 8. RENDER TABLE
+            // --------------------------------------------------------------
+            function renderTable(data, goal) {
+                let html = '';
+                let step = currentView === 'yearly' ? 12 : 1;
+                let count = 0;
+
+                // For yearly, skip to every 12th month, but include month 0 and last
+                let indices = [];
+                if (currentView === 'yearly') {
+                    for (let i = 0; i < data.length; i += 12) {
+                        indices.push(i);
+                    }
+                    const lastIdx = data.length - 1;
+                    if (indices[indices.length - 1] !== lastIdx) {
+                        indices.push(lastIdx);
+                    }
+                } else {
+                    for (let i = 0; i < data.length; i++) {
+                        indices.push(i);
+                    }
+                }
+
+                const labelUnit = currentView === 'yearly' ? 'Year' : 'Month';
+
+                for (let idx of indices) {
+                    const d = data[idx];
+                    const periodLabel = currentView === 'yearly' ?
+                        (d.period / 12).toFixed(1) :
+                        d.period;
+
+                    const progressPct = Math.min(d.progress, 100);
+                    const barWidth = Math.min(progressPct, 100);
+
+                    html += `<tr>
+                        <td>${labelUnit} ${periodLabel}</td>
+                        <td>${formatIndianCurrency(d.balance)}</td>
+                        <td>${formatIndianCurrency(d.invested)}</td>
+                        <td>${formatIndianCurrency(d.returns)}</td>
+                        <td>${formatIndianCurrency(d.ending)}</td>
+                        <td>
+                            <div class="progress-bar"><div class="fill" style="width:${barWidth}%;"></div></div>
+                            <span class="progress-text">${progressPct.toFixed(1)}%</span>
+                        </td>
+                    </tr>`;
+                }
+
+                tableBody.innerHTML = html;
+            }
+
+            // --------------------------------------------------------------
+            // 9. MAIN UPDATE
+            // --------------------------------------------------------------
+            function updateCalculator() {
+                const vals = getValues();
+                const { goal, years, current, returnPct, sip } = vals;
+
+                // Compute required SIP
+                const reqSIP = computeRequiredSIP(goal, years, current, returnPct);
+                const reqLumpsum = computeRequiredLumpsum(goal, years, returnPct);
+
+                // Use either user's SIP or required SIP for projection
+                const effectiveSIP = sip > 0 ? sip : reqSIP;
+
+                // Projection data
+                const data = computeProjection(goal, years, current, returnPct, effectiveSIP);
+                const finalCorpus = data.length > 0 ? data[data.length - 1].ending : current;
+                const progress = goal > 0 ? Math.min((finalCorpus / goal) * 100, 100) : 0;
+
+                // Update results
+                results.requiredSIP.textContent = formatIndianCurrency(reqSIP);
+                results.requiredLumpsum.textContent = formatIndianCurrency(reqLumpsum);
+                results.projectedCorpus.textContent = formatIndianCurrency(finalCorpus);
+                results.goalProgress.textContent = progress.toFixed(1) + '%';
+
+                // Update SIP input if user hasn't manually changed it recently
+                // Only auto-update if the current SIP value is 0 or matches the previous auto value
+                // We'll track if user manually edited the SIP
+                if (!window._userEditedSIP) {
+                    const roundedSIP = Math.round(reqSIP / 1000) * 1000;
+                    if (roundedSIP > 0) {
+                        inputs.monthlySIP.value = roundedSIP;
+                        inputs.monthlySIPRange.value = roundedSIP;
+                        displays.monthlySIPDisplay.textContent = currencyDisplay(roundedSIP);
+                        displays.monthlySIPCompact.textContent = formatIndianCompactWords(roundedSIP);
+                    }
+                }
+
+                // Render chart & table
+                renderChart(data, goal);
+                renderTable(data, goal);
+            }
+
+            // --------------------------------------------------------------
+            // 10. VIEW TOGGLE (yearly / monthly)
+            // --------------------------------------------------------------
+            tableViewBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tableViewBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentView = this.dataset.view;
+                    updateCalculator();
+                });
+            });
+
+            // --------------------------------------------------------------
+            // 11. EVENT LISTENERS
+            // --------------------------------------------------------------
+            // All inputs trigger update
+            const allInputs = [
+                inputs.goalAmount, inputs.goalAmountRange,
+                inputs.timeHorizon, inputs.timeHorizonRange,
+                inputs.currentSavings, inputs.currentSavingsRange,
+                inputs.expectedReturn, inputs.expectedReturnRange,
+                inputs.monthlySIP, inputs.monthlySIPRange,
+            ];
+
+            allInputs.forEach(el => {
+                el.addEventListener('input', function() {
+                    // If SIP input changes, mark user edit
+                    if (this === inputs.monthlySIP || this === inputs.monthlySIPRange) {
+                        window._userEditedSIP = true;
+                    }
+                    updateCalculator();
+                });
+            });
+
+            // Calculate button
+            calcBtn.addEventListener('click', function() {
+                // Reset user edit flag when explicitly calculating
+                window._userEditedSIP = false;
+                updateCalculator();
+            });
+
+            // Auto-SIP: set SIP to required SIP and lock it
+            autoSIPBtn.addEventListener('click', function() {
+                const vals = getValues();
+                const reqSIP = computeRequiredSIP(vals.goal, vals.years, vals.current, vals.returnPct);
+                const rounded = Math.round(reqSIP / 1000) * 1000;
+                if (rounded > 0) {
+                    inputs.monthlySIP.value = rounded;
+                    inputs.monthlySIPRange.value = rounded;
+                    displays.monthlySIPDisplay.textContent = currencyDisplay(rounded);
+                    displays.monthlySIPCompact.textContent = formatIndianCompactWords(rounded);
+                    window._userEditedSIP = false;
+                    updateCalculator();
+                }
+            });
+
+            // Reset: set defaults
+            resetBtn.addEventListener('click', function() {
+                const defaults = {
+                    goalAmount: 50000000,
+                    timeHorizon: 10,
+                    currentSavings: 5000000,
+                    expectedReturn: 12,
+                    monthlySIP: 125000,
+                };
+                inputs.goalAmount.value = defaults.goalAmount;
+                inputs.goalAmountRange.value = defaults.goalAmount;
+                inputs.timeHorizon.value = defaults.timeHorizon;
+                inputs.timeHorizonRange.value = defaults.timeHorizon;
+                inputs.currentSavings.value = defaults.currentSavings;
+                inputs.currentSavingsRange.value = defaults.currentSavings;
+                inputs.expectedReturn.value = defaults.expectedReturn;
+                inputs.expectedReturnRange.value = defaults.expectedReturn;
+                inputs.monthlySIP.value = defaults.monthlySIP;
+                inputs.monthlySIPRange.value = defaults.monthlySIP;
+
+                // Update displays
+                displays.goalAmountDisplay.textContent = currencyDisplay(defaults.goalAmount);
+                displays.goalAmountCompact.textContent = formatIndianCompactWords(defaults.goalAmount);
+                displays.timeHorizonDisplay.textContent = yearsDisplay(defaults.timeHorizon);
+                displays.currentSavingsDisplay.textContent = currencyDisplay(defaults.currentSavings);
+                displays.currentSavingsCompact.textContent = formatIndianCompactWords(defaults.currentSavings);
+                displays.expectedReturnDisplay.textContent = percentDisplay(defaults.expectedReturn);
+                displays.monthlySIPDisplay.textContent = currencyDisplay(defaults.monthlySIP);
+                displays.monthlySIPCompact.textContent = formatIndianCompactWords(defaults.monthlySIP);
+
+                window._userEditedSIP = false;
+                updateCalculator();
+            });
+
+            // --------------------------------------------------------------
+            // 12. INIT
+            // --------------------------------------------------------------
+            // Set initial user edit flag to false
+            window._userEditedSIP = false;
+
+            // Delay initial render to ensure DOM is ready
+            requestAnimationFrame(() => {
+                updateCalculator();
+            });
+
+            // Re-render on theme change (already handled via chart update)
+            // Also update chart on resize
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    if (chartInstance) {
+                        chartInstance.resize();
+                    }
+                }, 200);
+            });
+
+            // Expose for debugging
+            window.goalCalc = {
+                update: updateCalculator,
+                getValues: getValues,
+                computeRequiredSIP: computeRequiredSIP,
+                computeRequiredLumpsum: computeRequiredLumpsum,
+            };
+
+        })();
+    </script>
+</body>
+</html>
