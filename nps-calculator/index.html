@@ -534,7 +534,7 @@
     <main class="main-content">
       <div class="card">
         <h2>National Pension System (NPS)</h2>
-        <p class="sub-heading">Estimate your retirement corpus and monthly pension. Enter your birth year, existing NPS balance, monthly contribution, and expected returns. The calculator handles contributions stopping at a chosen age and pension starting at 60.</p>
+        <p class="sub-heading">Estimate your retirement corpus and monthly pension. Supports regular NPS and NPS Vatsalya (minors). Contributions stop at chosen age; pension starts at 60.</p>
 
         <!-- ========== INPUTS ========== -->
         <div class="form-grid">
@@ -542,8 +542,8 @@
           <div class="field">
             <label>Birth Year</label>
             <div class="input-row">
-              <input type="number" id="birthYear" value="1989" step="1" min="1940" max="2010" />
-              <input type="range" id="birthYearRange" min="1940" max="2010" value="1989" step="1" />
+              <input type="number" id="birthYear" value="1989" step="1" min="1940" max="2026" />
+              <input type="range" id="birthYearRange" min="1940" max="2026" value="1989" step="1" />
               <span class="compact" id="birthYearCompact">1989</span>
             </div>
             <div class="hint" id="birthYearHint">Current age: 36 years</div>
@@ -586,8 +586,8 @@
           <div class="field">
             <label>Stop Contributions at Age</label>
             <div class="input-row">
-              <input type="number" id="stopAge" value="60" step="1" min="40" max="80" />
-              <input type="range" id="stopAgeRange" min="40" max="80" value="60" step="1" />
+              <input type="number" id="stopAge" value="60" step="1" min="18" max="80" />
+              <input type="range" id="stopAgeRange" min="18" max="80" value="60" step="1" />
               <span class="compact" id="stopAgeCompact">60</span>
             </div>
             <div class="hint" id="stopAgeHint">Age when you stop making contributions (must be ≥ current age)</div>
@@ -702,7 +702,7 @@
     ];
 
     // ============================================================
-    // FALLBACK INJECTION FUNCTIONS (only used if shared-nav missing)
+    // FALLBACK INJECTION FUNCTIONS
     // ============================================================
     function fallbackInjectSidebar(activeId) {
       const sidebar = document.getElementById('shared-sidebar');
@@ -783,7 +783,6 @@
     const drawerOverlay = document.getElementById('drawerOverlay');
     const drawer = document.getElementById('mobileDrawer');
 
-    // Prefer shared toggleMobileDrawer if available, else fallback
     const toggleDrawerFn = (typeof toggleMobileDrawer === 'function') ? toggleMobileDrawer : fallbackToggleDrawer;
 
     if (hamburgerBtn) {
@@ -792,7 +791,6 @@
     if (drawerOverlay) {
       drawerOverlay.addEventListener('click', () => toggleDrawerFn(true));
     }
-    // Also close when a link inside the drawer is clicked (optional)
     if (drawer) {
       drawer.addEventListener('click', (e) => {
         if (e.target.closest('a.sidebar-link')) {
@@ -957,6 +955,12 @@
     const annuityReturnRange = document.getElementById('annuityReturnRange');
     const annuityReturnCompact = document.getElementById('annuityReturnCompact');
 
+    // Dynamically set birth year max to current year
+    const currentYear = new Date().getFullYear();
+    birthYear.max = currentYear;
+    birthYearRange.max = currentYear;
+
+    // Bind inputs
     bindInput(birthYear, birthYearRange, birthYearCompact, v => v);
     bindInput(existingNPS, existingNPSRange, existingNPSCompact, v => formatIndianCompact(v));
     bindInput(monthlyContribution, monthlyContributionRange, monthlyContributionCompact, v => formatIndianCompact(v));
@@ -970,15 +974,17 @@
     // ============================================================
     function getCurrentAge() {
       const currentYear = new Date().getFullYear();
-      const birthYearVal = parseInt(birthYear.value) || 1989;
+      const birthYearVal = parseInt(birthYear.value) || currentYear - 30; // fallback
       return currentYear - birthYearVal;
     }
 
-    function updateAgeHints() {
+    function updateAgeHintsAndStopAge() {
       const age = getCurrentAge();
       birthYearHint.textContent = `Current age: ${age} years`;
-      // Update stop age hint and clamp value if needed
-      const minStop = age; // minimum stop age should be current age
+      // Update stop age minimum to current age (at least 18? but can be lower for minors)
+      const minStop = Math.max(0, age);
+      stopAge.min = minStop;
+      stopAgeRange.min = minStop;
       if (parseInt(stopAge.value) < minStop) {
         stopAge.value = minStop;
         stopAgeRange.value = minStop;
@@ -987,10 +993,9 @@
       stopAgeHint.textContent = `Age when you stop making contributions (must be ≥ ${minStop})`;
     }
 
-    // Call on birthYear change (also on init)
-    birthYear.addEventListener('input', updateAgeHints);
-    birthYearRange.addEventListener('input', updateAgeHints);
-    updateAgeHints();
+    birthYear.addEventListener('input', updateAgeHintsAndStopAge);
+    birthYearRange.addEventListener('input', updateAgeHintsAndStopAge);
+    updateAgeHintsAndStopAge();
 
     // ============================================================
     // CALCULATOR LOGIC
@@ -998,16 +1003,18 @@
     function calculateNPS(birthYearVal, existingAmount, monthly, returnPct, stopAgeVal, annuityPct, annuityReturnPct) {
       const currentYear = new Date().getFullYear();
       const currentAge = currentYear - birthYearVal;
-      if (currentAge < 18) return null; // too young
-      if (currentAge >= 60) return null; // already retired
+      // No age restriction (minors supported)
+      if (currentAge < 0) return null; // future birth year not allowed
 
       const pensionStartAge = 60;
-      // Ensure stopAge is at least currentAge (clamp)
+      if (currentAge >= pensionStartAge) return null; // already retired
+
+      // Ensure stopAge is at least currentAge
       stopAgeVal = Math.max(stopAgeVal, currentAge);
 
       const contributionMonths = (stopAgeVal - currentAge) * 12;
       const pensionMonths = (pensionStartAge - currentAge) * 12;
-      if (pensionMonths <= 0) return null; // already retired
+      if (pensionMonths <= 0) return null;
 
       const monthlyRate = returnPct / 100 / 12;
 
@@ -1320,7 +1327,7 @@
     // MAIN UPDATE
     // ============================================================
     function updateCalculator() {
-      const birthYearVal = parseInt(birthYear.value) || 1989;
+      const birthYearVal = parseInt(birthYear.value) || (currentYear - 30);
       const existing = parseFloat(existingNPS.value) || 0;
       const monthly = parseFloat(monthlyContribution.value) || 5000;
       const returnPct = parseFloat(expectedReturn.value) || 10;
@@ -1397,7 +1404,7 @@
       annuityReturn.value = 7;
       annuityReturnRange.value = 7;
       annuityReturnCompact.textContent = '7.0%';
-      updateAgeHints();
+      updateAgeHintsAndStopAge();
       updateCalculator();
     });
 
