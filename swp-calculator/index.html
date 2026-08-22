@@ -9,287 +9,113 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
   <style>
-    :root {
-      --bg-primary: #0B1120;
-      --bg-secondary: #111827;
-      --bg-card: rgba(17, 24, 39, 0.7);
-      --bg-input: rgba(255,255,255,0.05);
-      --bg-hover: rgba(255,255,255,0.05);
-      --text-primary: #F9FAFB;
-      --text-secondary: #D1D5DB;
-      --text-muted: #9CA3AF;
-      --border: rgba(255,255,255,0.1);
-      --border-light: rgba(255,255,255,0.06);
-      --accent: #10B981;
-      --accent-dark: #047857;
-      --accent-glow: rgba(16,185,129,0.3);
-      --accent-secondary: #06D6A0;
-      --neutral: #9CA3AF;
-      --chart-grid: rgba(255, 255, 255, 0.1);
-      --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
-      --body-gradient: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%),
-                       radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
-    }
-    body.light {
-      --bg-primary: #ffffff;
-      --bg-secondary: #F9FAFB;
-      --bg-card: rgba(255,255,255,0.8);
-      --bg-input: rgba(17,24,39,0.04);
-      --bg-hover: rgba(17,24,39,0.04);
-      --text-primary: #111827;
-      --text-secondary: #4B5563;
-      --text-muted: #6B7280;
-      --border: rgba(17,24,39,0.1);
-      --border-light: rgba(17,24,39,0.06);
-      --accent: #064E3B;
-      --accent-dark: #047857;
-      --accent-glow: rgba(6,78,59,0.15);
-      --accent-secondary: #10B981;
-      --neutral: #9CA3AF;
-      --chart-grid: rgba(17, 24, 39, 0.3);
-      --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
-      --body-gradient: none;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      margin: 0; background: var(--bg-primary); background-image: var(--body-gradient);
-      color: var(--text-primary); font-family: 'Work Sans', sans-serif;
-      min-height: 100vh; transition: background 0.3s, color 0.3s;
-    }
-    .header {
-      display: flex; align-items: center; gap: 16px; padding: 20px 32px;
-      border-bottom: 1px solid var(--border); background: var(--bg-card);
-      backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
-      flex-wrap: wrap; transition: background 0.3s, border-color 0.3s;
-    }
-    .logo-link {
-      display: flex; align-items: center; gap: 16px; text-decoration: none;
-      color: inherit; flex: 1; min-width: 0;
-    }
-    .icon-square {
-      width: 46px; height: 46px; border: 1px solid var(--accent); border-radius: 12px;
-      display: flex; align-items: center; justify-content: center; color: var(--accent);
-      background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow);
-      transition: all 0.3s; flex-shrink: 0;
-    }
-    .icon-square svg { width: 24px; height: 24px; }
-    .logo-link:hover .icon-square { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
-    .wordmark {
-      font-weight: 600; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;
-      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      white-space: nowrap;
-    }
-    .header-actions { display: flex; gap: 12px; align-items: center; }
-    .home-btn, .theme-toggle {
-      background: none; border: 1px solid var(--border);
-      border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; color: var(--text-secondary); transition: all 0.3s;
-      text-decoration: none;
-    }
-    .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
-
-    /* Main layout */
-    .layout {
-      max-width: 1200px; margin: 0 auto; padding: 24px 32px;
-      display: grid; grid-template-columns: 240px 1fr; gap: 32px;
-    }
-
-    /* Shared sidebar */
-    #shared-sidebar {
-      position: sticky; top: 90px; align-self: start;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .sidebar-nav {
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-    .sidebar-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-    }
-    .sidebar-icon svg {
-      width: 16px;
-      height: 16px;
-    }
-    .sidebar-link.active .sidebar-icon {
-      color: #fff;
-    }
-    .sidebar-link .sidebar-icon {
-      color: var(--accent);
-    }
-    .sidebar-link:hover {
-      border-color: var(--accent); color: var(--accent); background: var(--accent-glow);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .sidebar-link.active {
-      border-color: var(--accent); color: #fff; background: var(--accent);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .sidebar-home {
-      font-weight: 600; text-align: center;
-    }
-
-    /* Main content */
-    .main-content {
-      display: flex; flex-direction: column; gap: 24px; min-width: 0;
-    }
-    .card {
-      border: 1px solid var(--border); border-radius: 16px; padding: 24px;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .card h2 {
-      font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 20px;
-      color: var(--text-primary);
-    }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
-    .field input {
-      width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
-      background: var(--bg-input); color: var(--text-primary); font-family: 'IBM Plex Mono', monospace;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .btn {
-      padding: 12px 20px; border: 1px solid var(--accent); border-radius: 8px;
-      background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
-      transition: all 0.3s; letter-spacing: 0.02em;
-    }
-    .btn:hover { background: var(--accent-dark); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-outline { background: transparent; color: var(--accent); }
-    .btn-outline:hover { background: var(--accent); color: #fff; }
-    .btn-outline.active { background: var(--accent); color: #fff; box-shadow: 0 0 10px var(--accent-glow); }
-    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
-    .result-item {
-      border: 1px solid var(--border); border-radius: 12px; padding: 16px;
-      background: var(--bg-card); text-align: center;
-    }
-    .result-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-    .result-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--accent); word-break: break-word; }
-    .chart-container { margin-top: 24px; }
-    .table-container { margin-top: 24px; }
-    .table-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
-    .table-wrap {
-      max-height: 400px; overflow-y: auto; overflow-x: auto;
-      border: 1px solid var(--border); border-radius: 12px;
-      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
-    }
-    .table-wrap table {
-      width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px; min-width: 500px;
-    }
-    .table-wrap thead th {
-      position: sticky; top: 0; background: var(--bg-card); z-index: 2;
-      text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border);
-      font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em;
-      text-transform: uppercase; font-size: 11px;
-    }
-    .table-wrap tbody td {
-      text-align: right; padding: 10px 16px; border-bottom: 1px solid var(--border-light);
-      color: var(--text-secondary); font-variant-numeric: tabular-nums;
-    }
-    .table-wrap tbody tr:hover td { background: var(--bg-hover); }
-    .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header { padding: 16px; flex-direction: column; text-align: center; gap: 12px; }
-      .logo-link { flex-direction: column; gap: 8px; }
-      .header-actions { margin-left: 0; margin-top: 8px; }
-      .layout { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
-      #shared-sidebar { position: static; }
-      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 8px; }
-      .sidebar-link { white-space: nowrap; }
-      .main-content { padding: 0; }
-      .form-grid { grid-template-columns: 1fr; }
-    }
+    /* Same theme variables and base styles as SIP (copy from SIP) */
+    :root { --bg-primary:#0B1120; --bg-secondary:#111827; --bg-card:rgba(17,24,39,0.7); --bg-input:rgba(255,255,255,0.05); --bg-hover:rgba(255,255,255,0.05); --text-primary:#F9FAFB; --text-secondary:#D1D5DB; --text-muted:#9CA3AF; --border:rgba(255,255,255,0.1); --border-light:rgba(255,255,255,0.06); --accent:#10B981; --accent-dark:#047857; --accent-glow:rgba(16,185,129,0.3); --accent-secondary:#06D6A0; --neutral:#9CA3AF; --chart-grid:rgba(255,255,255,0.1); --shadow-card:0 8px 32px rgba(0,0,0,0.4); --body-gradient:radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%); }
+    body.light { --bg-primary:#ffffff; --bg-secondary:#F9FAFB; --bg-card:rgba(255,255,255,0.8); --bg-input:rgba(17,24,39,0.04); --bg-hover:rgba(17,24,39,0.04); --text-primary:#111827; --text-secondary:#4B5563; --text-muted:#6B7280; --border:rgba(17,24,39,0.1); --border-light:rgba(17,24,39,0.06); --accent:#064E3B; --accent-dark:#047857; --accent-glow:rgba(6,78,59,0.15); --accent-secondary:#10B981; --neutral:#9CA3AF; --chart-grid:rgba(17,24,39,0.3); --shadow-card:0 4px 20px rgba(0,0,0,0.08); --body-gradient:none; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { margin:0; background:var(--bg-primary); background-image:var(--body-gradient); color:var(--text-primary); font-family:'Work Sans',sans-serif; min-height:100vh; transition:background 0.3s, color 0.3s; overflow-x:hidden; }
+    .header { display:flex; align-items:center; gap:16px; padding:20px 32px; border-bottom:1px solid var(--border); background:var(--bg-card); backdrop-filter:blur(12px); position:sticky; top:0; z-index:20; flex-wrap:wrap; transition:background 0.3s,border-color 0.3s; }
+    .logo-link { display:flex; align-items:center; gap:16px; text-decoration:none; color:inherit; flex:1 1 auto; min-width:0; }
+    .icon-square { width:46px; height:46px; border:1px solid var(--accent); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--accent); background:var(--accent-glow); box-shadow:0 0 15px var(--accent-glow); transition:all 0.3s; flex-shrink:0; }
+    .icon-square svg { width:24px; height:24px; }
+    .logo-link:hover .icon-square { background:var(--accent); color:#fff; box-shadow:0 0 20px var(--accent-glow); }
+    .wordmark { font-weight:600; font-size:16px; letter-spacing:0.1em; text-transform:uppercase; background:linear-gradient(135deg,var(--accent),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; white-space:nowrap; }
+    .header-actions { display:flex; gap:12px; align-items:center; flex-shrink:0; }
+    .action-left, .action-right { display:flex; gap:12px; align-items:center; }
+    .home-btn,.theme-toggle,.hamburger-btn { background:none; border:1px solid var(--border); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); transition:all 0.3s; text-decoration:none; }
+    .home-btn:hover,.theme-toggle:hover,.hamburger-btn:hover { border-color:var(--accent); color:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .home-btn svg,.theme-toggle svg,.hamburger-btn svg { width:20px; height:20px; }
+    .hamburger-btn { display:none; }
+    .layout { max-width:1200px; margin:0 auto; padding:24px 32px; display:flex; gap:32px; align-items:flex-start; }
+    #shared-sidebar { flex:0 0 240px; position:sticky; top:90px; align-self:flex-start; display:flex; flex-direction:column; gap:8px; }
+    .sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+    .sidebar-link { display:flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text-secondary); text-decoration:none; font-size:14px; font-weight:500; transition:all 0.3s; }
+    .sidebar-icon { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0; }
+    .sidebar-icon svg { width:16px; height:16px; }
+    .sidebar-link.active .sidebar-icon { color:#fff; }
+    .sidebar-link .sidebar-icon { color:var(--accent); }
+    .sidebar-link:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-link.active { border-color:var(--accent); color:#fff; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-home { font-weight:600; text-align:center; }
+    .main-content { flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:24px; }
+    .card { border:1px solid var(--border); border-radius:16px; padding:24px; background:var(--bg-card); backdrop-filter:blur(16px); box-shadow:var(--shadow-card); transition:background 0.3s,border-color 0.3s; }
+    .card h2 { font-family:'Cormorant Garamond',serif; font-size:24px; margin-bottom:20px; color:var(--text-primary); }
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+    .field label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px; }
+    .field input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font-family:'IBM Plex Mono',monospace; transition:border-color 0.3s, box-shadow 0.3s; }
+    .field input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .btn { padding:12px 20px; border:1px solid var(--accent); border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; transition:all 0.3s; letter-spacing:0.02em; }
+    .btn:hover { background:var(--accent-dark); box-shadow:0 4px 15px var(--accent-glow); }
+    .btn-outline { background:transparent; color:var(--accent); }
+    .btn-outline:hover { background:var(--accent); color:#fff; }
+    .btn-outline.active { background:var(--accent); color:#fff; box-shadow:0 0 10px var(--accent-glow); }
+    .results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:20px; }
+    .result-item { border:1px solid var(--border); border-radius:12px; padding:16px; background:var(--bg-card); text-align:center; }
+    .result-label { font-size:12px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+    .result-value { font-family:'IBM Plex Mono',monospace; font-size:20px; color:var(--accent); word-break:break-word; }
+    .chart-container { margin-top:24px; }
+    .table-container { margin-top:24px; }
+    .table-toggle { display:flex; gap:8px; margin-bottom:12px; }
+    .table-wrap { max-height:400px; overflow-y:auto; overflow-x:auto; border:1px solid var(--border); border-radius:12px; scrollbar-width:thin; scrollbar-color:var(--accent) transparent; }
+    .table-wrap table { width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:12px; min-width:500px; }
+    .table-wrap thead th { position:sticky; top:0; background:var(--bg-card); z-index:2; text-align:right; padding:12px 16px; border-bottom:1px solid var(--border); font-weight:500; color:var(--text-muted); letter-spacing:0.04em; text-transform:uppercase; font-size:11px; }
+    .table-wrap tbody td { text-align:right; padding:10px 16px; border-bottom:1px solid var(--border-light); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+    .table-wrap tbody tr:hover td { background:var(--bg-hover); }
+    .footer { text-align:center; padding:16px; color:var(--text-muted); font-size:13px; border-top:1px solid var(--border); margin-top:40px; }
+    .drawer-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:30; }
+    .drawer-overlay.open { display:block; }
+    .drawer { position:fixed; top:0; left:-80%; width:80%; max-width:300px; height:100vh; background:var(--bg-primary); border-right:1px solid var(--border); z-index:40; transition:left 0.3s ease; padding:24px; overflow-y:auto; }
+    .drawer.open { left:0; }
+    .drawer-close { background:none; border:1px solid var(--border); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); margin-bottom:16px; }
+    .drawer-close:hover { border-color:var(--accent); color:var(--accent); }
+    .drawer .sidebar-link { margin-bottom:8px; }
+    @media (max-width:768px) { .header { padding:16px; flex-direction:column; align-items:stretch; gap:12px; } .logo-link { flex-direction:column; align-items:center; gap:8px; text-align:center; } .header-actions { width:100%; justify-content:space-between; } .action-left { order:0; } .action-right { order:1; } .hamburger-btn { display:flex; } .home-btn { display:flex; } .layout { flex-direction:column; padding:16px; gap:16px; } #shared-sidebar { display:none; } .main-content { width:100%; order:2; } .form-grid { grid-template-columns:1fr; } .results-grid { grid-template-columns:1fr; } .card { padding:16px; } }
   </style>
 </head>
 <body>
   <header class="header">
     <a href="../index.html" class="logo-link">
       <div class="icon-square">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" /></svg>
       </div>
       <p class="wordmark">SD Wealth · SWP Calculator</p>
     </a>
     <div class="header-actions">
-      <a href="../index.html" class="home-btn" aria-label="Home">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      </a>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-      </button>
+      <div class="action-left">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style="display:none;"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+      </div>
+      <div class="action-right">
+        <a href="../index.html" class="home-btn" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+        </a>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Main layout with sidebar and content -->
-  <div class="layout">
-    <!-- Shared sidebar injected by shared-nav.js -->
-    <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="mobileDrawer"></div>
 
-    <!-- Main content -->
+  <div class="layout">
+    <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
     <main class="main-content">
       <div class="card">
         <h2>SWP Calculator</h2>
         <div class="form-grid">
-          <div class="field">
-            <label>Initial Investment (₹)</label>
-            <input type="number" id="initialInvestment" value="5000000" min="0" />
-          </div>
-          <div class="field">
-            <label>Monthly Withdrawal (₹)</label>
-            <input type="number" id="monthlyWithdrawal" value="30000" min="0" />
-          </div>
-          <div class="field">
-            <label>Expected Annual Return (%)</label>
-            <input type="number" id="annualReturn" value="8" min="0" max="100" step="0.1" />
-          </div>
-          <div class="field">
-            <label>Time Period (Years)</label>
-            <input type="number" id="years" value="20" min="1" max="100" />
-          </div>
-          <div class="field">
-            <label>Annual Withdrawal Step-up (%)</label>
-            <input type="number" id="stepUp" value="5" min="0" max="100" step="0.5" />
-          </div>
+          <div class="field"><label>Initial Investment (₹)</label><input type="number" id="initialInvestment" value="5000000" min="0" /></div>
+          <div class="field"><label>Monthly Withdrawal (₹)</label><input type="number" id="monthlyWithdrawal" value="30000" min="0" /></div>
+          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="annualReturn" value="8" min="0" max="100" step="0.1" /></div>
+          <div class="field"><label>Time Period (Years)</label><input type="number" id="years" value="20" min="1" max="100" /></div>
+          <div class="field"><label>Annual Withdrawal Step-up (%)</label><input type="number" id="stepUp" value="5" min="0" max="100" step="0.5" /></div>
         </div>
-        <div style="margin-top: 20px;">
-          <button class="btn" id="calculateBtn">Calculate</button>
-        </div>
+        <div style="margin-top: 20px;"><button class="btn" id="calculateBtn">Calculate</button></div>
         <div class="results-grid" id="results"></div>
-        <div class="chart-container">
-          <canvas id="swpChart"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="swpChart"></canvas></div>
         <div class="table-container">
           <div class="table-toggle">
             <button class="btn btn-outline active" id="yearlyBtn">Yearly</button>
@@ -303,56 +129,34 @@
 
   <footer class="footer">This projection is illustrative. · SD Wealth · Private Office</footer>
 
-  <!-- Include shared navigation script -->
   <script src="../shared-nav.js"></script>
   <script>
-    // Inject sidebar with active page 'swp' and root path '../'
     injectSharedSidebar('swp', '../');
+    injectMobileDrawer('swp', '../');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    hamburgerBtn.addEventListener('click', () => toggleMobileDrawer());
+    drawerCloseBtn.addEventListener('click', () => toggleMobileDrawer(true));
+    drawerOverlay.addEventListener('click', () => toggleMobileDrawer(true));
   </script>
 
   <script>
-    // Theme toggle
+    // Theme toggle and SWP calculation (same as before, just included)
     const themeToggle = document.getElementById('themeToggle');
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
     const savedTheme = localStorage.getItem('sd-wealth-theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.body.classList.add('light');
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    }
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const isLight = document.body.classList.contains('light');
-      localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark');
-      sunIcon.style.display = isLight ? 'none' : 'block';
-      moonIcon.style.display = isLight ? 'block' : 'none';
-      if (chart) updateChartColors();
-      renderTable();
-    });
+    if (savedTheme === 'light') { document.body.classList.add('light'); sunIcon.style.display='none'; moonIcon.style.display='block'; }
+    themeToggle.addEventListener('click', () => { document.body.classList.toggle('light'); const isLight = document.body.classList.contains('light'); localStorage.setItem('sd-wealth-theme', isLight ? 'light' : 'dark'); sunIcon.style.display = isLight ? 'none' : 'block'; moonIcon.style.display = isLight ? 'block' : 'none'; if (chart) updateChartColors(); renderTable(); });
 
     let chart = null;
     let yearlyData = [];
     let monthlyData = [];
     let currentView = 'yearly';
 
-    function getCSSVar(varName) {
-      return getComputedStyle(document.body).getPropertyValue(varName).trim();
-    }
-
-    function updateChartColors() {
-      if (!chart) return;
-      chart.data.datasets[0].borderColor = getCSSVar('--accent');
-      chart.data.datasets[0].backgroundColor = getCSSVar('--accent') + '20';
-      chart.data.datasets[1].borderColor = getCSSVar('--neutral');
-      chart.data.datasets[1].backgroundColor = getCSSVar('--neutral') + '20';
-      chart.options.scales.x.ticks.color = getCSSVar('--text-muted');
-      chart.options.scales.y.ticks.color = getCSSVar('--text-muted');
-      chart.options.scales.x.grid.color = getCSSVar('--chart-grid');
-      chart.options.scales.y.grid.color = getCSSVar('--chart-grid');
-      chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary');
-      chart.update();
-    }
+    function getCSSVar(varName) { return getComputedStyle(document.body).getPropertyValue(varName).trim(); }
+    function updateChartColors() { if (!chart) return; chart.data.datasets[0].borderColor = getCSSVar('--accent'); chart.data.datasets[0].backgroundColor = getCSSVar('--accent') + '20'; chart.data.datasets[1].borderColor = getCSSVar('--neutral'); chart.data.datasets[1].backgroundColor = getCSSVar('--neutral') + '20'; chart.options.scales.x.ticks.color = getCSSVar('--text-muted'); chart.options.scales.y.ticks.color = getCSSVar('--text-muted'); chart.options.scales.x.grid.color = getCSSVar('--chart-grid'); chart.options.scales.y.grid.color = getCSSVar('--chart-grid'); chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary'); chart.update(); }
 
     function calculateSWP() {
       const initial = parseFloat(document.getElementById('initialInvestment').value) || 0;
@@ -360,14 +164,11 @@
       const annualRate = parseFloat(document.getElementById('annualReturn').value) || 0;
       const years = parseInt(document.getElementById('years').value) || 0;
       const stepUp = parseFloat(document.getElementById('stepUp').value) || 0;
-
       const monthlyRate = Math.pow(1 + annualRate/100, 1/12) - 1;
       let corpus = initial;
       let totalWithdrawn = 0;
-      const months = years * 12;
       yearlyData = [];
       monthlyData = [];
-
       for (let y = 1; y <= years; y++) {
         let yearWithdrawal = 0;
         for (let m = 1; m <= 12; m++) {
@@ -379,46 +180,16 @@
           totalWithdrawn += actualWithdrawal;
           corpus = corpus * (1 + monthlyRate);
           yearWithdrawal += actualWithdrawal;
-          monthlyData.push({
-            month: monthIndex,
-            year: y,
-            monthLabel: `Y${y}-M${m}`,
-            withdrawal: Math.round(actualWithdrawal),
-            totalWithdrawn: Math.round(totalWithdrawn),
-            corpus: Math.round(corpus),
-            returns: Math.round(corpus - (initial - totalWithdrawn))
-          });
+          monthlyData.push({ month: monthIndex, year: y, monthLabel: `Y${y}-M${m}`, withdrawal: Math.round(actualWithdrawal), totalWithdrawn: Math.round(totalWithdrawn), corpus: Math.round(corpus), returns: Math.round(corpus - (initial - totalWithdrawn)) });
         }
-        yearlyData.push({
-          year: y,
-          withdrawal: Math.round(yearWithdrawal),
-          totalWithdrawn: Math.round(totalWithdrawn),
-          corpus: Math.round(corpus),
-          returns: Math.round(corpus - (initial - totalWithdrawn))
-        });
+        yearlyData.push({ year: y, withdrawal: Math.round(yearWithdrawal), totalWithdrawn: Math.round(totalWithdrawn), corpus: Math.round(corpus), returns: Math.round(corpus - (initial - totalWithdrawn)) });
       }
-
       const finalCorpus = corpus;
       const totalReturns = finalCorpus + totalWithdrawn - initial;
-      document.getElementById('results').innerHTML = `
-        <div class="result-item">
-          <div class="result-label">Total Withdrawn</div>
-          <div class="result-value">₹${totalWithdrawn.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">Final Corpus</div>
-          <div class="result-value">₹${finalCorpus.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">Total Returns</div>
-          <div class="result-value">₹${totalReturns.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
-        </div>
-      `;
-
-      // Chart data: corpus over time and total withdrawn
+      document.getElementById('results').innerHTML = `<div class="result-item"><div class="result-label">Total Withdrawn</div><div class="result-value">₹${totalWithdrawn.toLocaleString('en-IN', {maximumFractionDigits:0})}</div></div><div class="result-item"><div class="result-label">Final Corpus</div><div class="result-value">₹${finalCorpus.toLocaleString('en-IN', {maximumFractionDigits:0})}</div></div><div class="result-item"><div class="result-label">Total Returns</div><div class="result-value">₹${totalReturns.toLocaleString('en-IN', {maximumFractionDigits:0})}</div></div>`;
       const labels = yearlyData.map(d => 'Year ' + d.year);
-      const corpusSeries = yearlyData.map(d => d.corpus);
       const withdrawnSeries = yearlyData.map(d => d.totalWithdrawn);
+      const corpusSeries = yearlyData.map(d => d.corpus);
       renderChart(labels, withdrawnSeries, corpusSeries);
       renderTable();
     }
@@ -426,135 +197,26 @@
     function renderChart(labels, withdrawn, corpus) {
       const ctx = document.getElementById('swpChart').getContext('2d');
       if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Total Withdrawn',
-              data: withdrawn,
-              borderColor: getCSSVar('--neutral'),
-              backgroundColor: getCSSVar('--neutral') + '20',
-              tension: 0.4,
-              pointRadius: 2,
-              fill: false
-            },
-            {
-              label: 'Remaining Corpus',
-              data: corpus,
-              borderColor: getCSSVar('--accent'),
-              backgroundColor: getCSSVar('--accent') + '20',
-              tension: 0.4,
-              pointRadius: 2,
-              fill: false
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: getCSSVar('--text-secondary'),
-                font: { family: 'Work Sans', size: 12 }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: {
-                color: getCSSVar('--text-muted'),
-                font: { family: 'IBM Plex Mono', size: 11 }
-              },
-              grid: { color: getCSSVar('--chart-grid') }
-            },
-            y: {
-              ticks: {
-                color: getCSSVar('--text-muted'),
-                font: { family: 'IBM Plex Mono', size: 11 },
-                callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0})
-              },
-              grid: { color: getCSSVar('--chart-grid') }
-            }
-          }
-        }
-      });
+      chart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: 'Total Withdrawn', data: withdrawn, borderColor: getCSSVar('--neutral'), backgroundColor: getCSSVar('--neutral') + '20', tension: 0.4, pointRadius: 2, fill: false }, { label: 'Remaining Corpus', data: corpus, borderColor: getCSSVar('--accent'), backgroundColor: getCSSVar('--accent') + '20', tension: 0.4, pointRadius: 2, fill: false } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: getCSSVar('--text-secondary'), font: { family: 'Work Sans', size: 12 } } } }, scales: { x: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 11 } }, grid: { color: getCSSVar('--chart-grid') } }, y: { ticks: { color: getCSSVar('--text-muted'), font: { family: 'IBM Plex Mono', size: 11 }, callback: value => '₹' + value.toLocaleString('en-IN', {maximumFractionDigits:0}) }, grid: { color: getCSSVar('--chart-grid') } } } } });
     }
 
     function renderTable() {
       const tableWrap = document.getElementById('tableWrap');
       if (currentView === 'yearly') {
-        let html = `
-          <table>
-            <thead>
-              <tr>
-                <th>Year</th>
-                <th>Withdrawal (Year)</th>
-                <th>Total Withdrawn</th>
-                <th>Returns</th>
-                <th>Corpus</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        yearlyData.forEach(d => {
-          html += `
-            <tr>
-              <td>${d.year}</td>
-              <td>₹${d.withdrawal.toLocaleString('en-IN')}</td>
-              <td>₹${d.totalWithdrawn.toLocaleString('en-IN')}</td>
-              <td>₹${d.returns.toLocaleString('en-IN')}</td>
-              <td>₹${d.corpus.toLocaleString('en-IN')}</td>
-            </tr>
-          `;
-        });
+        let html = `<table><thead><tr><th>Year</th><th>Withdrawal (Year)</th><th>Total Withdrawn</th><th>Returns</th><th>Corpus</th></tr></thead><tbody>`;
+        yearlyData.forEach(d => { html += `<tr><td>${d.year}</td><td>₹${d.withdrawal.toLocaleString('en-IN')}</td><td>₹${d.totalWithdrawn.toLocaleString('en-IN')}</td><td>₹${d.returns.toLocaleString('en-IN')}</td><td>₹${d.corpus.toLocaleString('en-IN')}</td></tr>`; });
         html += '</tbody></table>';
         tableWrap.innerHTML = html;
       } else {
-        let html = `
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Monthly Withdrawal</th>
-                <th>Total Withdrawn</th>
-                <th>Returns</th>
-                <th>Corpus</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        monthlyData.forEach(d => {
-          html += `
-            <tr>
-              <td>${d.monthLabel}</td>
-              <td>₹${d.withdrawal.toLocaleString('en-IN')}</td>
-              <td>₹${d.totalWithdrawn.toLocaleString('en-IN')}</td>
-              <td>₹${d.returns.toLocaleString('en-IN')}</td>
-              <td>₹${d.corpus.toLocaleString('en-IN')}</td>
-            </tr>
-          `;
-        });
+        let html = `<table><thead><tr><th>Month</th><th>Monthly Withdrawal</th><th>Total Withdrawn</th><th>Returns</th><th>Corpus</th></tr></thead><tbody>`;
+        monthlyData.forEach(d => { html += `<tr><td>${d.monthLabel}</td><td>₹${d.withdrawal.toLocaleString('en-IN')}</td><td>₹${d.totalWithdrawn.toLocaleString('en-IN')}</td><td>₹${d.returns.toLocaleString('en-IN')}</td><td>₹${d.corpus.toLocaleString('en-IN')}</td></tr>`; });
         html += '</tbody></table>';
         tableWrap.innerHTML = html;
       }
     }
 
-    document.getElementById('yearlyBtn').addEventListener('click', () => {
-      currentView = 'yearly';
-      renderTable();
-      document.getElementById('yearlyBtn').classList.add('active');
-      document.getElementById('monthlyBtn').classList.remove('active');
-    });
-    document.getElementById('monthlyBtn').addEventListener('click', () => {
-      currentView = 'monthly';
-      renderTable();
-      document.getElementById('monthlyBtn').classList.add('active');
-      document.getElementById('yearlyBtn').classList.remove('active');
-    });
-
+    document.getElementById('yearlyBtn').addEventListener('click', () => { currentView = 'yearly'; renderTable(); document.getElementById('yearlyBtn').classList.add('active'); document.getElementById('monthlyBtn').classList.remove('active'); });
+    document.getElementById('monthlyBtn').addEventListener('click', () => { currentView = 'monthly'; renderTable(); document.getElementById('monthlyBtn').classList.add('active'); document.getElementById('yearlyBtn').classList.remove('active'); });
     document.getElementById('calculateBtn').addEventListener('click', calculateSWP);
     document.getElementById('swpChart').style.height = '300px';
     calculateSWP();

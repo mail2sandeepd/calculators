@@ -10,13 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- React and Babel (UMD) -->
+  <!-- React and Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
 
-  <!-- Recharts (UMD) -->
+  <!-- Recharts -->
   <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.js" crossorigin></script>
 
   <!-- jsPDF + html2canvas -->
@@ -70,277 +70,444 @@
     /* ===================== GLOBAL ===================== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0; background: var(--bg-primary); background-image: var(--body-gradient);
-      color: var(--text-primary); font-family: 'Work Sans', sans-serif;
-      min-height: 100vh; transition: background 0.3s, color 0.3s;
+      margin: 0;
+      background: var(--bg-primary);
+      background-image: var(--body-gradient);
+      color: var(--text-primary);
+      font-family: 'Work Sans', sans-serif;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
     }
     .app-shell { min-height: 100vh; }
 
-    /* ---------- Header ---------- */
     .header {
-      display: flex; align-items: center; gap: 20px; padding: 20px 32px;
-      border-bottom: 1px solid var(--border); background: var(--bg-card);
-      backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
-      flex-wrap: wrap; transition: background 0.3s, border-color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      flex-wrap: wrap;
+      transition: background 0.3s, border-color 0.3s;
     }
     .logo-link {
-      display: flex; align-items: center; gap: 16px; text-decoration: none;
-      color: inherit; flex: 1; min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: inherit;
+      flex: 1 1 auto;
+      min-width: 0;
     }
     .icon-square {
-      width: 46px; height: 46px; border: 1px solid var(--accent); border-radius: 12px;
-      display: flex; align-items: center; justify-content: center; color: var(--accent);
-      background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow);
-      transition: all 0.3s; flex-shrink: 0;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow);
+      transition: all 0.3s;
+      flex-shrink: 0;
     }
     .icon-square svg { width: 24px; height: 24px; }
     .logo-link:hover .icon-square { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
     .wordmark {
-      font-weight: 600; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase;
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       white-space: nowrap;
     }
     .tagline {
-      font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600;
-      color: var(--text-secondary); margin: 4px 0 0; letter-spacing: 0.02em;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 4px 0 0;
+      letter-spacing: 0.02em;
     }
-    .header-actions { display: flex; gap: 12px; align-items: center; }
-    .home-btn, .theme-toggle {
-      background: none; border: 1px solid var(--border);
-      border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; color: var(--text-secondary); transition: all 0.3s;
+    .header-actions { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+    .action-left, .action-right { display: flex; gap: 12px; align-items: center; }
+
+    .home-btn, .theme-toggle, .hamburger-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s;
       text-decoration: none;
     }
-    .home-btn:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-    .home-btn svg, .theme-toggle svg { width: 20px; height: 20px; }
+    .home-btn:hover, .theme-toggle:hover, .hamburger-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+    .home-btn svg, .theme-toggle svg, .hamburger-btn svg { width: 20px; height: 20px; }
+    .hamburger-btn { display: none; }
 
-    /* ---------- Main layout with sidebar ---------- */
     .container {
-      max-width: 1440px; margin: 0 auto; padding: 24px 32px;
-      display: grid; grid-template-columns: 240px minmax(320px, 4fr) 8fr;
-      gap: 24px; align-items: start;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-columns: 240px minmax(320px, 4fr) 8fr;
+      gap: 24px;
+      align-items: start;
     }
 
-    /* Shared sidebar */
     #shared-sidebar {
-      position: sticky; top: 90px; align-self: start;
-      display: flex; flex-direction: column; gap: 8px;
+      position: sticky;
+      top: 90px;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
     .sidebar-link {
-      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
-      border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);
-      color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
       transition: all 0.3s;
     }
-    .sidebar-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 16px; height: 16px; flex-shrink: 0;
-    }
+    .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex-shrink: 0; }
     .sidebar-icon svg { width: 16px; height: 16px; }
     .sidebar-link.active .sidebar-icon { color: #fff; }
     .sidebar-link .sidebar-icon { color: var(--accent); }
-    .sidebar-link:hover {
-      border-color: var(--accent); color: var(--accent); background: var(--accent-glow);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .sidebar-link.active {
-      border-color: var(--accent); color: #fff; background: var(--accent);
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
+    .sidebar-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow); }
+    .sidebar-link.active { border-color: var(--accent); color: #fff; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
     .sidebar-home { font-weight: 600; text-align: center; }
 
-    /* Sidebar (parameters) */
     .sidebar {
-      position: sticky; top: 24px; height: calc(100vh - 48px); overflow-y: auto;
-      padding-right: 8px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+      position: sticky;
+      top: 90px;
+      align-self: start;
+      overflow-y: auto;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 
     .param-panel {
-      border: 1px solid var(--border); padding: 20px; border-radius: 16px;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
-      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
     }
     .param-section { margin-bottom: 28px; }
     .param-section h2 {
-      font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700;
-      margin: 0 0 16px; color: var(--text-primary); letter-spacing: 0.02em;
-      position: relative; display: inline-block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 16px;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+      position: relative;
+      display: inline-block;
     }
     .param-section h2::after {
-      content: ''; position: absolute; bottom: -4px; left: 0; width: 40px; height: 2px;
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 40px;
+      height: 2px;
       background: linear-gradient(90deg, var(--accent), transparent);
     }
     .param-section h2.withdrawal-heading {
-      margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
     }
     .param-row { margin-bottom: 18px; }
     .param-row label {
-      display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary);
-      margin-bottom: 8px; letter-spacing: 0.02em;
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
     }
     .param-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .param-controls input[type="number"] {
-      width: 150px; min-width: 120px; padding: 10px 12px;
-      border: 1px solid var(--border); border-radius: 8px;
-      font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-      color: var(--text-primary); background: var(--bg-input);
+      width: 150px;
+      min-width: 120px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg-input);
       transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
     }
     .param-controls input[type="number"]:focus {
-      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
-      background: var(--bg-input-focus);
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--bg-input-focus, rgba(255,255,255,0.08));
     }
     .param-controls input[type="range"] {
-      flex: 1; min-width: 120px; height: 6px; border-radius: 3px;
-      background: var(--border); appearance: none; -webkit-appearance: none; cursor: pointer;
+      flex: 1;
+      min-width: 120px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
     }
     .param-controls input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 10px var(--accent-glow);
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
       cursor: pointer;
     }
     .param-controls input[type="range"]::-moz-range-thumb {
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 10px var(--accent-glow);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
       cursor: pointer;
     }
 
     .currency-toggle {
-      display: flex; gap: 8px; margin-bottom: 20px;
-      background: var(--bg-input); padding: 4px; border-radius: 10px; border: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: var(--bg-input);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
     .currency-toggle button {
-      flex: 1; padding: 8px 0; border: none; background: transparent;
-      color: var(--text-secondary); font-family: 'Work Sans', sans-serif; font-size: 13px;
-      font-weight: 500; cursor: pointer; border-radius: 6px; transition: all 0.3s;
+      flex: 1;
+      padding: 8px 0;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.3s;
     }
     .currency-toggle button.active {
-      background: var(--accent); color: #fff; box-shadow: 0 0 10px var(--accent-glow); font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
+      font-weight: 600;
     }
     .currency-toggle button:not(.active):hover { background: var(--bg-hover); color: var(--text-primary); }
 
     .action-buttons { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
     .action-buttons button {
-      flex: 1 1 auto; min-width: 120px; padding: 10px 12px;
-      border: 1px solid var(--accent); border-radius: 8px; background: transparent;
-      color: var(--accent); font-family: 'Work Sans', sans-serif; font-size: 13px;
-      font-weight: 500; cursor: pointer; transition: all 0.3s; letter-spacing: 0.02em;
+      flex: 1 1 auto;
+      min-width: 120px;
+      padding: 10px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.02em;
     }
     .action-buttons button.primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: #fff; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      border: none;
       box-shadow: 0 4px 15px var(--accent-glow);
     }
     .action-buttons button.primary:hover { box-shadow: 0 6px 20px var(--accent-glow); transform: translateY(-1px); }
     .action-buttons button:not(.primary):hover { background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow); }
 
-    /* ---------- Projection panel ---------- */
     .projection-panel { min-width: 0; }
-    .metric-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
-    }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .metric-card {
-      border: 1px solid var(--border); padding: 20px; border-radius: 12px;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
       transition: transform 0.3s, box-shadow 0.3s;
     }
     .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
     .metric-card.accent {
-      border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.4);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.4);
       background: var(--accent-glow);
     }
-    .metric-label {
-      font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--text-muted); margin-bottom: 10px;
-    }
-    .metric-value {
-      font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500;
-      color: var(--text-primary); line-height: 1.3; word-break: break-word;
-    }
+    .metric-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
+    .metric-value { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500; color: var(--text-primary); line-height: 1.3; word-break: break-word; }
+
     .supporting-strip {
-      display: flex; align-items: center; gap: 24px; margin-top: 24px; padding: 16px 20px;
-      border-radius: 12px; background: var(--bg-input); border: 1px solid var(--border);
-      backdrop-filter: blur(8px); flex-wrap: wrap;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 24px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      flex-wrap: wrap;
     }
     .supporting-item { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
     .supporting-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
     .supporting-value { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500; color: var(--accent); }
 
-    .charts-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;
-    }
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
     .chart-card {
-      border: 1px solid var(--border); padding: 20px; border-radius: 12px;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
     }
-    .chart-card h3 {
-      font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600;
-      color: var(--text-primary); margin: 0 0 16px; letter-spacing: 0.02em;
-    }
+    .chart-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0 0 16px; letter-spacing: 0.02em; }
 
     .table-wrap {
-      margin-top: 24px; border: 1px solid var(--border); border-radius: 12px;
-      max-height: 480px; overflow-y: auto; overflow-x: auto;
-      background: var(--bg-card); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);
-      scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+      margin-top: 24px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-height: 480px;
+      overflow-y: auto;
+      overflow-x: auto;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
     }
     .table-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
     .table-wrap::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-    table {
-      width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px; min-width: 600px;
-    }
+    table { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 12px; min-width: 600px; }
     thead th {
-      position: sticky; top: 0; background: var(--bg-card); z-index: 2;
-      text-align: right; padding: 14px 16px; border-bottom: 1px solid var(--border);
-      font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em;
-      text-transform: uppercase; font-size: 11px;
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 2;
+      text-align: right;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 11px;
     }
-    tbody td {
-      text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border-light);
-      color: var(--text-secondary); font-variant-numeric: tabular-nums;
-    }
+    tbody td { text-align: right; padding: 12px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
     tbody tr:hover td { background: var(--bg-hover); }
 
     .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--accent); color: #fff; padding: 14px 24px;
-      border-radius: 8px; font-size: 14px; font-weight: 500;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
       box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 15px var(--accent-glow);
-      z-index: 1000; animation: fadeInUp 0.3s ease; backdrop-filter: blur(10px);
+      z-index: 1000;
+      animation: fadeInUp 0.3s ease;
+      backdrop-filter: blur(10px);
     }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .drawer-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 30; }
+    .drawer-overlay.open { display: block; }
+    .drawer { position: fixed; top: 0; left: -80%; width: 80%; max-width: 300px; height: 100vh; background: var(--bg-primary); border-right: 1px solid var(--border); z-index: 40; transition: left 0.3s ease; padding: 24px; overflow-y: auto; }
+    .drawer.open { left: 0; }
+    .drawer-close { background: none; border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); margin-bottom: 16px; }
+    .drawer-close:hover { border-color: var(--accent); color: var(--accent); }
+    .drawer .sidebar-link { margin-bottom: 8px; }
 
     /* Hidden report container */
     .report-container {
-      position: absolute; left: -9999px; top: 0; width: 794px; background: #ffffff;
-      padding: 40px; font-family: 'Work Sans', sans-serif; color: #111827;
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 794px;
+      background: #ffffff;
+      padding: 40px;
+      font-family: 'Work Sans', sans-serif;
+      color: #111827;
     }
-    /* (report styles unchanged from previous version) */
+    .report-container h1 { font-family: 'Cormorant Garamond', serif; font-size: 26px; margin: 0 0 4px; }
+    .report-container h2 { font-family: 'Cormorant Garamond', serif; font-size: 20px; margin: 16px 0 8px; }
+    .report-assumptions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; font-size: 12px; color: #4B5563; border: 1px solid #E5E7EB; padding: 16px; border-radius: 4px; }
+    .report-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px 0; }
+    .report-metric { border: 1px solid #E5E7EB; padding: 12px; }
+    .report-metric .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #4B5563; }
+    .report-metric .value { font-family: 'IBM Plex Mono', monospace; font-size: 16px; margin-top: 4px; }
+    .report-metric.accent { border-color: #064E3B; box-shadow: inset 0 2px 0 #064E3B; }
+    .report-charts { display: flex; gap: 16px; margin: 16px 0; }
+    .report-charts > div { flex: 1; }
+    .report-table { font-size: 10px; }
+    .report-table table { font-size: 10px; }
+    .report-table thead th { padding: 6px 8px; font-size: 10px; }
+    .report-table tbody td { padding: 4px 8px; font-size: 10px; }
 
-    /* Responsive */
     @media (max-width: 1200px) {
       .container { grid-template-columns: 200px minmax(280px, 1fr) 2fr; gap: 16px; }
     }
     @media (max-width: 1024px) {
       .container { grid-template-columns: 1fr; padding: 16px; }
-      #shared-sidebar { position: static; }
-      .sidebar-nav { flex-direction: row; overflow-x: auto; padding-bottom: 8px; }
-      .sidebar-link { white-space: nowrap; }
+      #shared-sidebar { display: none; }
       .sidebar { position: static; height: auto; padding-right: 0; margin-bottom: 24px; }
       .metric-grid { grid-template-columns: repeat(2, 1fr); }
       .charts-grid { grid-template-columns: 1fr; }
     }
-    @media (max-width: 600px) {
-      .header { padding: 16px; flex-direction: column; gap: 12px; }
-      .logo-link { flex-direction: column; gap: 8px; }
-      .header-actions { margin-left: 0; margin-top: 8px; }
+    @media (max-width: 768px) {
+      .header { padding: 16px; flex-direction: column; align-items: stretch; gap: 12px; }
+      .logo-link { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .action-left { order: 0; }
+      .action-right { order: 1; }
+      .hamburger-btn { display: flex; }
+      .home-btn { display: flex; }
       .container { padding: 12px; }
       .metric-grid { grid-template-columns: 1fr; }
       .action-buttons { flex-direction: column; }
@@ -356,95 +523,49 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    // Check if required libraries are loaded
+    // Check required libraries
     if (typeof React === 'undefined' || typeof ReactDOM === 'undefined' || typeof Recharts === 'undefined' || typeof PropTypes === 'undefined') {
       document.getElementById('root').innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;color:#fff;">Failed to load required libraries. Please check your internet connection and refresh.</div>';
       throw new Error('Required libraries missing');
     }
 
     const { useState, useEffect, useMemo, useRef } = React;
-    const {
-      LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-      AreaChart, Area, Legend
-    } = Recharts;
+    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Legend } = Recharts;
 
-    // ---------- Currency configuration ----------
     const CURRENCIES = {
       INR: { symbol: '₹', locale: 'en-IN' },
       USD: { symbol: '$', locale: 'en-US' },
       EUR: { symbol: '€', locale: 'de-DE' },
     };
 
-    // ---------- Utils ----------
     const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
     const formatCurrency = (value, currency) => {
       if (value === undefined || value === null || isNaN(value)) value = 0;
       const cfg = CURRENCIES[currency] || CURRENCIES.INR;
-      return new Intl.NumberFormat(cfg.locale, {
-        style: 'currency',
-        currency,
-        maximumFractionDigits: 0,
-      }).format(value);
+      return new Intl.NumberFormat(cfg.locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
     };
-
     const formatCompactCurrency = (value, currency) => {
       if (value === undefined || value === null || isNaN(value)) value = 0;
       const cfg = CURRENCIES[currency] || CURRENCIES.INR;
-      return new Intl.NumberFormat(cfg.locale, {
-        style: 'currency',
-        currency,
-        notation: 'compact',
-        maximumFractionDigits: 1,
-      }).format(value);
+      return new Intl.NumberFormat(cfg.locale, { style: 'currency', currency, notation: 'compact', maximumFractionDigits: 1 }).format(value);
     };
+    const formatMultiplier = (value) => { if (!isFinite(value)) return '0.00×'; return `${value.toFixed(2)}×`; };
 
-    const formatMultiplier = (value) => {
-      if (!isFinite(value)) return '0.00×';
-      return `${value.toFixed(2)}×`;
-    };
-
-    // ---------- Parameter row component ----------
     function ParamRow({ label, value, setValue, min, max, step = 1, testId }) {
-      const handleNumberChange = (e) => {
-        let v = Number(e.target.value);
-        if (isNaN(v)) v = min;
-        setValue(clamp(v, min, max));
-      };
-      const handleSliderChange = (e) => {
-        let v = Number(e.target.value);
-        setValue(clamp(v, min, max));
-      };
+      const handleNumberChange = (e) => { let v = Number(e.target.value); if (isNaN(v)) v = min; setValue(clamp(v, min, max)); };
+      const handleSliderChange = (e) => { let v = Number(e.target.value); setValue(clamp(v, min, max)); };
       return (
         <div className="param-row">
           <label htmlFor={`${testId}-number`}>{label}</label>
           <div className="param-controls">
-            <input
-              id={`${testId}-number`}
-              data-testid={`${testId}-number`}
-              type="number"
-              value={value}
-              min={min}
-              max={max}
-              step={step}
-              onChange={handleNumberChange}
-            />
-            <input
-              data-testid={`${testId}-slider`}
-              type="range"
-              value={value}
-              min={min}
-              max={max}
-              step={step}
-              onChange={handleSliderChange}
-              aria-label={label}
-            />
+            <input id={`${testId}-number`} data-testid={`${testId}-number`} type="number" value={value} min={min} max={max} step={step} onChange={handleNumberChange} />
+            <input data-testid={`${testId}-slider`} type="range" value={value} min={min} max={max} step={step} onChange={handleSliderChange} aria-label={label} />
           </div>
         </div>
       );
     }
 
-    // ---------- Main App ----------
     function App() {
       const [currency, setCurrency] = useState('INR');
       const [lumpsum, setLumpsum] = useState(500000);
@@ -461,22 +582,14 @@
       const [theme, setTheme] = useState('dark');
       const reportRef = useRef(null);
 
-      useEffect(() => {
-        document.body.className = theme;
-      }, [theme]);
-
-      const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-      };
+      useEffect(() => { document.body.className = theme; }, [theme]);
+      const toggleTheme = () => { setTheme(prev => prev === 'dark' ? 'light' : 'dark'); };
 
       // Hydrate from URL
       useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (!params.toString()) return;
-        const getNum = (key, def) => {
-          const v = params.get(key);
-          return v !== null && !isNaN(Number(v)) ? Number(v) : def;
-        };
+        const getNum = (key, def) => { const v = params.get(key); return v !== null && !isNaN(Number(v)) ? Number(v) : def; };
         setLumpsum(getNum('l', 500000));
         setSip(getNum('s', 25000));
         setStepUp(getNum('u', 10));
@@ -487,68 +600,36 @@
         setWithdrawalRate(getNum('wr', 8));
         setSwp(getNum('sw', 0));
         setSwpStepUp(getNum('wu', 5));
-        if (params.get('c') && ['INR', 'USD', 'EUR'].includes(params.get('c'))) {
-          setCurrency(params.get('c'));
-        }
+        if (params.get('c') && ['INR','USD','EUR'].includes(params.get('c'))) setCurrency(params.get('c'));
         setToast('Shared scenario loaded.');
       }, []);
 
       // Sync URL
       useEffect(() => {
         const params = new URLSearchParams();
-        params.set('l', lumpsum);
-        params.set('s', sip);
-        params.set('u', stepUp);
-        params.set('r', annualReturn);
-        params.set('d', duration);
-        params.set('ss', sipStop);
-        params.set('ws', withdrawalStart);
-        params.set('wr', withdrawalRate);
-        params.set('sw', swp);
-        params.set('wu', swpStepUp);
-        params.set('c', currency);
+        params.set('l', lumpsum); params.set('s', sip); params.set('u', stepUp); params.set('r', annualReturn);
+        params.set('d', duration); params.set('ss', sipStop); params.set('ws', withdrawalStart);
+        params.set('wr', withdrawalRate); params.set('sw', swp); params.set('wu', swpStepUp); params.set('c', currency);
         const url = `${window.location.pathname}?${params.toString()}`;
         window.history.replaceState(null, '', url);
       }, [lumpsum, sip, stepUp, annualReturn, duration, sipStop, withdrawalStart, withdrawalRate, swp, swpStepUp, currency]);
 
-      // Auto-dismiss toast
-      useEffect(() => {
-        if (!toast) return;
-        const timer = setTimeout(() => setToast(null), 3000);
-        return () => clearTimeout(timer);
-      }, [toast]);
+      useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(null), 3000); return () => clearTimeout(timer); }, [toast]);
 
-      // Constraints
-      useEffect(() => {
-        if (sipStop > duration) setSipStop(duration);
-        if (withdrawalStart > duration) setWithdrawalStart(duration);
-      }, [duration]);
-      useEffect(() => {
-        if (withdrawalStart < sipStop) setWithdrawalStart(sipStop);
-      }, [sipStop]);
+      useEffect(() => { if (sipStop > duration) setSipStop(duration); if (withdrawalStart > duration) setWithdrawalStart(duration); }, [duration]);
+      useEffect(() => { if (withdrawalStart < sipStop) setWithdrawalStart(sipStop); }, [sipStop]);
 
-      // Handlers with constraints
       const handleLumpsumChange = (v) => setLumpsum(clamp(v, 0, currency === 'INR' ? 100000000 : 10000000));
       const handleSipChange = (v) => setSip(clamp(v, 0, currency === 'INR' ? 1000000 : 100000));
       const handleStepUpChange = (v) => setStepUp(clamp(v, 0, 100));
       const handleAnnualReturnChange = (v) => setAnnualReturn(clamp(v, 0, 100));
-      const handleDurationChange = (v) => {
-        const d = clamp(v, 1, 100);
-        setDuration(d);
-        if (sipStop > d) setSipStop(d);
-        if (withdrawalStart > d) setWithdrawalStart(d);
-      };
-      const handleSipStopChange = (v) => {
-        const val = clamp(v, 1, duration);
-        setSipStop(val);
-        if (withdrawalStart < val) setWithdrawalStart(val);
-      };
+      const handleDurationChange = (v) => { const d = clamp(v, 1, 100); setDuration(d); if (sipStop > d) setSipStop(d); if (withdrawalStart > d) setWithdrawalStart(d); };
+      const handleSipStopChange = (v) => { const val = clamp(v, 1, duration); setSipStop(val); if (withdrawalStart < val) setWithdrawalStart(val); };
       const handleWithdrawalStartChange = (v) => setWithdrawalStart(clamp(v, sipStop, duration));
       const handleWithdrawalRateChange = (v) => setWithdrawalRate(clamp(v, 0, 100));
       const handleSwpChange = (v) => setSwp(clamp(v, 0, currency === 'INR' ? 1000000 : 100000));
       const handleSwpStepUpChange = (v) => setSwpStepUp(clamp(v, 0, 100));
 
-      // Projection calculation
       const projection = useMemo(() => {
         const monthlyRateAcc = Math.pow(1 + annualReturn / 100, 1 / 12) - 1;
         const monthlyRateWith = Math.pow(1 + withdrawalRate / 100, 1 / 12) - 1;
@@ -582,20 +663,12 @@
         return { rows, totalInvested, totalWithdrawn, corpusAtSipStop, finalCorpus, totalReturns, wealthMultiplier, lineChartData, areaChartData };
       }, [lumpsum, sip, stepUp, annualReturn, duration, sipStop, withdrawalStart, withdrawalRate, swp, swpStepUp]);
 
-      const {
-        rows, totalInvested, totalWithdrawn, corpusAtSipStop, finalCorpus,
-        totalReturns, wealthMultiplier, lineChartData, areaChartData
-      } = projection;
+      const { rows, totalInvested, totalWithdrawn, corpusAtSipStop, finalCorpus, totalReturns, wealthMultiplier, lineChartData, areaChartData } = projection;
 
       const shareScenario = () => {
         const url = window.location.href;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(url).then(() => setToast('Share link copied to clipboard.')).catch(() => {
-            window.prompt('Copy URL:', url); setToast('Copy URL from prompt.');
-          });
-        } else {
-          window.prompt('Copy URL:', url); setToast('Copy URL from prompt.');
-        }
+        if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => setToast('Share link copied to clipboard.')).catch(() => { window.prompt('Copy URL:', url); setToast('Copy URL from prompt.'); }); }
+        else { window.prompt('Copy URL:', url); setToast('Copy URL from prompt.'); }
       };
 
       const downloadReport = async () => {
@@ -603,40 +676,25 @@
         setToast('Preparing report…');
         try {
           const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
-          const pageWidth = 595.28, pageHeight = 841.89, margin = 40;
-          const imgWidth = pageWidth - margin * 2;
+          const pageWidth = 595.28, pageHeight = 841.89, margin = 40, imgWidth = pageWidth - margin * 2;
           const page1 = reportRef.current.querySelector('#report-page1');
           const tableSection = reportRef.current.querySelector('#report-table');
           const canvas1 = await html2canvas(page1, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
           const img1 = canvas1.toDataURL('image/png');
           const imgHeight1 = canvas1.height * imgWidth / canvas1.width;
-          if (imgHeight1 > pageHeight - margin * 2) {
-            const ratio = (pageHeight - margin * 2) / imgHeight1;
-            pdf.addImage(img1, 'PNG', margin + (imgWidth - imgWidth * ratio) / 2, margin, imgWidth * ratio, imgHeight1 * ratio);
-          } else {
-            pdf.addImage(img1, 'PNG', margin, margin, imgWidth, imgHeight1);
-          }
+          if (imgHeight1 > pageHeight - margin * 2) { const ratio = (pageHeight - margin * 2) / imgHeight1; pdf.addImage(img1, 'PNG', margin + (imgWidth - imgWidth * ratio) / 2, margin, imgWidth * ratio, imgHeight1 * ratio); }
+          else pdf.addImage(img1, 'PNG', margin, margin, imgWidth, imgHeight1);
           pdf.addPage();
           const canvas2 = await html2canvas(tableSection, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
           const img2 = canvas2.toDataURL('image/png');
           const imgHeight2 = canvas2.height * imgWidth / canvas2.width;
-          if (imgHeight2 > pageHeight - margin * 2) {
-            const ratio = (pageHeight - margin * 2) / imgHeight2;
-            pdf.addImage(img2, 'PNG', margin + (imgWidth - imgWidth * ratio) / 2, margin, imgWidth * ratio, imgHeight2 * ratio);
-          } else {
-            pdf.addImage(img2, 'PNG', margin, margin, imgWidth, imgHeight2);
-          }
+          if (imgHeight2 > pageHeight - margin * 2) { const ratio = (pageHeight - margin * 2) / imgHeight2; pdf.addImage(img2, 'PNG', margin + (imgWidth - imgWidth * ratio) / 2, margin, imgWidth * ratio, imgHeight2 * ratio); }
+          else pdf.addImage(img2, 'PNG', margin, margin, imgWidth, imgHeight2);
           const totalPages = pdf.internal.getNumberOfPages();
-          for (let i = 1; i <= totalPages; i++) {
-            pdf.setPage(i); pdf.setFontSize(9); pdf.setTextColor(100);
-            pdf.text('This projection is illustrative.', margin, pageHeight - 20);
-          }
+          for (let i = 1; i <= totalPages; i++) { pdf.setPage(i); pdf.setFontSize(9); pdf.setTextColor(100); pdf.text('This projection is illustrative.', margin, pageHeight - 20); }
           pdf.save('SD-Wealth-Projection.pdf');
           setToast('Report downloaded.');
-        } catch (error) {
-          console.error(error);
-          setToast('Report generation failed. Please try again.');
-        }
+        } catch (error) { console.error(error); setToast('Report generation failed. Please try again.'); }
       };
 
       const currencyButtons = Object.keys(CURRENCIES).map(c => (
@@ -679,30 +737,33 @@
               </div>
             </a>
             <div className="header-actions">
-              <a href="../index.html" className="home-btn" aria-label="Home">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </a>
-              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme" data-testid="theme-toggle">
-                {theme === 'dark' ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                  </svg>
-                )}
-              </button>
+              <div className="action-left">
+                <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme" data-testid="theme-toggle">
+                  {theme === 'dark' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                  )}
+                </button>
+              </div>
+              <div className="action-right">
+                <a href="../index.html" className="home-btn" aria-label="Home">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                </a>
+                <button className="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+              </div>
             </div>
           </header>
 
+          {/* Mobile drawer */}
+          <div className="drawer-overlay" id="drawerOverlay"></div>
+          <div className="drawer" id="mobileDrawer"></div>
+
           <div className="container">
-            {/* Shared sidebar */}
             <aside id="shared-sidebar" aria-label="Calculator navigation"></aside>
 
-            {/* Parameters sidebar */}
             <aside className="sidebar">
               <div className="currency-toggle">{currencyButtons}</div>
               <div className="param-panel">
@@ -729,7 +790,6 @@
               </div>
             </aside>
 
-            {/* Projection panel */}
             <main className="projection-panel">
               <div className="metric-grid">
                 <MetricCard label="Total Investment" value={totalInvested} testId="metric-total-investment" />
@@ -765,14 +825,8 @@
                   <ResponsiveContainer width="100%" height={280}>
                     <AreaChart data={areaChartData} margin={{ top: 16, right: 16, bottom: 8, left: 16 }}>
                       <defs>
-                        <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="var(--neutral)" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="var(--neutral)" stopOpacity={0.05} />
-                        </linearGradient>
-                        <linearGradient id="colorReturns" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.7} />
-                          <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.1} />
-                        </linearGradient>
+                        <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--neutral)" stopOpacity={0.4} /><stop offset="95%" stopColor="var(--neutral)" stopOpacity={0.05} /></linearGradient>
+                        <linearGradient id="colorReturns" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--accent)" stopOpacity={0.7} /><stop offset="95%" stopColor="var(--accent)" stopOpacity={0.1} /></linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                       <XAxis dataKey="year" tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'IBM Plex Mono' }} tickLine={false} axisLine={{ stroke: 'var(--chart-axis)' }} />
@@ -788,9 +842,7 @@
               <div className="table-wrap">
                 <table>
                   <thead>
-                    <tr>
-                      <th>Year</th><th>SIP (Year)</th><th>Total Invested</th><th>Withdrawn</th><th>Returns</th><th>Corpus</th>
-                    </tr>
+                    <tr><th>Year</th><th>SIP (Year)</th><th>Total Invested</th><th>Withdrawn</th><th>Returns</th><th>Corpus</th></tr>
                   </thead>
                   <tbody>{tableRows}</tbody>
                 </table>
@@ -854,9 +906,7 @@
             <div id="report-table" className="report-table">
               <h2>Year-by-Year Breakdown</h2>
               <table>
-                <thead>
-                  <tr><th>Year</th><th>SIP (Year)</th><th>Total Invested</th><th>Withdrawn</th><th>Returns</th><th>Corpus</th></tr>
-                </thead>
+                <thead><tr><th>Year</th><th>SIP (Year)</th><th>Total Invested</th><th>Withdrawn</th><th>Returns</th><th>Corpus</th></tr></thead>
                 <tbody>
                   {rows.map(r => (
                     <tr key={r.year}>
@@ -881,13 +931,21 @@
     ReactDOM.render(<App />, document.getElementById('root'));
   </script>
 
-  <!-- Include shared navigation script and inject sidebar -->
+  <!-- Include shared navigation and inject sidebar/drawer -->
   <script src="../shared-nav.js"></script>
   <script>
-    // Inject after React renders
     setTimeout(() => {
       injectSharedSidebar('wealth', '../');
-    }, 0);
+      injectMobileDrawer('wealth', '../');
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+      const drawerOverlay = document.getElementById('drawerOverlay');
+      if (hamburgerBtn && drawerCloseBtn && drawerOverlay) {
+        hamburgerBtn.addEventListener('click', () => toggleMobileDrawer());
+        drawerCloseBtn.addEventListener('click', () => toggleMobileDrawer(true));
+        drawerOverlay.addEventListener('click', () => toggleMobileDrawer(true));
+      }
+    }, 100);
   </script>
 </body>
 </html>
