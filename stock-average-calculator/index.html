@@ -340,6 +340,7 @@
       .card { padding: 16px; }
     }
   </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
 </head>
 <body>
   <header class="header">
@@ -351,6 +352,7 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · Stock Average Calculator</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
     </a>
     <div class="header-actions">
       <div class="action-left">
@@ -426,6 +428,7 @@
   <script>
     injectSharedSidebar('stock', '../');
     injectMobileDrawer('stock', '../');
+    initSharedClock();
 
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const drawerCloseBtn = document.getElementById('drawerCloseBtn');

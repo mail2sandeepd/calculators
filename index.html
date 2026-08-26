@@ -283,6 +283,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="shared-theme.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -295,6 +296,7 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · Private Office</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
       <!-- Theme toggle button -->
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <!-- Sun icon (shown in dark mode) -->
@@ -479,5 +481,7 @@
       }
     });
   </script>
+  <script src="shared-nav.js"></script>
+  <script>initSharedClock();</script>
 </body>
 </html>

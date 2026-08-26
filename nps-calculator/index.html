@@ -482,6 +482,7 @@
       .results-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
 </head>
 <body>
 
@@ -495,6 +496,7 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · NPS Calculator</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
     </a>
 
     <div class="header-actions">
@@ -769,6 +771,7 @@
     try {
       if (typeof injectMobileDrawer === 'function') {
         injectMobileDrawer('nps', '../');
+        initSharedClock();
       } else {
         fallbackInjectDrawer('nps');
       }

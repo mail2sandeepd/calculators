@@ -326,6 +326,7 @@
       .card { padding: 16px; }
     }
   </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
 </head>
 <body>
   <header class="header">
@@ -337,6 +338,7 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · Lumpsum Calculator</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
     </a>
     <div class="header-actions">
       <div class="action-left">
@@ -376,24 +378,36 @@
         <div class="form-grid">
           <div class="field">
             <label>Lumpsum Amount (₹)</label>
-            <input type="number" id="lumpsumAmount" value="100000" min="0" />
+            <div class="field-slider-row">
+              <input type="number" id="lumpsumAmount" value="100000" min="0" max="100000000" step="10000" />
+              <span class="slider-value" id="lumpsumAmountCompact">1.00 Lakh</span>
+              <input type="range" id="lumpsumAmountRange" min="0" max="100000000" value="100000" step="10000" aria-label="Lumpsum amount slider" />
+            </div>
           </div>
           <div class="field">
             <label>Expected Annual Return (%)</label>
-            <input type="number" id="annualReturn" value="12" min="0" max="100" step="0.1" />
+            <div class="field-slider-row">
+              <input type="number" id="annualReturn" value="12" min="0" max="100" step="0.1" />
+              <span class="slider-value" id="annualReturnCompact">12.0%</span>
+              <input type="range" id="annualReturnRange" min="0" max="100" value="12" step="0.1" aria-label="Annual return slider" />
+            </div>
           </div>
           <div class="field">
             <label>Time Period (Years)</label>
-            <input type="number" id="yearsInput" value="10" min="0" max="100" step="1" />
+            <div class="field-slider-row">
+              <input type="number" id="yearsInput" value="10" min="0" max="100" step="1" />
+              <span class="slider-value" id="yearsCompact">10 years</span>
+              <input type="range" id="yearsSlider" min="0" max="100" step="1" value="10" aria-label="Time period slider" />
+            </div>
           </div>
           <div class="field">
             <label>Time Period (Months)</label>
-            <input type="number" id="monthsInput" value="120" min="0" max="1200" step="1" />
+            <div class="field-slider-row">
+              <input type="number" id="monthsInput" value="120" min="0" max="1200" step="1" />
+              <span class="slider-value" id="monthsCompact">120 months</span>
+              <input type="range" id="monthsSlider" min="0" max="1200" step="1" value="120" aria-label="Time period in months slider" />
+            </div>
           </div>
-        </div>
-        <div style="margin-top: 20px;">
-          <label for="yearsSlider" style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">Years (Slider)</label>
-          <input type="range" id="yearsSlider" min="0" max="100" step="1" value="10" style="width:100%;" />
         </div>
         <div style="margin-top: 20px;">
           <button class="btn" id="calculateBtn">Calculate</button>
@@ -417,6 +431,7 @@
   <script>
     injectSharedSidebar('lumpsum', '../');
     injectMobileDrawer('lumpsum', '../');
+    initSharedClock();
 
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const drawerCloseBtn = document.getElementById('drawerCloseBtn');
@@ -470,30 +485,70 @@
       chart.update();
     }
 
+    function formatIndianCompactWords(value) {
+      const amount = Number(value) || 0;
+      if (amount >= 10000000) return (amount / 10000000).toFixed(2) + ' Crore';
+      if (amount >= 100000) return (amount / 100000).toFixed(2) + ' Lakh';
+      if (amount >= 1000) return (amount / 1000).toFixed(1) + ' Thousand';
+      return amount.toFixed(0);
+    }
+
+    function bindSliderPair(numberId, rangeId, compactId, formatter) {
+      const numberInput = document.getElementById(numberId);
+      const rangeInput = document.getElementById(rangeId);
+      const compact = document.getElementById(compactId);
+      const sync = (value) => { rangeInput.value = value; compact.textContent = formatter(value); };
+      numberInput.addEventListener('input', () => sync(numberInput.value));
+      rangeInput.addEventListener('input', () => { numberInput.value = rangeInput.value; compact.textContent = formatter(rangeInput.value); });
+      sync(numberInput.value);
+    }
+
+    bindSliderPair('lumpsumAmount', 'lumpsumAmountRange', 'lumpsumAmountCompact', formatIndianCompactWords);
+    bindSliderPair('annualReturn', 'annualReturnRange', 'annualReturnCompact', value => Number(value).toFixed(1) + '%');
+
     const yearsInput = document.getElementById('yearsInput');
     const monthsInput = document.getElementById('monthsInput');
     const yearsSlider = document.getElementById('yearsSlider');
+    const monthsSlider = document.getElementById('monthsSlider');
+    const yearsCompact = document.getElementById('yearsCompact');
+    const monthsCompact = document.getElementById('monthsCompact');
 
     function updateYearsFromMonths() {
       const months = parseInt(monthsInput.value) || 0;
       const years = Math.floor(months / 12);
       yearsInput.value = years;
       yearsSlider.value = years;
+      monthsSlider.value = months;
+      monthsCompact.textContent = months + ' months';
+      yearsCompact.textContent = years + ' years';
     }
     function updateMonthsFromYears() {
       const years = parseInt(yearsInput.value) || 0;
-      monthsInput.value = years * 12;
+      const months = years * 12;
+      monthsInput.value = months;
+      monthsSlider.value = months;
       yearsSlider.value = years;
+      monthsCompact.textContent = months + ' months';
+      yearsCompact.textContent = years + ' years';
     }
     function updateFromSlider() {
       const years = parseInt(yearsSlider.value) || 0;
       yearsInput.value = years;
-      monthsInput.value = years * 12;
+      const months = years * 12;
+      monthsInput.value = months;
+      monthsSlider.value = months;
+      monthsCompact.textContent = months + ' months';
+      yearsCompact.textContent = years + ' years';
+    }
+    function updateFromMonthsSlider() {
+      monthsInput.value = monthsSlider.value;
+      updateYearsFromMonths();
     }
 
     yearsInput.addEventListener('input', updateMonthsFromYears);
     monthsInput.addEventListener('input', updateYearsFromMonths);
     yearsSlider.addEventListener('input', updateFromSlider);
+    monthsSlider.addEventListener('input', updateFromMonthsSlider);
 
     function calculate() {
       principal = parseFloat(document.getElementById('lumpsumAmount').value) || 0;
