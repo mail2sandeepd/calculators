@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Affordability Calculator · SD Wealth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin></script>
+  <style>
+    :root { --bg-primary:#0B1120; --bg-secondary:#111827; --bg-card:rgba(17,24,39,.7); --bg-input:rgba(255,255,255,.05); --bg-hover:rgba(255,255,255,.05); --text-primary:#F9FAFB; --text-secondary:#D1D5DB; --text-muted:#9CA3AF; --border:rgba(255,255,255,.1); --border-light:rgba(255,255,255,.06); --accent:#10B981; --accent-dark:#047857; --accent-glow:rgba(16,185,129,.3); --accent-secondary:#06D6A0; --neutral:#9CA3AF; --shadow-card:0 8px 32px rgba(0,0,0,.4); --body-gradient:radial-gradient(ellipse at 20% 50%,rgba(16,185,129,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(6,182,212,.05) 0%,transparent 50%); }
+    body.light { --bg-primary:#fff; --bg-secondary:#F9FAFB; --bg-card:rgba(255,255,255,.8); --bg-input:rgba(17,24,39,.04); --bg-hover:rgba(17,24,39,.04); --text-primary:#111827; --text-secondary:#4B5563; --text-muted:#6B7280; --border:rgba(17,24,39,.1); --border-light:rgba(17,24,39,.06); --accent:#064E3B; --accent-dark:#047857; --accent-glow:rgba(6,78,59,.15); --accent-secondary:#10B981; --neutral:#9CA3AF; --shadow-card:0 4px 20px rgba(0,0,0,.08); --body-gradient:none; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { margin:0; min-height:100vh; background:var(--bg-primary); background-image:var(--body-gradient); color:var(--text-primary); font-family:'Work Sans',sans-serif; overflow-x:hidden; }
+    .header { display:flex; align-items:center; gap:16px; padding:20px 32px; border-bottom:1px solid var(--border); background:var(--bg-card); backdrop-filter:blur(12px); position:sticky; top:0; z-index:20; flex-wrap:wrap; }
+    .logo-link { display:flex; align-items:center; gap:16px; color:inherit; text-decoration:none; flex:1 1 auto; min-width:0; }
+    .icon-square { width:46px; height:46px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--accent); border-radius:12px; color:var(--accent); background:var(--accent-glow); box-shadow:0 0 15px var(--accent-glow); }
+    .icon-square svg { width:24px; height:24px; }
+    .wordmark { font-weight:600; font-size:16px; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; background:linear-gradient(135deg,var(--accent),var(--accent-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .header-actions,.action-left,.action-right { display:flex; align-items:center; gap:12px; }
+    .header-actions { flex-shrink:0; }
+    .home-btn,.theme-toggle,.hamburger-btn { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:50%; background:none; color:var(--text-secondary); cursor:pointer; text-decoration:none; }
+    .home-btn svg,.theme-toggle svg,.hamburger-btn svg { width:20px; height:20px; }
+    .home-btn:hover,.theme-toggle:hover,.hamburger-btn:hover { border-color:var(--accent); color:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .hamburger-btn { display:none; }
+    .layout { max-width:1200px; margin:0 auto; padding:24px 32px; display:flex; gap:32px; align-items:flex-start; }
+    #shared-sidebar { flex:0 0 240px; position:sticky; top:90px; align-self:flex-start; }
+    .sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+    .sidebar-link { display:flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text-secondary); text-decoration:none; font-size:14px; font-weight:500; transition:all .3s; }
+    .sidebar-link:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-link.active { border-color:var(--accent); color:#fff; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
+    .sidebar-link .sidebar-icon { width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent); }
+    .sidebar-link .sidebar-icon svg { width:16px; height:16px; }
+    .sidebar-link.active .sidebar-icon { color:var(--accent); }
+    .sidebar-home { font-weight:600; text-align:center; }
+    .drawer-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:30; }
+    .drawer-overlay.open { display:block; }
+    .drawer { position:fixed; top:0; left:-80%; width:80%; max-width:300px; height:100vh; padding:24px; overflow-y:auto; background:var(--bg-primary); border-right:1px solid var(--border); z-index:40; transition:left .3s ease; }
+    .drawer.open { left:0; }
+    .drawer-close { width:36px; height:36px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; border:1px solid var(--border); border-radius:50%; background:none; color:var(--text-secondary); cursor:pointer; }
+    .drawer-close svg { width:18px; height:18px; }
+    .main-content { flex:1 1 auto; min-width:0; }
+    .card { border:1px solid var(--border); border-radius:16px; padding:24px; background:var(--bg-card); backdrop-filter:blur(16px); box-shadow:var(--shadow-card); }
+    .card h2 { font:600 24px 'Cormorant Garamond',serif; margin-bottom:8px; }
+    .card-description { color:var(--text-secondary); font-size:14px; line-height:1.5; margin-bottom:20px; }
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px 20px; }
+    .field { display:flex; flex-direction:column; gap:5px; min-width:0; }
+    .field label { color:var(--text-secondary); font-size:13px; }
+    .field-slider-row { display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+    .field-slider-row input[type=number] { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font:500 14px 'IBM Plex Mono',monospace; }
+    .field-slider-row input[type=number]:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .slider-value { min-height:16px; color:var(--text-muted); font:500 12px 'IBM Plex Mono',monospace; }
+    .field-slider-row input[type=range] { width:100%; height:4px; accent-color:var(--accent); }
+    .field-hint { color:var(--text-muted); font-size:11px; line-height:1.35; }
+    .rule-note { margin:22px 0; padding:12px 14px; border-left:3px solid var(--accent); background:var(--bg-hover); color:var(--text-secondary); font-size:12px; line-height:1.5; }
+    .results-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:24px; }
+    .result-item { padding:16px 12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); text-align:center; }
+    .result-item.highlight { border-color:var(--accent); background:var(--accent-glow); }
+    .result-label { color:var(--text-muted); font-size:11px; text-transform:uppercase; margin-bottom:8px; }
+    .result-value { color:var(--accent); font:500 19px 'IBM Plex Mono',monospace; word-break:break-word; }
+    .result-sub { color:var(--text-muted); font-size:11px; margin-top:5px; }
+    .status { margin-top:20px; padding:14px; border:1px solid var(--border); border-radius:10px; color:var(--text-secondary); font-size:13px; line-height:1.45; }
+    .status strong { color:var(--accent); }
+    .chart-container { height:260px; margin-top:22px; }
+    .chart-container canvas { width:100% !important; height:100% !important; }
+    .action-row { display:flex; gap:12px; margin-top:22px; }
+    .btn { padding:11px 18px; border:1px solid var(--accent); border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+    .btn-outline { background:transparent; color:var(--accent); }
+    .footer { padding:16px; border-top:1px solid var(--border); margin-top:16px; text-align:center; color:var(--text-muted); font-size:13px; }
+    @media (max-width:768px) { .header { padding:16px; flex-direction:column; align-items:stretch; gap:12px; } .logo-link { flex-direction:column; align-items:center; text-align:center; gap:8px; } .header-actions { width:100%; justify-content:space-between; } .action-left { order:0; } .action-right { order:1; } .hamburger-btn { display:flex; } .layout { flex-direction:column; padding:16px; gap:16px; } #shared-sidebar { display:none; } .main-content { width:100%; } .card { padding:16px; } .form-grid { grid-template-columns:1fr; } }
+  </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
+</head>
+<body>
+  <header class="header">
+    <a href="../index.html" class="logo-link"><div class="icon-square"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" /><path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" /></svg></div><p class="wordmark">SD Wealth · Home Affordability</p><span class="system-time" id="systemTime" aria-live="polite"></span></a>
+    <div class="header-actions"><div class="action-left"><button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg><svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg></button></div><div class="action-right"><a href="../index.html" class="home-btn" aria-label="Home"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg></a><button class="hamburger-btn" id="hamburgerBtn" aria-label="Open navigation menu"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg></button></div></div>
+  </header>
+  <div class="drawer-overlay" id="drawerOverlay"></div><div class="drawer" id="mobileDrawer"></div>
+  <div class="layout"><aside id="shared-sidebar" aria-label="Calculator navigation"></aside><main class="main-content"><div class="card">
+    <h2>Home Affordability Calculator</h2>
+    <p class="card-description">Estimate a home price that keeps your monthly housing payment within a responsible share of income.</p>
+    <div class="form-grid">
+      <div class="field"><label for="monthlyIncome">Monthly Take-home Income (₹)</label><div class="field-slider-row"><input type="number" id="monthlyIncome" value="150000" min="25000" max="2000000" step="5000"><span class="slider-value" id="monthlyIncomeValue">1.50 Lakh</span><input type="range" id="monthlyIncomeRange" min="25000" max="2000000" value="150000" step="5000" aria-label="Monthly income slider"></div><span class="field-hint">Use stable post-tax income.</span></div>
+      <div class="field"><label for="existingEmi">Existing Monthly EMIs (₹)</label><div class="field-slider-row"><input type="number" id="existingEmi" value="20000" min="0" max="500000" step="1000"><span class="slider-value" id="existingEmiValue">20.0 Thousand</span><input type="range" id="existingEmiRange" min="0" max="500000" value="20000" step="1000" aria-label="Existing EMI slider"></div><span class="field-hint">Car, personal, education, and other loan EMIs.</span></div>
+      <div class="field"><label for="downPayment">Down Payment (%)</label><div class="field-slider-row"><input type="number" id="downPayment" value="20" min="20" max="80" step="1"><span class="slider-value" id="downPaymentValue">20%</span><input type="range" id="downPaymentRange" min="20" max="80" value="20" step="1" aria-label="Down payment slider"></div><span class="field-hint">Minimum 20% used for this estimate.</span></div>
+      <div class="field"><label for="interestRate">Home Loan Interest Rate (%)</label><div class="field-slider-row"><input type="number" id="interestRate" value="8.5" min="1" max="20" step="0.1"><span class="slider-value" id="interestRateValue">8.5%</span><input type="range" id="interestRateRange" min="1" max="20" value="8.5" step="0.1" aria-label="Interest rate slider"></div><span class="field-hint">Use your lender's expected rate.</span></div>
+      <div class="field"><label for="tenure">Loan Tenure (Years)</label><div class="field-slider-row"><input type="number" id="tenure" value="20" min="5" max="30" step="1"><span class="slider-value" id="tenureValue">20 years</span><input type="range" id="tenureRange" min="5" max="30" value="20" step="1" aria-label="Loan tenure slider"></div><span class="field-hint">Longer tenure lowers EMI but increases interest.</span></div>
+    </div>
+    <div class="rule-note"><strong>Affordability guardrails:</strong> recommended total EMIs are capped at 30% of take-home income, and maximum total EMIs at 40%. Existing EMIs reduce the available home-loan EMI. Down payment is kept at or above 20%.</div>
+    <div class="results-grid"><div class="result-item highlight"><div class="result-label">Recommended Home Price</div><div class="result-value" id="recommendedPrice">₹0</div><div class="result-sub">30% EMI limit</div></div><div class="result-item highlight"><div class="result-label">Maximum Home Price</div><div class="result-value" id="maximumPrice">₹0</div><div class="result-sub">40% EMI ceiling</div></div><div class="result-item"><div class="result-label">Recommended Home EMI</div><div class="result-value" id="recommendedEmi">₹0</div><div class="result-sub" id="recommendedEmiSub">including existing EMIs</div></div><div class="result-item"><div class="result-label">Required Down Payment</div><div class="result-value" id="requiredDownPayment">₹0</div><div class="result-sub" id="downPaymentSub">20% of price</div></div></div>
+    <div class="status" id="statusMessage"></div>
+    <div class="chart-container"><canvas id="affordabilityChart" aria-label="Home affordability EMI comparison chart"></canvas></div>
+    <div class="action-row"><button class="btn" id="calculateBtn">Recalculate</button><button class="btn btn-outline" id="resetBtn">Reset Defaults</button></div>
+  </div></main></div><footer class="footer">This estimate is illustrative. Confirm lender terms, taxes, insurance, and closing costs before buying.</footer>
+  <script src="../shared-nav.js"></script>
+  <script>
+    injectSharedSidebar('homeaffordability', '../'); injectMobileDrawer('homeaffordability', '../'); initSharedClock();
+    const hamburgerBtn=document.getElementById('hamburgerBtn'); const drawerOverlay=document.getElementById('drawerOverlay'); hamburgerBtn.addEventListener('click',()=>toggleMobileDrawer()); drawerOverlay.addEventListener('click',()=>toggleMobileDrawer(true));
+    const themeToggle=document.getElementById('themeToggle'); const sunIcon=document.getElementById('sunIcon'); const moonIcon=document.getElementById('moonIcon'); const savedTheme=localStorage.getItem('sd-wealth-theme')||'dark'; if(savedTheme==='light'){document.body.classList.add('light');sunIcon.style.display='none';moonIcon.style.display='block';} themeToggle.addEventListener('click',()=>{document.body.classList.toggle('light');const light=document.body.classList.contains('light');localStorage.setItem('sd-wealth-theme',light?'light':'dark');sunIcon.style.display=light?'none':'block';moonIcon.style.display=light?'block':'none';});
+    const fields=[['monthlyIncome','monthlyIncomeRange','monthlyIncomeValue',v=>formatAmount(v)],['existingEmi','existingEmiRange','existingEmiValue',v=>formatAmount(v)],['downPayment','downPaymentRange','downPaymentValue',v=>Number(v).toFixed(0)+'%'],['interestRate','interestRateRange','interestRateValue',v=>Number(v).toFixed(1)+'%'],['tenure','tenureRange','tenureValue',v=>Number(v).toFixed(0)+' years']];
+    function formatAmount(value){const amount=Number(value)||0;if(amount>=10000000)return (amount/10000000).toFixed(2)+' Crore';if(amount>=100000)return (amount/100000).toFixed(2)+' Lakh';if(amount>=1000)return (amount/1000).toFixed(1)+' Thousand';return amount.toFixed(0);}
+    function formatCurrency(value){return '₹'+Math.round(value||0).toLocaleString('en-IN');}
+    function bindField(numberId,rangeId,valueId,formatter){const number=document.getElementById(numberId),range=document.getElementById(rangeId),label=document.getElementById(valueId);const sync=(value,source)=>{const numeric=Number(value);if(!Number.isFinite(numeric))return;if(source!=='range')range.value=numeric;if(source!=='number')number.value=numeric;label.textContent=formatter(numeric);calculate();};number.addEventListener('input',()=>sync(number.value,'number'));range.addEventListener('input',()=>sync(range.value,'range'));label.textContent=formatter(number.value);}
+    fields.forEach(field=>bindField(...field));
+    function loanForEmi(emi,rate,years){const monthlyRate=rate/100/12;const months=years*12;if(emi<=0)return 0;if(monthlyRate===0)return emi*months;return emi*(Math.pow(1+monthlyRate,months)-1)/(monthlyRate*Math.pow(1+monthlyRate,months));}
+    let affordabilityChart;
+    function renderChart(existing, recommendedTotal, maximumTotal, income){const canvas=document.getElementById('affordabilityChart');if(affordabilityChart)affordabilityChart.destroy();affordabilityChart=new Chart(canvas,{type:'bar',data:{labels:['Existing EMIs','Recommended total EMI','Maximum total EMI'],datasets:[{label:'Monthly amount',data:[existing,recommendedTotal,maximumTotal],backgroundColor:['#9CA3AF','rgba(16,185,129,.65)','#10B981'],borderColor:['#9CA3AF','#10B981','#10B981'],borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:getComputedStyle(document.body).getPropertyValue('--text-secondary'),font:{family:'Work Sans',size:12}}},tooltip:{callbacks:{label:context=>formatCurrency(context.raw)+' / month'}}},scales:{x:{ticks:{color:getComputedStyle(document.body).getPropertyValue('--text-muted'),font:{family:'Work Sans',size:11}},grid:{display:false}},y:{beginAtZero:true,max:Math.max(income*.45,maximumTotal*1.15),ticks:{color:getComputedStyle(document.body).getPropertyValue('--text-muted'),font:{family:'IBM Plex Mono',size:11},callback:value=>formatAmount(value)},grid:{color:getComputedStyle(document.body).getPropertyValue('--border')}}}}});}
+    function calculate(){const income=Number(document.getElementById('monthlyIncome').value)||0;const existing=Number(document.getElementById('existingEmi').value)||0;const down=Number(document.getElementById('downPayment').value)||20;const rate=Number(document.getElementById('interestRate').value)||8.5;const years=Number(document.getElementById('tenure').value)||20;const recommendedAvailable=Math.max(0,income*.30-existing);const maximumAvailable=Math.max(0,income*.40-existing);const recommendedLoan=loanForEmi(recommendedAvailable,rate,years);const maximumLoan=loanForEmi(maximumAvailable,rate,years);const factor=1-down/100;const recommendedPrice=factor>0?recommendedLoan/factor:0;const maximumPrice=factor>0?maximumLoan/factor:0;document.getElementById('recommendedPrice').textContent=formatCurrency(recommendedPrice);document.getElementById('maximumPrice').textContent=formatCurrency(maximumPrice);document.getElementById('recommendedEmi').textContent=formatCurrency(recommendedAvailable+existing);document.getElementById('requiredDownPayment').textContent=formatCurrency(recommendedPrice*down/100);document.getElementById('downPaymentSub').textContent=down.toFixed(0)+'% of recommended price';renderChart(existing,recommendedAvailable+existing,maximumAvailable+existing,income);const status=document.getElementById('statusMessage');if(income<=0||recommendedAvailable<=0){status.innerHTML='<strong>Not affordable at these inputs.</strong> Existing EMIs already use the recommended 30% income limit. Increase income, reduce existing debt, or add a larger down payment.';}else{status.innerHTML='<strong>Comfortable range:</strong> target the recommended home price for more room for savings and living costs. The maximum figure is a ceiling, not a target.';}}
+    document.getElementById('calculateBtn').addEventListener('click',calculate); document.getElementById('resetBtn').addEventListener('click',()=>{[['monthlyIncome',150000],['existingEmi',20000],['downPayment',20],['interestRate',8.5],['tenure',20]].forEach(([id,value])=>{document.getElementById(id).value=value;document.getElementById(id+'Range').value=value;});fields.forEach(([number,,valueId,formatter])=>document.getElementById(valueId).textContent=formatter(document.getElementById(number).value));calculate();}); calculate();
+  </script>
+</body>
+</html>
