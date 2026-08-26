@@ -71,6 +71,7 @@
     .drawer .sidebar-link { margin-bottom:8px; }
     @media (max-width:768px) { .header { padding:16px; flex-direction:column; align-items:stretch; gap:12px; } .logo-link { flex-direction:column; align-items:center; gap:8px; text-align:center; } .header-actions { width:100%; justify-content:space-between; } .action-left { order:0; } .action-right { order:1; } .hamburger-btn { display:flex; } .home-btn { display:flex; } .layout { flex-direction:column; padding:16px; gap:16px; } #shared-sidebar { display:none; } .main-content { width:100%; order:2; } .form-grid { grid-template-columns:1fr; } .results-grid { grid-template-columns:1fr; } .card { padding:16px; } }
   </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
 </head>
 <body>
   <header class="header">
@@ -79,6 +80,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" /></svg>
       </div>
       <p class="wordmark">SD Wealth · SWP Calculator</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
     </a>
     <div class="header-actions">
       <div class="action-left">
@@ -107,11 +109,11 @@
       <div class="card">
         <h2>SWP Calculator</h2>
         <div class="form-grid">
-          <div class="field"><label>Initial Investment (₹)</label><input type="number" id="initialInvestment" value="5000000" min="0" /></div>
-          <div class="field"><label>Monthly Withdrawal (₹)</label><input type="number" id="monthlyWithdrawal" value="30000" min="0" /></div>
-          <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="annualReturn" value="8" min="0" max="100" step="0.1" /></div>
-          <div class="field"><label>Time Period (Years)</label><input type="number" id="years" value="20" min="1" max="100" /></div>
-          <div class="field"><label>Annual Withdrawal Step-up (%)</label><input type="number" id="stepUp" value="5" min="0" max="100" step="0.5" /></div>
+          <div class="field"><label>Initial Investment (₹)</label><div class="field-slider-row"><input type="number" id="initialInvestment" value="5000000" min="0" max="100000000" step="10000" /><span class="slider-value" id="initialInvestmentCompact">50.00 Lakh</span><input type="range" id="initialInvestmentRange" min="0" max="100000000" value="5000000" step="10000" aria-label="Initial investment slider" /></div></div>
+          <div class="field"><label>Monthly Withdrawal (₹)</label><div class="field-slider-row"><input type="number" id="monthlyWithdrawal" value="30000" min="0" max="1000000" step="500" /><span class="slider-value" id="monthlyWithdrawalCompact">30.0 Thousand</span><input type="range" id="monthlyWithdrawalRange" min="0" max="1000000" value="30000" step="500" aria-label="Monthly withdrawal slider" /></div></div>
+          <div class="field"><label>Expected Annual Return (%)</label><div class="field-slider-row"><input type="number" id="annualReturn" value="8" min="0" max="100" step="0.1" /><span class="slider-value" id="annualReturnCompact">8.0%</span><input type="range" id="annualReturnRange" min="0" max="100" value="8" step="0.1" aria-label="Annual return slider" /></div></div>
+          <div class="field"><label>Time Period (Years)</label><div class="field-slider-row"><input type="number" id="years" value="20" min="1" max="100" step="1" /><span class="slider-value" id="yearsCompact">20 years</span><input type="range" id="yearsRange" min="1" max="100" value="20" step="1" aria-label="Time period slider" /></div></div>
+          <div class="field"><label>Annual Withdrawal Step-up (%)</label><div class="field-slider-row"><input type="number" id="stepUp" value="5" min="0" max="100" step="0.5" /><span class="slider-value" id="stepUpCompact">5.0%</span><input type="range" id="stepUpRange" min="0" max="100" value="5" step="0.5" aria-label="Annual withdrawal step-up slider" /></div></div>
         </div>
         <div style="margin-top: 20px;"><button class="btn" id="calculateBtn">Calculate</button></div>
         <div class="results-grid" id="results"></div>
@@ -133,6 +135,7 @@
   <script>
     injectSharedSidebar('swp', '../');
     injectMobileDrawer('swp', '../');
+    initSharedClock();
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const drawerCloseBtn = document.getElementById('drawerCloseBtn');
     const drawerOverlay = document.getElementById('drawerOverlay');
@@ -157,6 +160,24 @@
 
     function getCSSVar(varName) { return getComputedStyle(document.body).getPropertyValue(varName).trim(); }
     function updateChartColors() { if (!chart) return; chart.data.datasets[0].borderColor = getCSSVar('--accent'); chart.data.datasets[0].backgroundColor = getCSSVar('--accent') + '20'; chart.data.datasets[1].borderColor = getCSSVar('--neutral'); chart.data.datasets[1].backgroundColor = getCSSVar('--neutral') + '20'; chart.options.scales.x.ticks.color = getCSSVar('--text-muted'); chart.options.scales.y.ticks.color = getCSSVar('--text-muted'); chart.options.scales.x.grid.color = getCSSVar('--chart-grid'); chart.options.scales.y.grid.color = getCSSVar('--chart-grid'); chart.options.plugins.legend.labels.color = getCSSVar('--text-secondary'); chart.update(); }
+
+    function formatIndianCompactWords(value) { const amount = Number(value) || 0; if (amount >= 10000000) return (amount / 10000000).toFixed(2) + ' Crore'; if (amount >= 100000) return (amount / 100000).toFixed(2) + ' Lakh'; if (amount >= 1000) return (amount / 1000).toFixed(1) + ' Thousand'; return amount.toFixed(0); }
+
+    function bindSliderPair(numberId, rangeId, compactId, formatter) {
+      const numberInput = document.getElementById(numberId);
+      const rangeInput = document.getElementById(rangeId);
+      const compact = document.getElementById(compactId);
+      const sync = (value) => { rangeInput.value = value; compact.textContent = formatter(value); };
+      numberInput.addEventListener('input', () => sync(numberInput.value));
+      rangeInput.addEventListener('input', () => { numberInput.value = rangeInput.value; compact.textContent = formatter(rangeInput.value); });
+      sync(numberInput.value);
+    }
+
+    bindSliderPair('initialInvestment', 'initialInvestmentRange', 'initialInvestmentCompact', formatIndianCompactWords);
+    bindSliderPair('monthlyWithdrawal', 'monthlyWithdrawalRange', 'monthlyWithdrawalCompact', formatIndianCompactWords);
+    bindSliderPair('annualReturn', 'annualReturnRange', 'annualReturnCompact', value => Number(value).toFixed(1) + '%');
+    bindSliderPair('years', 'yearsRange', 'yearsCompact', value => Number(value) + ' years');
+    bindSliderPair('stepUp', 'stepUpRange', 'stepUpCompact', value => Number(value).toFixed(1) + '%');
 
     function calculateSWP() {
       const initial = parseFloat(document.getElementById('initialInvestment').value) || 0;

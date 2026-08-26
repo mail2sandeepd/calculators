@@ -124,3 +124,84 @@ function toggleMobileDrawer(forceClose = false) {
     overlay.classList.toggle('open');
   }
 }
+
+/**
+ * Displays the current local system time in the shared header.
+ */
+function initSharedClock() {
+  const clock = document.getElementById('systemTime');
+  if (!clock) return;
+
+  const updateClock = () => {
+    clock.textContent = new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'medium'
+    }).format(new Date());
+  };
+
+  updateClock();
+  window.setInterval(updateClock, 1000);
+  initAmountWords();
+  initSharedSliders();
+}
+
+function initSharedSliders() {
+  const sliders = [...document.querySelectorAll('input[type="range"]')];
+  if (!sliders.length) return;
+
+  sliders.forEach((slider) => {
+    if (slider.dataset.sharedSliderReady === 'true') return;
+    slider.dataset.sharedSliderReady = 'true';
+  });
+}
+
+function formatIndianAmountWords(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return '';
+  const absolute = Math.abs(amount);
+  if (absolute >= 10000000) return `${(amount / 10000000).toFixed(2)} Cr`;
+  if (absolute >= 100000) return `${(amount / 100000).toFixed(2)} Lakh`;
+  if (absolute >= 1000) return `${(amount / 1000).toFixed(2)} K`;
+  return amount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
+
+function addAmountWords(input) {
+  if (input.dataset.amountWordsReady === 'true') return;
+  const field = input.closest('.field, .param-row') || input.parentElement;
+  if (!field) return;
+
+  const hasCustomCompactValue = field.querySelector('.compact, .param-compact');
+  if (hasCustomCompactValue) return;
+
+  const idText = `${input.id || ''} ${input.name || ''}`.toLowerCase();
+  const skipPattern = /(birth.*year|year|age|rate|percent|return|step[- ]?up|stepup|stop|duration|tenure|horizon|annuity.*percent|expected.*return|withdrawal.*start|loan.*tenure|interest.*rate)/i;
+  if (skipPattern.test(idText)) return;
+
+  const amountPattern = /(amount|investment|invest|contribution|savings|lumpsum|prepayment|cashflow|price|cost|principal|sip|monthly.*(sip|invest|contribution)|existing.*(nps|savings)|current.*(expense|savings)|loan.*amount|purchase.*price)/i;
+  if (!amountPattern.test(idText)) return;
+
+  const words = document.createElement('div');
+  words.className = 'amount-words';
+  input.dataset.amountWordsReady = 'true';
+  field.appendChild(words);
+
+  const update = () => {
+    words.textContent = formatIndianAmountWords(input.value);
+  };
+  input.addEventListener('input', update);
+  update();
+}
+
+function initAmountWords() {
+  if (document.getElementById('root')) return;
+  if (document.querySelector('.compact, .param-compact')) return;
+
+  document.querySelectorAll('input[type="number"]').forEach(input => {
+    const idText = `${input.id || ''} ${input.name || ''}`.toLowerCase();
+    const skipPattern = /(birth.*year|year|age|rate|percent|return|step[- ]?up|stepup|stop|duration|tenure|horizon|annuity.*percent|expected.*return|withdrawal.*start|loan.*tenure|interest.*rate)/i;
+    if (skipPattern.test(idText)) return;
+
+    const amountPattern = /(amount|investment|invest|contribution|savings|lumpsum|prepayment|cashflow|price|cost|principal|sip|monthly.*(sip|invest|contribution)|existing.*(nps|savings)|current.*(expense|savings)|loan.*amount|purchase.*price)/i;
+    if (amountPattern.test(idText)) addAmountWords(input);
+  });
+}

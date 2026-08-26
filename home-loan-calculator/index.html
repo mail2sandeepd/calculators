@@ -218,12 +218,14 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px;
     }
-    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .field label { font-size: 13px; color: var(--text-secondary); }
     .field .input-row {
       display: flex;
       align-items: center;
       gap: 12px;
+      min-width: 0;
+      flex-wrap: nowrap;
     }
     .field .input-row input[type="number"] {
       width: 120px;
@@ -248,7 +250,8 @@
       margin: 0;
     }
     .field .input-row input[type="range"] {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 0;
       height: 4px;
       -webkit-appearance: none;
       appearance: none;
@@ -281,8 +284,13 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
       color: var(--text-muted);
-      min-width: 50px;
+      min-width: 52px;
+      max-width: 76px;
       text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
     }
     .field .hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
@@ -335,7 +343,7 @@
     }
     .chart-container { position: relative; height: 240px; padding: 8px 0; }
     .chart-container canvas { width: 100% !important; height: 100% !important; }
-    .chart-container.donut { height: 220px; }
+    .chart-container.donut { height: 280px; }
 
     /* ============ TABLE ============ */
     .table-container { margin-top: 24px; }
@@ -480,6 +488,7 @@
       .results-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="../shared-theme.css" />
 </head>
 <body>
 
@@ -493,6 +502,7 @@
         </svg>
       </div>
       <p class="wordmark">SD Wealth · Home Loan</p>
+      <span class="system-time" id="systemTime" aria-live="polite"></span>
     </a>
 
     <div class="header-actions">
@@ -659,6 +669,7 @@
     // Inject shared sidebar and mobile drawer
     injectSharedSidebar('homeloan', '../');
     injectMobileDrawer('homeloan', '../');
+    initSharedClock();
 
     // Drawer controls
     const hamburgerBtn = document.getElementById('hamburgerBtn');
